@@ -1,0 +1,29 @@
+{
+  "name": "rexsoftware/smokescreen",
+  "authors": [
+    {
+      "name": "Jodie Dunlop",
+      "email": "jodie.dunlop@rexsoftware.com.au"
+    }
+  ],
+  "repositories": [
+    {"type": "composer", "url": "https://repo.packagist.com/rexsoftware/"},
+    {"packagist.org": false}
+  ],
+  "require-dev": {
+    "phpunit/phpunit": "^6.4"
+  },
+  "autoload": {
+    "psr-4": {
+      "RexSoftware\\Smokescreen\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "RexSoftware\\Smokescreen\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "tests": "phpunit"
+  }
+}
