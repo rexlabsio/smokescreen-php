@@ -2,13 +2,13 @@
 
 ## Overview
 
-This package tightly integrates the `rexsoftware/smokescreen` (Vanilla PHP) package with the Laravel framework, to provide
-the convenience and minimal boilerplate when working with Laravel applications. 
+This package is a vanilla PHP (with no dependencies) library  for transforming and serializing data; typically RESTful API responses.
 
 ## Usage
 
 ```php
 <?php
+require 'vendor/autoload.php'
 use RexSoftware\Smokescreen\Smokescreen;
 
 class MyController
