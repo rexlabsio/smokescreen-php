@@ -15,7 +15,7 @@ use RexSoftware\Smokescreen\Includes\IncludeParser;
 class IncludesTest extends TestCase
 {
     /**
-     * Splice doesn't seem
+     * Test that splice returns the child scoped Includes instance
      */
     public function test_splice() {
         $includes = (new IncludeParser)->parse('cast{actor,movie}');
