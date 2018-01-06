@@ -235,7 +235,7 @@ class Includes
             if (strpos($key, "{$parentKey}.") === 0) {
                 // Found a match, chop off the parent key
                 $keys[] = preg_replace(
-                    '/^' . preg_quote("{$parentKey}\.", '/') . '/', // Starts with parent
+                    '/^' . preg_quote($parentKey.'.', '/') . '/', // Starts with parent
                     '', // Remove it
                     $key
                 );
