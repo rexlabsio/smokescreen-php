@@ -307,19 +307,19 @@ class Smokescreen implements \JsonSerializable
         }
 
         // Add includes to the payload
+        $includeMap = $transformer->getIncludeMap();
         foreach ($mappedIncludeKeys as $includeKey) {
-            $data[$includeKey] = $this->serializeResource(
-                $this->executeTransformerInclude($transformer, $includeKey, $item),
-                $includes->splice($includeKey)
-            );
+            /** @var ResourceInterface $resource */
+            $resource = $this->executeTransformerInclude($transformer, $includeMap[$includeKey], $item);
+            $data[$resource->getResourceKey() ?: $includeKey] = $this->serializeResource($resource, $includes->splice($includeKey));
         }
 
         return $data;
     }
 
-    protected function executeTransformerInclude($transformer, $includeKey, $item)
+    protected function executeTransformerInclude($transformer, $include, $item)
     {
-        return \call_user_func([$transformer, 'include' . ucfirst($includeKey)], $item);
+        return \call_user_func([$transformer, $include['method']], $item);
     }
 
     /**
