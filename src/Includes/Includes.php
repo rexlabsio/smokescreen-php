@@ -137,9 +137,9 @@ class Includes
      */
     public function baseKeys(): array
     {
-        return \array_filter($this->keys(), function ($key) {
+        return \array_values(\array_filter($this->keys(), function ($key) {
             return \strpos($key, '.') === false;
-        });
+        }));
     }
 
     /**
