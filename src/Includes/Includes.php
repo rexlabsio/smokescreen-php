@@ -137,9 +137,9 @@ class Includes
      */
     public function baseKeys(): array
     {
-        return \array_filter($this->keys(), function ($key) {
+        return \array_values(\array_filter($this->keys(), function ($key) {
             return \strpos($key, '.') === false;
-        });
+        }));
     }
 
     /**
@@ -235,7 +235,7 @@ class Includes
             if (strpos($key, "{$parentKey}.") === 0) {
                 // Found a match, chop off the parent key
                 $keys[] = preg_replace(
-                    '/^' . preg_quote("{$parentKey}\.", '/') . '/', // Starts with parent
+                    '/^' . preg_quote($parentKey.'.', '/') . '/', // Starts with parent
                     '', // Remove it
                     $key
                 );

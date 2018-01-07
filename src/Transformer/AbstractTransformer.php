@@ -87,19 +87,19 @@ class AbstractTransformer implements TransformerInterface
                             throw new \InvalidArgumentException("Invalid key '{$directive}' for {$includeKey}");
                     }
                 }
-
-                if (!isset($settings['relation'])) {
-                    $settings['relation'] = [];
-                }
-                if (!isset($settings['method'])) {
-                    $settings['method'] = 'include' . StrHelper::studlyCase($includeKey);
-                }
-                if (!isset($settings['default'])) {
-                    $settings['default'] = false;
-                }
-
-                $map[$includeKey] = $settings;
             }
+
+            if (!isset($settings['relation'])) {
+                $settings['relation'] = [];
+            }
+            if (!isset($settings['method'])) {
+                $settings['method'] = 'include' . StrHelper::studlyCase($includeKey);
+            }
+            if (!isset($settings['default'])) {
+                $settings['default'] = false;
+            }
+
+            $map[$includeKey] = $settings;
         }
 
         return $map;

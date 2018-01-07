@@ -453,6 +453,16 @@ Alternative to `$this->getScope()->getIncludes()->getParameters()`
 
 Alternative to `$this->getScope()->getIncludes()->getParameter($includeKey)`
 
+## Tests
+
+To run phpunit tests:
+
+```bash
+composer run tests
+```
+
+Feel free to add more tests.
+
 ## FAQ
 
 ### Why call it it "Smokescreen"
