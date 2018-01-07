@@ -1,12 +1,4 @@
 <?php
-/**
- * smokescreen
- *
- * User: rhys
- * Date: 6/1/18
- * Time: 10:42 PM
- */
-
 namespace RexSoftware\Smokescreen\Tests;
 
 use PHPUnit\Framework\TestCase;
@@ -14,10 +6,8 @@ use RexSoftware\Smokescreen\Transformer\AbstractTransformer;
 
 class AbstractTransformerTest extends TestCase
 {
-    /**
-     * Test that includes defined as array values are parsed correctly
-     */
-    public function test_get_includes_array() {
+    /** @test */
+    public function can_declare_includes_with_plain_array() {
         $transformer = new class extends AbstractTransformer {
             protected $includes = [
                 'user',
@@ -30,10 +20,8 @@ class AbstractTransformerTest extends TestCase
         ], $transformer->getAvailableIncludes());
     }
 
-    /**
-     * Test that includes defined as assoc are parsed
-     */
-    public function test_get_includes_assoc() {
+    /** @test */
+    public function can_declare_includes_with_assoc_array() {
         $transformer = new class extends AbstractTransformer {
             protected $includes = [
                 'user' => 'default',
@@ -45,5 +33,4 @@ class AbstractTransformerTest extends TestCase
             'user', 'account'
         ], $transformer->getAvailableIncludes());
     }
-
 }
