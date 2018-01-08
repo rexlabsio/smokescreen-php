@@ -1,6 +1,7 @@
 <?php
 namespace RexSoftware\Smokescreen;
 
+use RexSoftware\Smokescreen\Exception\InvalidTransformerException;
 use RexSoftware\Smokescreen\Exception\MissingResourceException;
 use RexSoftware\Smokescreen\Exception\MissingTransformerException;
 use RexSoftware\Smokescreen\Includes\IncludeParser;
@@ -241,6 +242,7 @@ class Smokescreen implements \JsonSerializable
      * @param mixed|TransformerInterface|callable|null $transformer
      * @param Includes $includes
      * @return array
+     * @throws \RexSoftware\Smokescreen\Exception\InvalidTransformerException
      */
     protected function transformItem($item, $transformer, Includes $includes): array
     {
@@ -255,23 +257,20 @@ class Smokescreen implements \JsonSerializable
 
         // Otherwise, we expect a transformer object
         if (!$transformer instanceof TransformerInterface) {
-            throw new \InvalidArgumentException('Transformer must implement TransformerInterface');
+            throw new InvalidTransformerException('Transformer must implement TransformerInterface');
         }
 
         // We need to double-check it has a transform() method - perhaps this could be done on set?
         // Since PHP doesn't support contravariance, we can't define the transform() signature on the interface
         if (!method_exists($transformer, 'transform')) {
-            throw new \InvalidArgumentException('Transformer must provide a transform() method');
+            throw new InvalidTransformerException('Transformer must provide a transform() method');
         }
 
         // Only these keys may be mapped
         $availableIncludeKeys = $transformer->getAvailableIncludes();
 
-        // Wanted includes is a merge between the default includes and the ones requested
-        $wantIncludeKeys = array_unique(array_merge(
-            $transformer->getDefaultIncludes(),
-            $includes->baseKeys()
-        ));
+        // Wanted includes is a either the explicit includes requested, or the defaults for the transformer.
+        $wantIncludeKeys = $includes->baseKeys() ?: $transformer->getDefaultIncludes();
 
         // Find the keys that are declared in the $includes of the transformer
         $mappedIncludeKeys = array_filter($wantIncludeKeys, function ($includeKey) use ($availableIncludeKeys) {
@@ -283,11 +282,14 @@ class Smokescreen implements \JsonSerializable
             return !\in_array($includeKey, $mappedIncludeKeys, true);
         });
 
-        // If defaultProps is defined, we will only return these props by default
-        $defaultProps = $transformer->getDefaultProps();
-        if (!empty($defaultProps) && empty($filterProps)) {
-            // We didn't get any filter props, so use the default
-            $filterProps = $defaultProps;
+        // Were any filter props explicitly provided?
+        // If not, see if defaults were provided from the transformer.
+        if (empty($filterProps)) {
+            // No explicit props provided
+            $defaultProps = $transformer->getDefaultProps();
+            if (!empty($defaultProps)) {
+                $filterProps = $defaultProps;
+            }
         }
 
         // Get the base data from the transformation
