@@ -10,6 +10,9 @@ class IncludeParser implements IncludeParserInterface
      */
     public function parse(string $str): Includes
     {
+        // Ignore whitepsace
+        $str = \preg_replace('/\s/', '', $str);
+
         if (empty($str)) {
             return new Includes();
         }
