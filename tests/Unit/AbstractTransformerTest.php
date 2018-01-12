@@ -1,5 +1,5 @@
 <?php
-namespace RexSoftware\Smokescreen\Tests;
+namespace RexSoftware\Smokescreen\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
 use RexSoftware\Smokescreen\Transformer\AbstractTransformer;
