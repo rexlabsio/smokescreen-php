@@ -81,4 +81,20 @@ class SmokescreenTest extends TestCase
         $this->assertEquals('tkn_123456', $userObj->user_api_token->token);
 //        $this->assertEquals($user, $smokescreen->toArray());
     }
+
+    /** @test */
+    public function transformer_should_not_be_required() {
+        $user = [
+            'username' => 'phillip_j_fry',
+            'user_api_token' => [
+                'token' => 'tkn_123456'
+            ]
+        ];
+
+        /* assert */
+        $smokescreen = (new Smokescreen)
+            ->item($user);
+
+        $this->assertEquals($user, $smokescreen->toArray());
+    }
 }
