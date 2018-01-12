@@ -169,6 +169,7 @@ class Smokescreen implements \JsonSerializable
     /**
      * Return the transformed data as an array
      * @return array
+     * @throws \RexSoftware\Smokescreen\Exception\InvalidTransformerException
      * @throws \RexSoftware\Smokescreen\Exception\MissingResourceException
      */
     public function toArray(): array
@@ -187,9 +188,9 @@ class Smokescreen implements \JsonSerializable
 
     /**
      * @param ResourceInterface $resource
-     * @param SerializerInterface $serializer
      * @param Includes $includes
      * @return array
+     * @throws \RexSoftware\Smokescreen\Exception\InvalidTransformerException
      */
     protected function serializeResource(ResourceInterface $resource, Includes $includes): array
     {

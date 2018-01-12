@@ -39,7 +39,6 @@ class Compiler
     /**
      * @param Scope $scope
      * @return array
-     * @throws \RexSoftware\Smokescreen\Exception\MissingTransformerException
      */
     protected function serialize(Scope $scope): array
     {
