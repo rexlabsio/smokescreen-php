@@ -3,7 +3,6 @@ namespace RexSoftware\Smokescreen;
 
 use RexSoftware\Smokescreen\Exception\InvalidTransformerException;
 use RexSoftware\Smokescreen\Exception\MissingResourceException;
-use RexSoftware\Smokescreen\Exception\MissingTransformerException;
 use RexSoftware\Smokescreen\Includes\IncludeParser;
 use RexSoftware\Smokescreen\Includes\IncludeParserInterface;
 use RexSoftware\Smokescreen\Includes\Includes;
@@ -158,7 +157,6 @@ class Smokescreen implements \JsonSerializable
      * Return the transformed data as an array
      * @return array
      * @throws \RexSoftware\Smokescreen\Exception\MissingResourceException
-     * @throws \RexSoftware\Smokescreen\Exception\MissingTransformerException
      */
     public function toArray(): array
     {
@@ -182,11 +180,6 @@ class Smokescreen implements \JsonSerializable
      */
     protected function serializeResource(ResourceInterface $resource, Includes $includes): array
     {
-        // Maybe we can remove this check
-        if (!$resource->hasTransformer()) {
-            throw new MissingTransformerException('No transformer has been defined for the resource');
-        }
-
         // If no serializer is explicitly set, we'll provide one
         $serializer = $this->serializer ?? new DefaultSerializer();
 
