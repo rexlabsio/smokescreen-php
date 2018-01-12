@@ -49,9 +49,8 @@ class DefaultSerializer implements SerializerInterface
      */
     public function null()
     {
-        return ['data' => []];
+        return [];
     }
-
 
     /**
      * Serialize the paginator.
