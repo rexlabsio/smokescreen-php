@@ -2,6 +2,7 @@
 namespace RexSoftware\Smokescreen;
 
 use RexSoftware\Smokescreen\Exception\InvalidTransformerException;
+use RexSoftware\Smokescreen\Exception\JsonEncodeException;
 use RexSoftware\Smokescreen\Exception\MissingResourceException;
 use RexSoftware\Smokescreen\Includes\IncludeParser;
 use RexSoftware\Smokescreen\Includes\IncludeParserInterface;
@@ -130,16 +131,26 @@ class Smokescreen implements \JsonSerializable
      * Outputs a JSON string of the resulting transformed and serialized data.
      * @param int $options
      * @return string
-     * @throws \RuntimeException
+     * @throws \RexSoftware\Smokescreen\Exception\JsonEncodeException
      */
     public function toJson($options = 0): string
     {
         $json = json_encode($this->jsonSerialize(), $options);
         if (JSON_ERROR_NONE !== json_last_error()) {
-            throw new \RuntimeException(json_last_error_msg());
+            throw new JsonEncodeException(json_last_error_msg());
         }
 
         return $json;
+    }
+
+    /**
+     * Returns an object representation of the transformed/serialized data.
+     * @return \stdClass
+     * @throws \RexSoftware\Smokescreen\Exception\JsonEncodeException
+     */
+    public function toObject()
+    {
+        return json_decode($this->toJson(), false);
     }
 
     /**
@@ -147,6 +158,8 @@ class Smokescreen implements \JsonSerializable
      * Implements PHP's JsonSerializable interface.
      * @return array
      * @see Smokescreen::toArray()
+     * @throws \RexSoftware\Smokescreen\Exception\InvalidTransformerException
+     * @throws \RexSoftware\Smokescreen\Exception\MissingResourceException
      */
     public function jsonSerialize(): array
     {

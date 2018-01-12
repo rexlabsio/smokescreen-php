@@ -7,7 +7,7 @@
  * Time: 4:15 PM
  */
 
-namespace RexSoftware\Smokescreen\Tests;
+namespace RexSoftware\Smokescreen\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
 use RexSoftware\Smokescreen\Transformer\AbstractTransformer;
@@ -56,5 +56,29 @@ class SmokescreenTest extends TestCase
         $smokescreen = (new Smokescreen)->parseIncludes('user_api_token')->item($user, $transformer);
 
         $this->assertEquals($user, $smokescreen->toArray());
+    }
+
+    /** @test */
+    public function can_output_object()
+    {
+        $user = [
+            'username' => 'phillip_j_fry',
+            'user_api_token' => [
+                'token' => 'tkn_123456'
+            ]
+        ];
+
+        /* assert */
+        $smokescreen = (new Smokescreen)
+            ->item($user);
+
+        $userObj = $smokescreen->toObject();
+        $this->assertInstanceOf(\stdClass::class, $userObj);
+        $this->assertObjectHasAttribute('username', $userObj);
+        $this->assertObjectHasAttribute('user_api_token', $userObj);
+        $this->assertObjectHasAttribute('token', $userObj->user_api_token);
+        $this->assertEquals('phillip_j_fry', $userObj->username);
+        $this->assertEquals('tkn_123456', $userObj->user_api_token->token);
+//        $this->assertEquals($user, $smokescreen->toArray());
     }
 }
