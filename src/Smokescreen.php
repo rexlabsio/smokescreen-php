@@ -324,7 +324,10 @@ class Smokescreen implements \JsonSerializable
         foreach ($mappedIncludeKeys as $includeKey) {
             /** @var ResourceInterface $resource */
             $resource = $this->executeTransformerInclude($transformer, $includeMap[$includeKey], $item);
-            $data[$resource->getResourceKey() ?: $includeKey] = $this->serializeResource($resource, $includes->splice($includeKey));
+            $data[$resource->getResourceKey() ?: $includeKey] =
+                !$resource->getData()
+                ? null
+                : $this->serializeResource($resource, $includes->splice($includeKey));
         }
 
         return $data;
