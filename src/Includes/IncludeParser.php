@@ -115,7 +115,6 @@ class IncludeParser implements IncludeParserInterface
 
         // Finally handle any non-empty buffer
         if (!empty($state['buffer'])) {
-            echo "{$state['buffer']}\n";
             $state['keys'][] = $this->prefixParentKeys($state['buffer'], $state['parent']);
             $state['buffer'] = '';
         }
