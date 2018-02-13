@@ -4,6 +4,7 @@ namespace RexSoftware\Smokescreen;
 use RexSoftware\Smokescreen\Exception\InvalidTransformerException;
 use RexSoftware\Smokescreen\Exception\JsonEncodeException;
 use RexSoftware\Smokescreen\Exception\MissingResourceException;
+use RexSoftware\Smokescreen\Exception\UnhandledResourceType;
 use RexSoftware\Smokescreen\Includes\IncludeParser;
 use RexSoftware\Smokescreen\Includes\IncludeParserInterface;
 use RexSoftware\Smokescreen\Includes\Includes;
@@ -166,6 +167,7 @@ class Smokescreen implements \JsonSerializable
      * @param ResourceInterface|mixed $resource
      * @param Includes                $includes
      * @return array
+     * @throws \RexSoftware\Smokescreen\Exception\UnhandledResourceType
      * @throws \RexSoftware\Smokescreen\Exception\InvalidTransformerException
      */
     protected function serializeResource($resource, Includes $includes): array
@@ -183,6 +185,10 @@ class Smokescreen implements \JsonSerializable
             $output = $this->serializeItem($resource, $includes);
         } elseif (\is_array($resource)) {
             $output = $resource;
+        } elseif (\is_object($resource) && method_exists($resource, 'toArray')) {
+            $output = $resource->toArray();
+        } else {
+            throw new UnhandledResourceType('Unable to serialize resource of type ' . \gettype($resource));
         }
 
         return $output;
