@@ -178,12 +178,8 @@ class Smokescreen implements \JsonSerializable
             throw new MissingResourceException('No resource has been defined to transform');
         }
 
-        if ($this->includes === null) {
-            $this->parseIncludes('');
-        }
-
         // Kick of serialization of the resource
-        return $this->serializeResource($this->resource, $this->includes);
+        return $this->serializeResource($this->resource, $this->getIncludes());
     }
 
     /**
@@ -340,11 +336,11 @@ class Smokescreen implements \JsonSerializable
 
     /**
      * Get the current includes object
-     * @return Includes|null
+     * @return Includes
      */
-    public function getIncludes()
+    public function getIncludes(): Includes
     {
-        return $this->includes;
+        return $this->includes ?? new Includes();
     }
 
     /**
