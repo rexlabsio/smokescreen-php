@@ -2,6 +2,7 @@
 
 namespace RexSoftware\Smokescreen\Resource;
 
+use RexSoftware\Smokescreen\Serializer\SerializerInterface;
 use RexSoftware\Smokescreen\Transformer\TransformerInterface;
 
 interface ResourceInterface
@@ -55,4 +56,26 @@ interface ResourceInterface
      * @return mixed
      */
     public function getRelationships(): array;
+
+
+    /**
+     * Get the serializer.
+     *
+     * @return callable|SerializerInterface|null
+     */
+    public function getSerializer();
+
+    /**
+     * @return boolean
+     */
+    public function hasSerializer(): bool;
+    
+    /**
+     * Set the serializer.
+     *
+     * @param callable|SerializerInterface|null
+     * @return $this
+     */
+    public function setSerializer($serializer);
+
 }

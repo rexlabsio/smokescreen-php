@@ -2,7 +2,9 @@
 
 namespace RexSoftware\Smokescreen\Resource;
 
+use RexSoftware\Smokescreen\Exception\InvalidSerializerException;
 use RexSoftware\Smokescreen\Exception\InvalidTransformerException;
+use RexSoftware\Smokescreen\Serializer\SerializerInterface;
 use RexSoftware\Smokescreen\Transformer\TransformerInterface;
 
 abstract class AbstractResource implements ResourceInterface
@@ -36,11 +38,18 @@ abstract class AbstractResource implements ResourceInterface
     protected $transformer;
 
     /**
+     * Provide a custom serializer for this resource.
+     *
+     * @var callable|SerializerInterface|null
+     */
+    protected $serializer;
+
+    /**
      * Create a new resource instance.
      *
-     * @param mixed $data
+     * @param mixed                              $data
      * @param callable|TransformerInterface|null $transformer
-     * @param string $resourceKey
+     * @param string                             $resourceKey
      */
     public function __construct($data = null, $transformer = null, $resourceKey = null)
     {
@@ -137,7 +146,7 @@ abstract class AbstractResource implements ResourceInterface
      * Set the meta data.
      *
      * @param string $metaKey
-     * @param mixed $metaValue
+     * @param mixed  $metaValue
      *
      * @return $this
      */
@@ -186,17 +195,55 @@ abstract class AbstractResource implements ResourceInterface
     /**
      * Set the transformer.
      *
-     * @param callable|TransformerInterface $transformer
+     * @param callable|TransformerInterface|null $transformer
      *
      * @return $this
      * @throws InvalidTransformerException
      */
     public function setTransformer($transformer)
     {
-        if (!$transformer instanceof TransformerInterface && !is_callable($transformer, true)) {
-            throw new InvalidTransformerException('Transformer must be a callable or implement TransformerInterface');
+        if ($transformer !== null) {
+            if (!$transformer instanceof TransformerInterface && !\is_callable($transformer, true)) {
+                throw new InvalidTransformerException('Transformer must be a callable or implement TransformerInterface');
+            }
         }
+
         $this->transformer = $transformer;
+
+        return $this;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function hasSerializer(): bool
+    {
+        return $this->serializer !== null;
+    }
+
+    /**
+     * @return callable|SerializerInterface|null
+     */
+    public function getSerializer()
+    {
+        return $this->serializer;
+    }
+
+    /**
+     * Sets a custom serializer to be used for this resource
+     *
+     * @param callable|SerializerInterface|null $serializer
+     * @throws InvalidSerializerException
+     * @return $this
+     */
+    public function setSerializer($serializer)
+    {
+        if ($serializer !== null) {
+            if (!($serializer instanceof SerializerInterface || \is_callable($serializer))) {
+                throw new InvalidSerializerException('Serializer must be one of: callable, SerializerInterface, or null');
+            }
+        }
+        $this->serializer = $serializer;
 
         return $this;
     }

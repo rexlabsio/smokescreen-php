@@ -10,37 +10,44 @@
 namespace RexSoftware\Smokescreen\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
-use RexSoftware\Smokescreen\Transformer\AbstractTransformer;
+use RexSoftware\Smokescreen\Serializer\DefaultSerializer;
 use RexSoftware\Smokescreen\Smokescreen;
+use RexSoftware\Smokescreen\Transformer\AbstractTransformer;
 
 class SmokescreenTest extends TestCase
 {
     /** @test */
-    public function custom_include_method_used() {
+    public function custom_include_method_used()
+    {
         /* Test that a custom include method is called on the transformer */
 
-        $transformer = new class extends AbstractTransformer {
+        $transformer = new class extends AbstractTransformer
+        {
 
             public $tokenTransformer;
             protected $includes = [
-                'user_api_token' => 'method:includeTheUserApiToken'
+                'user_api_token' => 'method:includeTheUserApiToken',
             ];
 
-            public function transform($item) {
+            public function transform($item)
+            {
                 return [
-                    'username' => $item['username']
+                    'username' => $item['username'],
                 ];
             }
 
-            public function includeTheUserApiToken($item) {
+            public function includeTheUserApiToken($item)
+            {
                 return $this->item($item['user_api_token'], $this->tokenTransformer, 'user_api_token');
             }
         };
 
-        $transformer->tokenTransformer = new class extends AbstractTransformer {
-            public function transform($item) {
+        $transformer->tokenTransformer = new class extends AbstractTransformer
+        {
+            public function transform($item)
+            {
                 return [
-                    'token' => $item['token']
+                    'token' => $item['token'],
                 ];
             }
         };
@@ -48,8 +55,8 @@ class SmokescreenTest extends TestCase
         $user = [
             'username' => 'phillip_j_fry',
             'user_api_token' => [
-                'token' => 'tkn_123456'
-            ]
+                'token' => 'tkn_123456',
+            ],
         ];
 
         /* assert */
@@ -64,13 +71,12 @@ class SmokescreenTest extends TestCase
         $user = [
             'username' => 'phillip_j_fry',
             'user_api_token' => [
-                'token' => 'tkn_123456'
-            ]
+                'token' => 'tkn_123456',
+            ],
         ];
 
         /* assert */
-        $smokescreen = (new Smokescreen)
-            ->item($user);
+        $smokescreen = (new Smokescreen)->item($user);
 
         $userObj = $smokescreen->toObject();
         $this->assertInstanceOf(\stdClass::class, $userObj);
@@ -83,18 +89,148 @@ class SmokescreenTest extends TestCase
     }
 
     /** @test */
-    public function transformer_should_not_be_required() {
+    public function transformer_should_not_be_required()
+    {
         $user = [
             'username' => 'phillip_j_fry',
             'user_api_token' => [
-                'token' => 'tkn_123456'
-            ]
+                'token' => 'tkn_123456',
+            ],
         ];
 
         /* assert */
-        $smokescreen = (new Smokescreen)
-            ->item($user);
+        $smokescreen = (new Smokescreen)->item($user);
 
         $this->assertEquals($user, $smokescreen->toArray());
+    }
+
+    /** @test */
+    public function resource_can_override_serializer()
+    {
+        $transformer = new class extends AbstractTransformer
+        {
+
+            protected $serializer;
+
+            protected $includes = [
+                'images',
+            ];
+
+            public function __construct()
+            {
+                $this->serializer = new class extends DefaultSerializer
+                {
+                    public function collection($resourceKey, array $data): array
+                    {
+                        return ['custom_serialize' => $data];
+                    }
+                };
+            }
+
+            public function transform($person)
+            {
+                return [
+                    'id' => $person['id'],
+                    'full_name' => "{$person['first_name']} {$person['last_name']}",
+                ];
+            }
+
+            public function includeImages($item)
+            {
+                // In a real scenario we would fetch images off $item
+                return $this->collection([
+                    [
+                        'id' => 'image-1',
+                        'url' => 'http://example.com/images/image-1',
+                    ],
+                    [
+                        'id' => 'image-2',
+                        'url' => 'http://example.com/images/image-2',
+                    ],
+                ])->setSerializer($this->serializer);
+            }
+        };
+
+
+        /* assert */
+        $smokescreen = (new Smokescreen)->parseIncludes('images{url}')->item([
+            'id' => '1234',
+            'first_name' => 'Walter',
+            'last_name' => 'Lilly',
+        ], $transformer);
+
+        $this->assertEquals([
+            'id' => '1234',
+            'full_name' => 'Walter Lilly',
+            'images' => [
+                'custom_serialize' => [
+                    [
+                        'id' => 'image-1',
+                        'url' => 'http://example.com/images/image-1',
+                    ],
+                    [
+                        'id' => 'image-2',
+                        'url' => 'http://example.com/images/image-2',
+                    ],
+                ],
+            ],
+        ], $smokescreen->toArray());
+    }
+
+    /** @test */
+    public function include_can_return_array_instead_of_resource()
+    {
+        $transformer = new class extends AbstractTransformer
+        {
+            protected $includes = [
+                'images',
+            ];
+
+            public function transform($person)
+            {
+                return [
+                    'id' => $person['id'],
+                    'full_name' => "{$person['first_name']} {$person['last_name']}",
+                ];
+            }
+
+            public function includeImages($item)
+            {
+                // Returning an array instead of a collection
+                return [
+                    [
+                        'id' => 'image-1',
+                        'url' => 'http://example.com/images/image-1',
+                    ],
+                    [
+                        'id' => 'image-2',
+                        'url' => 'http://example.com/images/image-2',
+                    ],
+                ];
+            }
+        };
+
+
+        /* assert */
+        $smokescreen = (new Smokescreen)->parseIncludes('images{url}')->item([
+            'id' => '1234',
+            'first_name' => 'Walter',
+            'last_name' => 'Lilly',
+        ], $transformer);
+
+        $this->assertEquals([
+            'id' => '1234',
+            'full_name' => 'Walter Lilly',
+            'images' => [
+                [
+                    'id' => 'image-1',
+                    'url' => 'http://example.com/images/image-1',
+                ],
+                [
+                    'id' => 'image-2',
+                    'url' => 'http://example.com/images/image-2',
+                ],
+            ],
+        ], $smokescreen->toArray());
     }
 }

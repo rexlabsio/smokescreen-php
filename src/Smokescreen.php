@@ -47,9 +47,9 @@ class Smokescreen implements \JsonSerializable
 
     /**
      * Set the resource item to be transformed
-     * @param mixed $data
+     * @param mixed                     $data
      * @param TransformerInterface|null $transformer
-     * @param null $key
+     * @param null                      $key
      * @return $this
      */
     public function item($data, TransformerInterface $transformer = null, $key = null)
@@ -61,10 +61,10 @@ class Smokescreen implements \JsonSerializable
 
     /**
      * Set the resource collection to be transformed
-     * @param mixed $data
+     * @param mixed                     $data
      * @param TransformerInterface|null $transformer
-     * @param string|null $key
-     * @param callable|null $callback
+     * @param string|null               $key
+     * @param callable|null             $callback
      * @return $this
      */
     public function collection($data, TransformerInterface $transformer = null, $key = null, callable $callback = null)
@@ -108,23 +108,13 @@ class Smokescreen implements \JsonSerializable
     }
 
     /**
-     * @return SerializerInterface
+     * Returns an object representation of the transformed/serialized data.
+     * @return \stdClass
+     * @throws \RexSoftware\Smokescreen\Exception\JsonEncodeException
      */
-    public function getSerializer(): SerializerInterface
+    public function toObject()
     {
-        return $this->serializer;
-    }
-
-    /**
-     * Set the serializer which will be used to output the transformed resource
-     * @param SerializerInterface|null $serializer
-     * @return $this
-     */
-    public function setSerializer(SerializerInterface $serializer = null)
-    {
-        $this->serializer = $serializer;
-
-        return $this;
+        return json_decode($this->toJson(), false);
     }
 
     /**
@@ -141,16 +131,6 @@ class Smokescreen implements \JsonSerializable
         }
 
         return $json;
-    }
-
-    /**
-     * Returns an object representation of the transformed/serialized data.
-     * @return \stdClass
-     * @throws \RexSoftware\Smokescreen\Exception\JsonEncodeException
-     */
-    public function toObject()
-    {
-        return json_decode($this->toJson(), false);
     }
 
     /**
@@ -183,51 +163,26 @@ class Smokescreen implements \JsonSerializable
     }
 
     /**
-     * @param ResourceInterface $resource
-     * @param Includes $includes
+     * @param ResourceInterface|mixed $resource
+     * @param Includes                $includes
      * @return array
      * @throws \RexSoftware\Smokescreen\Exception\InvalidTransformerException
      */
-    protected function serializeResource(ResourceInterface $resource, Includes $includes): array
+    protected function serializeResource($resource, Includes $includes): array
     {
-        // If no serializer is explicitly set, we'll provide one
-        $serializer = $this->serializer ?? new DefaultSerializer();
-
         // Relationship loading
-        $this->loadRelations($resource);
+        if ($resource instanceof ResourceInterface) {
+            $this->loadRelations($resource);
+        }
 
         // Build the output by recursively transforming each resource
         $output = [];
         if ($resource instanceof Collection) {
-            // Collection resources implement IteratorAggregate ... so that's nice
-            $items = [];
-            foreach ($resource as $data) {
-                // $data might be a Model
-                $items[] = $this->transformItem(
-                    $data,
-                    $resource->getTransformer(),
-                    $includes
-                );
-            }
-            $output = $serializer->collection(
-                $resource->getResourceKey(),
-                $items
-            );
-
-            if ($resource->hasPaginator()) {
-                $output = array_merge($output, $serializer->paginator($resource->getPaginator()));
-            }
-
+            $output = $this->serializeCollection($resource, $includes);
         } elseif ($resource instanceof Item) {
-            // Single item
-            $output = $serializer->item(
-                $resource->getResourceKey(),
-                $this->transformItem(
-                    $resource->getData(),
-                    $resource->getTransformer(),
-                    $includes
-                )
-            );
+            $output = $this->serializeItem($resource, $includes);
+        } elseif (\is_array($resource)) {
+            $output = $resource;
         }
 
         return $output;
@@ -245,9 +200,69 @@ class Smokescreen implements \JsonSerializable
     }
 
     /**
-     * @param mixed $item
+     * @param Collection $collection
+     * @param Includes   $includes
+     * @return array
+     * @throws InvalidTransformerException
+     */
+    protected function serializeCollection(Collection $collection, Includes $includes): array
+    {
+        // Get the globally set serializer (resource may override)
+        $defaultSerializer = $this->getSerializer();
+
+        // Collection resources implement IteratorAggregate ... so that's nice
+        $items = [];
+        foreach ($collection as $item) {
+            // $item might be a Model or an array etc.
+            $items[] = $this->transformItem($item, $collection->getTransformer(), $includes);
+        }
+
+        // The collection can have a custom serializer defined
+        $serializer = $collection->getSerializer() ?? $defaultSerializer;
+        $isSerializerInterface = $serializer instanceof SerializerInterface;
+
+        if ($isSerializerInterface) {
+            // Serialize via object implementing SerializerInterface
+            $output = $serializer->collection($collection->getResourceKey(), $items);
+        } elseif (\is_callable($serializer)) {
+            // Serialize via a callable/closure
+            $output = $serializer($collection->getResourceKey(), $items);
+        } else {
+            // No serialization
+            $output = $items;
+        }
+
+        if ($isSerializerInterface && $collection->hasPaginator()) {
+            $output = array_merge($output, $serializer->paginator($collection->getPaginator()));
+        }
+
+        return $output;
+    }
+
+    /**
+     * @return SerializerInterface
+     */
+    public function getSerializer(): SerializerInterface
+    {
+        return $this->serializer ?? new DefaultSerializer();
+    }
+
+    /**
+     * Set the serializer which will be used to output the transformed resource
+     * @param SerializerInterface|null $serializer
+     * @return $this
+     */
+    public function setSerializer(SerializerInterface $serializer = null)
+    {
+        $this->serializer = $serializer;
+
+        return $this;
+    }
+
+    /**
+     * @param mixed                                    $item
      * @param mixed|TransformerInterface|callable|null $transformer
-     * @param Includes $includes
+     * @param Includes                                 $includes
      * @return array
      * @throws \RexSoftware\Smokescreen\Exception\InvalidTransformerException
      */
@@ -318,12 +333,18 @@ class Smokescreen implements \JsonSerializable
         // Add includes to the payload
         $includeMap = $transformer->getIncludeMap();
         foreach ($mappedIncludeKeys as $includeKey) {
-            /** @var ResourceInterface $resource */
             $resource = $this->executeTransformerInclude($transformer, $includeMap[$includeKey], $item);
-            $data[$resource->getResourceKey() ?: $includeKey] =
-                !$resource->getData()
-                ? null
-                : $this->serializeResource($resource, $includes->splice($includeKey));
+
+            if ($resource instanceof ResourceInterface) {
+                // Resource object
+                $data[$resource->getResourceKey() ?: $includeKey] = !$resource->getData() ? null : $this->serializeResource($resource,
+                    $includes->splice($includeKey));
+            } else {
+                // Plain old array
+                $data[$includeKey] = $this->serializeResource($resource, $includes->splice($includeKey));
+            }
+
+
         }
 
         return $data;
@@ -332,6 +353,39 @@ class Smokescreen implements \JsonSerializable
     protected function executeTransformerInclude($transformer, $include, $item)
     {
         return \call_user_func([$transformer, $include['method']], $item);
+    }
+
+    /**
+     * @param Item     $item
+     * @param Includes $includes
+     * @return array
+     * @throws InvalidTransformerException
+     */
+    protected function serializeItem(Item $item, Includes $includes)
+    {
+        // Get the globally set serializer (resource may override)
+        $defaultSerializer = $this->getSerializer();
+
+        // The collection can have a custom serializer defined
+        $serializer = $item->getSerializer() ?? $defaultSerializer;
+        $isSerializerInterface = $serializer instanceof SerializerInterface;
+
+        // Transform the item data
+        $itemData = $this->transformItem($item->getData(), $item->getTransformer(), $includes);
+
+        // Serialize the item data
+        if ($isSerializerInterface) {
+            // Serialize via object implementing SerializerInterface
+            $output = $serializer->item($item->getResourceKey(), $itemData);
+        } elseif (\is_callable($serializer)) {
+            // Serialize via a callable/closure
+            $output = $serializer($item->getResourceKey(), $itemData);
+        } else {
+            // No serialization
+            $output = $itemData;
+        }
+
+        return $output;
     }
 
     /**
@@ -362,8 +416,7 @@ class Smokescreen implements \JsonSerializable
      */
     public function parseIncludes($str)
     {
-        $this->includes = $this->getIncludeParser()
-            ->parse(!empty($str) ? $str : '');
+        $this->includes = $this->getIncludeParser()->parse(!empty($str) ? $str : '');
 
         return $this;
     }

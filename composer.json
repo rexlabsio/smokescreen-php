@@ -11,7 +11,8 @@
     {"packagist.org": false}
   ],
   "require-dev": {
-    "phpunit/phpunit": "^6.4"
+    "phpunit/phpunit": "^6.4",
+    "codedungeon/phpunit-result-printer": "^0.5.4"
   },
   "autoload": {
     "psr-4": {
