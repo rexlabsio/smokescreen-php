@@ -468,7 +468,7 @@ Feel free to add more tests.
 
 ## FAQ
 
-### Why call it it "Smokescreen"
+### Why call it "Smokescreen"
 
 Great question, thanks for asking. Our team racked our brain for several hours to come up with the perfect name for
 this package.  In the end we went with Smokescreen because there is a transformer named smokescreen and it sounds cool.
