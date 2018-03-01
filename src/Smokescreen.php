@@ -50,7 +50,7 @@ class Smokescreen implements \JsonSerializable
      * Set the resource item to be transformed
      * @param mixed                     $data
      * @param TransformerInterface|null $transformer
-     * @param null                      $key
+     * @param string|null               $key
      * @return $this
      */
     public function item($data, TransformerInterface $transformer = null, $key = null)
