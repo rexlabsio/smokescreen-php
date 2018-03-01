@@ -1,6 +1,7 @@
 <?php
 namespace Rexlabs\Smokescreen\Transformer;
 
+use Rexlabs\Smokescreen\Exception\ParseDefinitionException;
 use Rexlabs\Smokescreen\Helpers\StrHelper;
 use Rexlabs\Smokescreen\Resource\Collection;
 use Rexlabs\Smokescreen\Resource\Item;
@@ -22,6 +23,7 @@ class AbstractTransformer implements TransformerInterface
 
     /**
      * @inheritdoc
+     * @throws ParseDefinitionException
      */
     public function getAvailableIncludes(): array
     {
@@ -32,7 +34,7 @@ class AbstractTransformer implements TransformerInterface
      * Return a cached version of the include map
      * @see AbstractTransformer::getIncludeMap()
      * @return array
-     * @throws \InvalidArgumentException
+     * @throws ParseDefinitionException
      */
     protected function getCachedIncludeMap(): array
     {
@@ -47,7 +49,7 @@ class AbstractTransformer implements TransformerInterface
      * Process the $includes property and convert the directives into a map
      * indexed by the include key, and specifying: default, relation, method.
      * @return array
-     * @throws \InvalidArgumentException
+     * @throws ParseDefinitionException
      */
     public function getIncludeMap(): array
     {
@@ -83,7 +85,7 @@ class AbstractTransformer implements TransformerInterface
                             }
                             break;
                         default:
-                            throw new \InvalidArgumentException("Invalid key '{$directive}' for {$includeKey}");
+                            throw new ParseDefinitionException("Invalid key '{$directive}' for {$includeKey}");
                     }
                 }
             }
@@ -106,6 +108,7 @@ class AbstractTransformer implements TransformerInterface
 
     /**
      * @inheritdoc
+     * @throws ParseDefinitionException
      */
     public function getDefaultIncludes(): array
     {
@@ -116,13 +119,16 @@ class AbstractTransformer implements TransformerInterface
 
     /**
      * @inheritdoc
+     * @throws ParseDefinitionException
      */
     public function getRelationships(): array
     {
-        // TODO: not sure if this works
-        return array_flatten(array_map(function($includeKey, $settings) {
-            return [$includeKey => $settings['relation']];
-        }, array_keys($this->getCachedIncludeMap()), array_values($this->getCachedIncludeMap())));
+        return array_column(
+            array_map(function($includeKey, $settings) {
+                return [$includeKey, $settings['relation']];
+            }, array_keys($this->getCachedIncludeMap()), array_values($this->getCachedIncludeMap())),
+            1, 0
+        );
     }
 
     /**
