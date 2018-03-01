@@ -7,16 +7,28 @@
 
 ## Overview
 
-This package is a vanilla PHP (with no dependencies) library  for transforming and serializing data; typically RESTful API responses.
+Smokescreen is a PHP library for transforming data.  This is ideal for transforming and serializing
+API responses but can be applied to a number of scenarios.
+
+- Simple intuitive interface
+- Allows embedding of related resources
+- Supports eager loading
+- Supports sparse field sets
+- Can handle serializing to customisable formats
+- No other dependencies
+
+See also [Smokescreen Laravel Library](https://github.com/rexlabsio/smokescreen-laravel-php)
 
 ## Usage
 
-To use Smokescreen, you define transformer(s) for your resource(s).
+To use Smokescreen, you define transformer for each resource, and
+then call either the Smokescreen `item()` or `collection()` method to
+transform the data.
 
-### Defining a Transformer
+### Define a Transformer
 
 Transformers can be any type of callable, but you'll usually encapsulate it in a class with a `transform()` method
-which accepts your model and returns an array:
+which accepts your input data (eg. model) and returns an array:
 
 ```php
 <?php
@@ -40,8 +52,10 @@ class PostTransformer extends AbstractTransformer
 In the example above we accept our `Post` model (which could be any type of data), and
 we return a limited set of properties in our response.
 
-_Note: transformer classes support much more functionality including related includes and relationships. See later in this
-doc for more information._ 
+_Note: transformer classes support much more functionality including related includes and relationships. See the more
+detailed `PostTransformer` at the bottom of this document._ 
+
+## Transform your data
 
 Now to transform our posts, we might implement a controller that looks like the following:
 
@@ -358,8 +372,6 @@ be returned from the `transform()` method.
 
 You may also specify `$defaultProps = [ ... ]` on the transformer to only return those properties
 by default.
-
-
 
 ## Transformers
 
