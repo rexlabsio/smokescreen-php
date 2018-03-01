@@ -75,8 +75,7 @@ class AbstractTransformer implements TransformerInterface
                             break;
                         case 'relation':
                             $settings['relation'] = !empty($val) ?
-                                preg_split('/s*,\s*/', $val) :
-                                [$includeKey];
+                                preg_split('/s*,\s*/', $val) : [$includeKey];
                             break;
                         case 'method':
                             if (!empty($val)) {
@@ -110,7 +109,7 @@ class AbstractTransformer implements TransformerInterface
      */
     public function getDefaultIncludes(): array
     {
-        return array_filter(array_keys($this->getCachedIncludeMap()), function ($includeKey) {
+        return array_filter(array_keys($this->getCachedIncludeMap()), function($includeKey) {
             return $this->getCachedIncludeMap()[$includeKey]['default'];
         });
     }
@@ -121,7 +120,7 @@ class AbstractTransformer implements TransformerInterface
     public function getRelationships(): array
     {
         // TODO: not sure if this works
-        return array_flatten(array_map(function ($includeKey, $settings) {
+        return array_flatten(array_map(function($includeKey, $settings) {
             return [$includeKey => $settings['relation']];
         }, array_keys($this->getCachedIncludeMap()), array_values($this->getCachedIncludeMap())));
     }
