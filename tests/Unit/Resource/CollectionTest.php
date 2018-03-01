@@ -14,75 +14,23 @@ class CollectionTest extends TestCase
     /** @test */
     public function can_set_paginator()
     {
-        $paginator = new class() implements PaginatorInterface
-        {
-            public function getCurrentPage(): int
-            {
-                return 1;
-            }
-
-            public function getLastPage(): int
-            {
-                return 1;
-            }
-
-            public function getTotal(): int
-            {
-                return 10;
-            }
-
-            public function getCount(): int
-            {
-                return 10;
-            }
-
-            public function getPerPage(): int
-            {
-                return 15;
-            }
-
-            public function getUrl($page): string
-            {
-                return "http://localhost/$page";
-            }
-        };
+        $paginator = $this->createPaginator();
 
         $collection = new Collection();
         $collection->setPaginator($paginator);
         $this->assertTrue($collection->hasPaginator());
-        $this->assertInstanceOf(PaginatorInterface::class, $paginator);
+        $this->assertInstanceOf(PaginatorInterface::class, $collection->getPaginator());
     }
 
     /** @test */
     public function can_set_cursor()
     {
-        $cursor = new class() implements CursorInterface
-        {
-            public function getCurrent()
-            {
-                return 'current';
-            }
-
-            public function getPrev()
-            {
-                return 'prev';
-            }
-
-            public function getNext()
-            {
-                return 'next';
-            }
-
-            public function getCount(): int
-            {
-                return 10;
-            }
-        };
+        $cursor = $this->createCursor();
 
         $collection = new Collection();
         $collection->setCursor($cursor);
         $this->assertTrue($collection->hasCursor());
-        $this->assertInstanceOf(CursorInterface::class, $cursor);
+        $this->assertInstanceOf(CursorInterface::class, $collection->getCursor());
     }
 
     /** @test */
@@ -112,20 +60,7 @@ class CollectionTest extends TestCase
         $this->assertInstanceOf(\ArrayIterator::class, $collection->getIterator());
 
         // Pass in iterator aggregate
-        $aggregateIterator = new class($data) implements \IteratorAggregate
-        {
-            protected $data;
-
-            public function __construct($data)
-            {
-                $this->data = $data;
-            }
-
-            public function getIterator()
-            {
-                return new \ArrayIterator($this->data);
-            }
-        };
+        $aggregateIterator = $this->createIteratorAggregate($data);
         $collection->setData($aggregateIterator);
         $this->assertInstanceOf(\ArrayIterator::class, $collection->getIterator());
 
@@ -160,7 +95,86 @@ class CollectionTest extends TestCase
         $this->assertEquals($data, $collection->toArray());
 
         // Pass in iterator aggregate
-        $aggregateIterator = new class($data) implements \IteratorAggregate
+        $aggregateIterator = $this->createIteratorAggregate($data);
+        $collection->setData($aggregateIterator);
+        $this->assertEquals($data, $collection->toArray());
+
+        $collection->setData('not array');
+        $this->expectException(ArrayConversionException::class);
+        $collection->toArray();
+    }
+
+    /**
+     * @return CursorInterface
+     */
+    public function createCursor(): CursorInterface
+    {
+        return new class() implements CursorInterface
+        {
+            public function getCurrent()
+            {
+                return 'current';
+            }
+
+            public function getPrev()
+            {
+                return 'prev';
+            }
+
+            public function getNext()
+            {
+                return 'next';
+            }
+
+            public function getCount(): int
+            {
+                return 10;
+            }
+        };
+    }
+
+    /**
+     * @return PaginatorInterface
+     */
+    public function createPaginator(): PaginatorInterface
+    {
+        return new class() implements PaginatorInterface
+        {
+            public function getCurrentPage(): int
+            {
+                return 1;
+            }
+
+            public function getLastPage(): int
+            {
+                return 1;
+            }
+
+            public function getTotal(): int
+            {
+                return 10;
+            }
+
+            public function getCount(): int
+            {
+                return 10;
+            }
+
+            public function getPerPage(): int
+            {
+                return 15;
+            }
+
+            public function getUrl($page): string
+            {
+                return "http://localhost/$page";
+            }
+        };
+    }
+
+    public function createIteratorAggregate($data = null): \IteratorAggregate
+    {
+        return new class($data) implements \IteratorAggregate
         {
             protected $data;
 
@@ -174,11 +188,5 @@ class CollectionTest extends TestCase
                 return new \ArrayIterator($this->data);
             }
         };
-        $collection->setData($aggregateIterator);
-        $this->assertEquals($data, $collection->toArray());
-
-        $collection->setData('not array');
-        $this->expectException(ArrayConversionException::class);
-        $collection->toArray();
     }
 }

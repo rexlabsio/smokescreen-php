@@ -3,10 +3,14 @@
 namespace Rexlabs\Smokescreen\Tests\Unit\Resource;
 
 use PHPUnit\Framework\TestCase;
+use Rexlabs\Smokescreen\Exception\InvalidSerializerException;
 use Rexlabs\Smokescreen\Exception\InvalidTransformerException;
+use Rexlabs\Smokescreen\Pagination\CursorInterface;
+use Rexlabs\Smokescreen\Pagination\PaginatorInterface;
 use Rexlabs\Smokescreen\Resource\AbstractResource;
 use Rexlabs\Smokescreen\Resource\Collection;
 use Rexlabs\Smokescreen\Resource\Item;
+use Rexlabs\Smokescreen\Serializer\SerializerInterface;
 use Rexlabs\Smokescreen\Transformer\AbstractTransformer;
 use Rexlabs\Smokescreen\Transformer\TransformerInterface;
 
@@ -15,7 +19,7 @@ class AbstractResourceTest extends TestCase
     /** @test */
     public function can_set_transformer_to_class()
     {
-        $resource = $this->getAbstractResource();
+        $resource = $this->createAbstractResource();
         $transformer = new class() extends AbstractTransformer {
             public function transform($item)
             {
@@ -31,7 +35,7 @@ class AbstractResourceTest extends TestCase
     /** @test */
     public function cannot_set_transformer_without_transform_method()
     {
-        $resource = $this->getAbstractResource();
+        $resource = $this->createAbstractResource();
         $transformer = new class() extends AbstractTransformer {
         };
 
@@ -95,12 +99,13 @@ class AbstractResourceTest extends TestCase
         $this->assertEquals(null, $collection->getResourceKey());
     }
 
+    /** @test */
     public function can_declare_relationships()
     {
         $transformer = new class() extends AbstractTransformer {
             protected $includes = [
-                'owner' => 'related:users',
-                'comments' => 'related:comments',
+                'owner' => 'relation:users',
+                'comments' => 'relation:comments',
             ];
 
             public function transform($item)
@@ -110,13 +115,85 @@ class AbstractResourceTest extends TestCase
         };
 
         $collection = new Collection([], $transformer);
-        $this->assertEquals(['users', 'comments'], $collection->getRelationships());
+        $this->assertEquals([
+            'owner' => [ 'users' ],
+            'comments' => [ 'comments' ],
+        ], $collection->getRelationships());
     }
 
-    protected function getAbstractResource()
+    /** @test */
+    public function can_set_serializer_to_class()
+    {
+        $serializer = $this->createSerializer();
+
+        $resource = new Collection([]);
+        $resource->setSerializer($serializer);
+        $resource->hasSerializer();
+        $this->assertInstanceOf(SerializerInterface::class, $resource->getSerializer());
+    }
+
+    /** @test */
+    public function can_set_serializer_to_callable()
+    {
+        $resource = new Item();
+
+        $resource->setSerializer(function($item) {
+            return $item;
+        });
+        $this->assertTrue(\is_callable($resource->getSerializer()));
+    }
+
+    /** @test */
+    public function can_set_serializer_to_null()
+    {
+        $item = new Item();
+
+        $item->setSerializer(null);
+        $this->assertNull($item->getSerializer());
+    }
+
+    /** @test */
+    public function cannot_set_invalid_serializer()
+    {
+        $item = new Item();
+
+        $this->expectException(InvalidSerializerException::class);
+        $item->setSerializer(new \stdClass());
+    }
+
+    protected function createAbstractResource()
     {
         return new class() extends AbstractResource {
 
+        };
+    }
+
+    protected function createSerializer()
+    {
+        return new class() implements SerializerInterface {
+            public function collection($resourceKey, array $data): array
+            {
+                return $data;
+            }
+
+            public function item($resourceKey, array $data): array
+            {
+                return $data;
+            }
+
+            public function null()
+            {
+                return null;
+            }
+
+            public function paginator(PaginatorInterface $paginator)
+            {
+                return [];
+            }
+            public function cursor(CursorInterface $cursor): array
+            {
+                return [];
+            }
         };
     }
 }

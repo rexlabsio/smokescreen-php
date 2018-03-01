@@ -66,7 +66,7 @@ class AbstractTransformer implements TransformerInterface
                 $parts = preg_split('/\s*\|\s*/', $definition);
                 foreach ($parts as $part) {
                     if (!preg_match('/^([^:]+)(:(.+))?$/', $part, $match)) {
-                        continue;
+                        throw new ParseDefinitionException("Unable to parse field definition for '{$includeKey}''");
                     }
                     // If only list() was viable ...
                     $directive = $match[1];
@@ -112,9 +112,9 @@ class AbstractTransformer implements TransformerInterface
      */
     public function getDefaultIncludes(): array
     {
-        return array_filter(array_keys($this->getCachedIncludeMap()), function($includeKey) {
+        return array_values(array_filter(array_keys($this->getCachedIncludeMap()), function($includeKey) {
             return $this->getCachedIncludeMap()[$includeKey]['default'];
-        });
+        }));
     }
 
     /**
