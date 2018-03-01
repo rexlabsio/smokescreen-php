@@ -50,12 +50,14 @@ abstract class AbstractResource implements ResourceInterface
      * @param mixed                              $data
      * @param callable|TransformerInterface|null $transformer
      * @param string                             $resourceKey
+     *
+     * @throws \Rexlabs\Smokescreen\Exception\InvalidTransformerException
      */
     public function __construct($data = null, $transformer = null, $resourceKey = null)
     {
-        $this->data = $data;
-        $this->transformer = $transformer;
-        $this->resourceKey = $resourceKey;
+        $this->setData($data);
+        $this->setTransformer($transformer);
+        $this->setResourceKey($resourceKey);
     }
 
     /**
@@ -121,7 +123,7 @@ abstract class AbstractResource implements ResourceInterface
     /**
      * Get the resource key.
      *
-     * @return string
+     * @return string|null
      */
     public function getResourceKey()
     {
@@ -131,11 +133,11 @@ abstract class AbstractResource implements ResourceInterface
     /**
      * Set the resource key.
      *
-     * @param string $resourceKey
+     * @param string|null $resourceKey
      *
      * @return $this
      */
-    public function setResourceKey(string $resourceKey)
+    public function setResourceKey($resourceKey)
     {
         $this->resourceKey = $resourceKey;
 
@@ -203,7 +205,7 @@ abstract class AbstractResource implements ResourceInterface
     public function setTransformer($transformer)
     {
         if ($transformer !== null) {
-            if (!$transformer instanceof TransformerInterface && !\is_callable($transformer, true)) {
+            if (!$this->isValidTransformer($transformer)) {
                 throw new InvalidTransformerException('Transformer must be a callable or implement TransformerInterface');
             }
         }
@@ -211,6 +213,25 @@ abstract class AbstractResource implements ResourceInterface
         $this->transformer = $transformer;
 
         return $this;
+    }
+
+    /**
+     * Determines if the given argument is a valid transformer.
+     * @param callable|TransformerInterface $transformer
+     *
+     * @return bool
+     */
+    public function isValidTransformer($transformer): bool
+    {
+        if ($transformer instanceof TransformerInterface && method_exists($transformer, 'transform')) {
+            return true;
+        }
+
+        if (\is_callable($transformer, true)) {
+            return true;
+        }
+
+        return false;
     }
 
     /**

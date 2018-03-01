@@ -29,5 +29,5 @@ interface CursorInterface
      *
      * @return int
      */
-    public function getCount();
+    public function getCount(): int;
 }

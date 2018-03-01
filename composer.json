@@ -21,6 +21,8 @@
     }
   },
   "scripts": {
-    "tests": "phpunit"
+    "test": "phpunit",
+    "tests": "phpunit --colors=always",
+    "coverage": "phpunit --coverage-html ./tests/report"
   }
 }

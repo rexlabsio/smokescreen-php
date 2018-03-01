@@ -1,6 +1,8 @@
 <?php
 namespace Rexlabs\Smokescreen\Includes;
 
+use Rexlabs\Smokescreen\Exception\ParseIncludesException;
+
 /**
  * Container object for managing include keys and optional mapped parameters.
  * @package Rexlabs\Smokescreen\Includes
@@ -57,22 +59,6 @@ class Includes
         // We probably created some dupes ...
         $allKeys = \array_unique($allKeys);
 
-        // Sort by without dot first, smallest first, followed by alphabetically.
-//        usort($allKeys, function (string $a, string $b) {
-//            // Sort by least amount of depth (dots)
-//            $sort = \substr_count($a, '.') <=> \substr_count($b, '.');
-//            if ($sort === 0) {
-//               // Length sort
-//                $sort = \strlen($a) <=> \strlen($b);
-//            }
-//            if ($sort === 0) {
-//                // Alphabetical sort
-//                $sort = $a <=> $b;
-//            }
-//
-//            return $sort;
-//        });
-
         return $allKeys;
     }
 
@@ -113,6 +99,15 @@ class Includes
     }
 
     /**
+     * Returns true if any keys have been set.
+     * @return bool
+     */
+    public function hasKeys(): bool
+    {
+        return \count($this->keys) > 0;
+    }
+
+    /**
      * Remove one or more keys
      * @param array|string $keys
      */
@@ -121,7 +116,7 @@ class Includes
         $keys = (array)$keys; // Cast all the things
         $this->keys = array_filter($this->keys(), function($key) use ($keys) {
             foreach ($keys as $remove) {
-                if (preg_match('/^' . preg_quote($key, '/') . '(\..+)?$/', $remove)) {
+                if (preg_match('/^' . preg_quote($remove, '/') . '(\..+)?$/', $key)) {
                     // Keys and descendant keys will be removed
                     return false;
                 }
@@ -152,17 +147,26 @@ class Includes
     }
 
     /**
+     * Returns true if any parameters have been set
+     * @return bool
+     */
+    public function hasParams(): bool
+    {
+        return \count($this->params) > 0;
+    }
+
+    /**
      * An array of parameters indexed by key
      * @param array $params
      * @return $this
-     * @throws \RuntimeException
+     * @throws ParseIncludesException
      */
     public function setParams(array $params)
     {
         // Is this an associative array?
         if (!empty($params)) {
             if (\count(array_filter(array_keys($params), '\is_string')) < 1) {
-                throw new \RuntimeException('Parameters must be an associative array indexed by key');
+                throw new ParseIncludesException('Parameters must be an associative array indexed by key');
             }
         }
         $this->params = $params;

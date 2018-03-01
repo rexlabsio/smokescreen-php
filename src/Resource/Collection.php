@@ -3,6 +3,7 @@
 namespace Rexlabs\Smokescreen\Resource;
 
 use Rexlabs\Smokescreen\Exception\ArrayConversionException;
+use Rexlabs\Smokescreen\Exception\NotIterableException;
 use Rexlabs\Smokescreen\Pagination\CursorInterface;
 use Rexlabs\Smokescreen\Pagination\PageableInterface;
 use Rexlabs\Smokescreen\Pagination\PaginatorInterface;
@@ -28,6 +29,7 @@ class Collection extends AbstractResource implements PageableInterface, \Iterato
      */
     public function setPaginator(PaginatorInterface $paginator)
     {
+        $this->cursor = null;
         $this->paginator = $paginator;
 
         return $this;
@@ -54,6 +56,7 @@ class Collection extends AbstractResource implements PageableInterface, \Iterato
      */
     public function setCursor(CursorInterface $cursor)
     {
+        $this->paginator = null;
         $this->cursor = $cursor;
 
         return $this;
@@ -70,7 +73,9 @@ class Collection extends AbstractResource implements PageableInterface, \Iterato
     /**
      * Returns an Iterator (to implement the ArrayIterator) interface for
      * easily traversing a collection.
+     *
      * @return \Traversable
+     * @throws \Rexlabs\Smokescreen\Exception\NotIterableException
      */
     public function getIterator(): \Traversable
     {
@@ -80,6 +85,10 @@ class Collection extends AbstractResource implements PageableInterface, \Iterato
 
         if ($this->data instanceof \IteratorAggregate) {
             return $this->data->getIterator();
+        }
+
+        if (!\is_array($this->data)) {
+            throw new NotIterableException('Cannot get iterator for data');
         }
 
         return new \ArrayIterator($this->data);
