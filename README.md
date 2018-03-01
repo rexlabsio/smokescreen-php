@@ -11,9 +11,42 @@ This package is a vanilla PHP (with no dependencies) library  for transforming a
 
 ## Usage
 
+To use Smokescreen, you define transformer(s) for your resource(s).
+
+### Defining a Transformer
+
+Transformers can be any type of callable, but you'll usually encapsulate it in a class with a `transform()` method
+which accepts your model and returns an array:
+
 ```php
 <?php
-require 'vendor/autoload.php';
+use Rexlabs\Smokescreen\Transformer\AbstractTransformer;
+
+class PostTransformer extends AbstractTransformer
+{
+    public function transform(Post $post)
+    {
+        return [
+            'id' => $post->id,
+            'user' => [
+                'id' => $post->user_id
+            ],
+            'subject' => $post->subject,
+        ];
+    }
+}
+```
+
+In the example above we accept our `Post` model (which could be any type of data), and
+we return a limited set of properties in our response.
+
+_Note: transformer classes support much more functionality including related includes and relationships. See later in this
+doc for more information._ 
+
+Now to transform our posts, we might implement a controller that looks like the following:
+
+```php
+<?php
 use Rexlabs\Smokescreen\Smokescreen;
 
 class MyController
@@ -39,6 +72,9 @@ class MyController
      }
 }
 ```
+
+When we call the Smokescreen `collection()` or `item()` methods we
+simply pass in the data we want to transform, and indicate which transformer to use.
 
 ## Requirements and dependencies
 
