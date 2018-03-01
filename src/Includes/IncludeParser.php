@@ -79,8 +79,7 @@ class IncludeParser implements IncludeParserInterface
                     // Well, if we have a buffer, then that's our parent, if we don't
                     // we will use the parent we saved when we popped the last parent state.
                     $parentKey = !empty($state['buffer']) ?
-                        $this->prefixParentKeys($state['buffer'], $state['parent']) :
-                        $this->flattenKeys($state['prevParent']);
+                        $this->prefixParentKeys($state['buffer'], $state['parent']) : $this->flattenKeys($state['prevParent']);
 
                     if (preg_match('/^:(\w+)\(([^)]+)\)/', substr($str, $state['pos']), $match)) {
                         // We have a match
@@ -133,8 +132,7 @@ class IncludeParser implements IncludeParserInterface
     protected function prefixParentKeys($key, array $parent): string
     {
         return !empty($parent) ?
-            $this->flattenKeys($parent) . ".$key" :
-            $key;
+            $this->flattenKeys($parent) . ".$key" : $key;
     }
 
     /**

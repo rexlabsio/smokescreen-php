@@ -119,7 +119,7 @@ class Includes
     public function remove($keys)
     {
         $keys = (array)$keys; // Cast all the things
-        $this->keys = array_filter($this->keys(), function ($key) use ($keys) {
+        $this->keys = array_filter($this->keys(), function($key) use ($keys) {
             foreach ($keys as $remove) {
                 if (preg_match('/^' . preg_quote($key, '/') . '(\..+)?$/', $remove)) {
                     // Keys and descendant keys will be removed
@@ -137,7 +137,7 @@ class Includes
      */
     public function baseKeys(): array
     {
-        return \array_values(\array_filter($this->keys(), function ($key) {
+        return \array_values(\array_filter($this->keys(), function($key) {
             return \strpos($key, '.') === false;
         }));
     }
@@ -235,7 +235,7 @@ class Includes
             if (strpos($key, "{$parentKey}.") === 0) {
                 // Found a match, chop off the parent key
                 $keys[] = preg_replace(
-                    '/^' . preg_quote($parentKey.'.', '/') . '/', // Starts with parent
+                    '/^' . preg_quote($parentKey . '.', '/') . '/', // Starts with parent
                     '', // Remove it
                     $key
                 );

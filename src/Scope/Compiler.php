@@ -47,8 +47,7 @@ class Compiler
 
         // Build the output by recursively transforming each resource
         return $scope->isCollection() ?
-            $this->serializeCollection($scope) :
-            $this->serializeItem($scope);
+            $this->serializeCollection($scope) : $this->serializeItem($scope);
     }
 
     protected function loadRelations(ResourceInterface $resource)
@@ -60,7 +59,7 @@ class Compiler
 
     protected function serializeCollection(Scope $scope)
     {
-        $items = array_map(function ($data) use ($scope) {
+        $items = array_map(function($data) use ($scope) {
 
             $scope = new Scope(
                 new Item(
@@ -142,7 +141,7 @@ class Compiler
         // TODO: This is probably the wrong place for this as we might filter out our inclusions?
         $wantProps = $defaultProps;
         if (!empty($wantProps)) {
-            $data = array_filter($data, function ($key) use ($wantProps) {
+            $data = array_filter($data, function($key) use ($wantProps) {
                 return \in_array($key, $wantProps, true);
             }, ARRAY_FILTER_USE_KEY);
         }
