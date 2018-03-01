@@ -4,6 +4,7 @@
 namespace Rexlabs\Smokescreen\Scope;
 
 
+use Rexlabs\Smokescreen\Exception\InvalidTransformerException;
 use Rexlabs\Smokescreen\Helpers\StrHelper;
 use Rexlabs\Smokescreen\Relations\RelationLoaderInterface;
 use Rexlabs\Smokescreen\Resource\Item;
@@ -87,66 +88,16 @@ class Compiler
         return $output;
     }
 
+    /**
+     * @param Item $item
+     *
+     * @return array
+     */
     protected function transformItem(Item $item): array
     {
         $transformer = $item->getTransformer();
-        if ($transformer === null) {
-            // No transformation can be applied
-            return (array)$item;
-        }
-        if (\is_callable($transformer)) {
-            // Callable should simply return an array
-            return (array)$transformer($item);
-        }
 
-        // Otherwise, we expect a transformer object
-        if (!$transformer instanceof TransformerInterface) {
-            throw new \InvalidArgumentException('Transformer must implement TransformerInterface');
-        }
-
-        // We need to double-check it has a transform() method - perhaps this could be done on set?
-        // Since PHP doesn't support contravariance, we can't define the transform() signature on the interface
-        if (!method_exists($transformer, 'transform')) {
-            throw new \InvalidArgumentException('Transformer must provide a transform() method');
-        }
-
-        // Get the base data from the transformation
-        // TODO: Oh waits ... we need to get the sparse fieldset first which we determine from includes
-        $data = (array)$transformer->transform($item);
-
-        // Merge the includes
-        // To determine what includes we want, we need to merge the
-        // requested includes (GET) and the transformer's default includes.
-        // Then we compare that to the available includes ...
-        $defaultIncludes = $transformer->getDefaultIncludes();
-//        $availableIncludes = $transformer->getAvailableIncludes();
-//        $includeMap = $transformer->getIncludeMap();
-
-        // TODO: Determine what includes we actually want
-        $wantIncludes = $defaultIncludes;
-
-        // Add includes to the payload
-        foreach ($wantIncludes as $includeKey) {
-            $data[$includeKey] = $this->serialize(
-                $this->callTransformerIncludeMethodFor($transformer, $includeKey, $item)
-            );
-        }
-
-        // If defaultProps is defined, we will only return these props by default
-        $defaultProps = $transformer->getDefaultProps();
-
-        // Filter the sparse field-set
-        // To determine the props that we want to return, we need to remove the requested includes
-        // TODO: Determine if includes indicates props to return
-        // TODO: This is probably the wrong place for this as we might filter out our inclusions?
-        $wantProps = $defaultProps;
-        if (!empty($wantProps)) {
-            $data = array_filter($data, function($key) use ($wantProps) {
-                return \in_array($key, $wantProps, true);
-            }, ARRAY_FILTER_USE_KEY);
-        }
-
-        return $data;
+        return [];
     }
 
     protected function callTransformerIncludeMethodFor($transformer, $includeKey, $item)

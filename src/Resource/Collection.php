@@ -2,26 +2,30 @@
 
 namespace Rexlabs\Smokescreen\Resource;
 
+use Rexlabs\Smokescreen\Exception\ArrayConversionException;
 use Rexlabs\Smokescreen\Pagination\CursorInterface;
 use Rexlabs\Smokescreen\Pagination\PageableInterface;
 use Rexlabs\Smokescreen\Pagination\PaginatorInterface;
 
 class Collection extends AbstractResource implements PageableInterface, \IteratorAggregate
 {
-    /** @var array|\ArrayIterator */
-    protected $data;
-
     /** @var PaginatorInterface */
     protected $paginator;
 
     /** @var  CursorInterface */
     protected $cursor;
 
+    /**
+     * @inheritdoc
+     */
     public function getPaginator()
     {
         return $this->paginator;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function setPaginator(PaginatorInterface $paginator)
     {
         $this->paginator = $paginator;
@@ -29,16 +33,25 @@ class Collection extends AbstractResource implements PageableInterface, \Iterato
         return $this;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function hasPaginator(): bool
     {
         return $this->paginator instanceof PaginatorInterface;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function getCursor()
     {
         return $this->cursor;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function setCursor(CursorInterface $cursor)
     {
         $this->cursor = $cursor;
@@ -46,12 +59,20 @@ class Collection extends AbstractResource implements PageableInterface, \Iterato
         return $this;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function hasCursor(): bool
     {
         return $this->cursor instanceof CursorInterface;
     }
 
-    public function getIterator()
+    /**
+     * Returns an Iterator (to implement the ArrayIterator) interface for
+     * easily traversing a collection.
+     * @return \Traversable
+     */
+    public function getIterator(): \Traversable
     {
         if ($this->data instanceof \ArrayIterator) {
             return $this->data;
@@ -64,6 +85,12 @@ class Collection extends AbstractResource implements PageableInterface, \Iterato
         return new \ArrayIterator($this->data);
     }
 
+    /**
+     * Converts the Collection data to an array.
+     *
+     * @return array|\ArrayIterator|mixed|null
+     * @throws \Rexlabs\Smokescreen\Exception\ArrayConversionException
+     */
     public function toArray()
     {
         if (\is_array($this->data)) {
@@ -78,6 +105,6 @@ class Collection extends AbstractResource implements PageableInterface, \Iterato
             return iterator_to_array($this->data->getIterator(), false);
         }
 
-        throw new \RuntimeException('Cannot convert data to array');
+        throw new ArrayConversionException('Cannot convert data to array');
     }
 }

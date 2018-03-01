@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Rexlabs\Smokescreen\Exception;
 
 

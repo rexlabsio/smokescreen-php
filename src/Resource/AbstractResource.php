@@ -12,7 +12,7 @@ abstract class AbstractResource implements ResourceInterface
     /**
      * The data to process with the transformer.
      *
-     * @var mixed
+     * @var array|\ArrayIterator|mixed
      */
     protected $data;
 
