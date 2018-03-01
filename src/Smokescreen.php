@@ -166,7 +166,7 @@ class Smokescreen implements \JsonSerializable
     /**
      * @param ResourceInterface|mixed $resource
      * @param Includes                $includes
-     * @return array
+     * @return array|mixed
      * @throws \RexSoftware\Smokescreen\Exception\UnhandledResourceType
      * @throws \RexSoftware\Smokescreen\Exception\InvalidTransformerException
      */
@@ -178,7 +178,7 @@ class Smokescreen implements \JsonSerializable
         }
 
         // Build the output by recursively transforming each resource
-        $output = [];
+        $output = null;
         if ($resource instanceof Collection) {
             $output = $this->serializeCollection($resource, $includes);
         } elseif ($resource instanceof Item) {
