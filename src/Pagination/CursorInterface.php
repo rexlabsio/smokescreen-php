@@ -1,5 +1,5 @@
 <?php
-namespace RexSoftware\Smokescreen\Pagination;
+namespace Rexlabs\Smokescreen\Pagination;
 
 interface CursorInterface
 {

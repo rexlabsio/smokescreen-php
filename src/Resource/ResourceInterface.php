@@ -1,9 +1,9 @@
 <?php
 
-namespace RexSoftware\Smokescreen\Resource;
+namespace Rexlabs\Smokescreen\Resource;
 
-use RexSoftware\Smokescreen\Serializer\SerializerInterface;
-use RexSoftware\Smokescreen\Transformer\TransformerInterface;
+use Rexlabs\Smokescreen\Serializer\SerializerInterface;
+use Rexlabs\Smokescreen\Transformer\TransformerInterface;
 
 interface ResourceInterface
 {

@@ -1,7 +1,7 @@
 <?php
 
 
-namespace RexSoftware\Smokescreen\Exception;
+namespace Rexlabs\Smokescreen\Exception;
 
 
 class JsonEncodeException extends \RuntimeException

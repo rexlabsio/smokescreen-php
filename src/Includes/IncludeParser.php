@@ -1,5 +1,5 @@
 <?php
-namespace RexSoftware\Smokescreen\Includes;
+namespace Rexlabs\Smokescreen\Includes;
 
 class IncludeParser implements IncludeParserInterface
 {

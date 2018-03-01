@@ -1,6 +1,6 @@
 <?php
 
-namespace RexSoftware\Smokescreen\Resource;
+namespace Rexlabs\Smokescreen\Resource;
 
 class Item extends AbstractResource
 {

@@ -1,8 +1,8 @@
 <?php
-namespace RexSoftware\Smokescreen\Tests\Unit\Includes;
+namespace Rexlabs\Smokescreen\Tests\Unit\Includes;
 
 use PHPUnit\Framework\TestCase;
-use RexSoftware\Smokescreen\Includes\IncludeParser;
+use Rexlabs\Smokescreen\Includes\IncludeParser;
 
 class IncludesTest extends TestCase
 {

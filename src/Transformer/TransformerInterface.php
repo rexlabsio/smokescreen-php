@@ -1,5 +1,5 @@
 <?php
-namespace RexSoftware\Smokescreen\Transformer;
+namespace Rexlabs\Smokescreen\Transformer;
 
 interface TransformerInterface
 {

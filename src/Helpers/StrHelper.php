@@ -1,5 +1,5 @@
 <?php
-namespace RexSoftware\Smokescreen\Helpers;
+namespace Rexlabs\Smokescreen\Helpers;
 
 class StrHelper
 {

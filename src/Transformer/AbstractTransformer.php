@@ -1,9 +1,9 @@
 <?php
-namespace RexSoftware\Smokescreen\Transformer;
+namespace Rexlabs\Smokescreen\Transformer;
 
-use RexSoftware\Smokescreen\Helpers\StrHelper;
-use RexSoftware\Smokescreen\Resource\Collection;
-use RexSoftware\Smokescreen\Resource\Item;
+use Rexlabs\Smokescreen\Helpers\StrHelper;
+use Rexlabs\Smokescreen\Resource\Collection;
+use Rexlabs\Smokescreen\Resource\Item;
 
 class AbstractTransformer implements TransformerInterface
 {

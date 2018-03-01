@@ -7,12 +7,12 @@
  * Time: 4:15 PM
  */
 
-namespace RexSoftware\Smokescreen\Tests\Unit;
+namespace Rexlabs\Smokescreen\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
-use RexSoftware\Smokescreen\Serializer\DefaultSerializer;
-use RexSoftware\Smokescreen\Smokescreen;
-use RexSoftware\Smokescreen\Transformer\AbstractTransformer;
+use Rexlabs\Smokescreen\Serializer\DefaultSerializer;
+use Rexlabs\Smokescreen\Smokescreen;
+use Rexlabs\Smokescreen\Transformer\AbstractTransformer;
 
 class SmokescreenTest extends TestCase
 {

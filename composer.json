@@ -1,5 +1,5 @@
 {
-  "name": "rexsoftware/smokescreen",
+  "name": "rexlabs/smokescreen",
   "authors": [
     {
       "name": "Jodie Dunlop",
@@ -11,17 +11,17 @@
     {"packagist.org": false}
   ],
   "require-dev": {
-    "phpunit/phpunit": "^6.4",
+    "phpunit/phpunit": "^6.5.7",
     "codedungeon/phpunit-result-printer": "^0.5.4"
   },
   "autoload": {
     "psr-4": {
-      "RexSoftware\\Smokescreen\\": "src/"
+      "Rexlabs\\Smokescreen\\": "src/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "RexSoftware\\Smokescreen\\Tests\\": "tests/"
+      "Rexlabs\\Smokescreen\\Tests\\": "tests/"
     }
   },
   "scripts": {

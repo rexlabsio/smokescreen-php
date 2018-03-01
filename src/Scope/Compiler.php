@@ -1,15 +1,15 @@
 <?php
 
 
-namespace RexSoftware\Smokescreen\Scope;
+namespace Rexlabs\Smokescreen\Scope;
 
 
-use RexSoftware\Smokescreen\Helpers\StrHelper;
-use RexSoftware\Smokescreen\Relations\RelationLoaderInterface;
-use RexSoftware\Smokescreen\Resource\Item;
-use RexSoftware\Smokescreen\Resource\ResourceInterface;
-use RexSoftware\Smokescreen\Serializer\SerializerInterface;
-use RexSoftware\Smokescreen\Transformer\TransformerInterface;
+use Rexlabs\Smokescreen\Helpers\StrHelper;
+use Rexlabs\Smokescreen\Relations\RelationLoaderInterface;
+use Rexlabs\Smokescreen\Resource\Item;
+use Rexlabs\Smokescreen\Resource\ResourceInterface;
+use Rexlabs\Smokescreen\Serializer\SerializerInterface;
+use Rexlabs\Smokescreen\Transformer\TransformerInterface;
 
 class Compiler
 {

@@ -1,24 +1,24 @@
 <?php
-namespace RexSoftware\Smokescreen;
+namespace Rexlabs\Smokescreen;
 
-use RexSoftware\Smokescreen\Exception\InvalidTransformerException;
-use RexSoftware\Smokescreen\Exception\JsonEncodeException;
-use RexSoftware\Smokescreen\Exception\MissingResourceException;
-use RexSoftware\Smokescreen\Exception\UnhandledResourceType;
-use RexSoftware\Smokescreen\Includes\IncludeParser;
-use RexSoftware\Smokescreen\Includes\IncludeParserInterface;
-use RexSoftware\Smokescreen\Includes\Includes;
-use RexSoftware\Smokescreen\Relations\RelationLoaderInterface;
-use RexSoftware\Smokescreen\Resource\Collection;
-use RexSoftware\Smokescreen\Resource\Item;
-use RexSoftware\Smokescreen\Resource\ResourceInterface;
-use RexSoftware\Smokescreen\Serializer\DefaultSerializer;
-use RexSoftware\Smokescreen\Serializer\SerializerInterface;
-use RexSoftware\Smokescreen\Transformer\TransformerInterface;
+use Rexlabs\Smokescreen\Exception\InvalidTransformerException;
+use Rexlabs\Smokescreen\Exception\JsonEncodeException;
+use Rexlabs\Smokescreen\Exception\MissingResourceException;
+use Rexlabs\Smokescreen\Exception\UnhandledResourceType;
+use Rexlabs\Smokescreen\Includes\IncludeParser;
+use Rexlabs\Smokescreen\Includes\IncludeParserInterface;
+use Rexlabs\Smokescreen\Includes\Includes;
+use Rexlabs\Smokescreen\Relations\RelationLoaderInterface;
+use Rexlabs\Smokescreen\Resource\Collection;
+use Rexlabs\Smokescreen\Resource\Item;
+use Rexlabs\Smokescreen\Resource\ResourceInterface;
+use Rexlabs\Smokescreen\Serializer\DefaultSerializer;
+use Rexlabs\Smokescreen\Serializer\SerializerInterface;
+use Rexlabs\Smokescreen\Transformer\TransformerInterface;
 
 /**
  * Smokescreen is a library for transforming and serializing data - typically RESTful API output.
- * @package RexSoftware\Smokescreen
+ * @package Rexlabs\Smokescreen
  */
 class Smokescreen implements \JsonSerializable
 {
@@ -111,7 +111,7 @@ class Smokescreen implements \JsonSerializable
     /**
      * Returns an object representation of the transformed/serialized data.
      * @return \stdClass
-     * @throws \RexSoftware\Smokescreen\Exception\JsonEncodeException
+     * @throws \Rexlabs\Smokescreen\Exception\JsonEncodeException
      */
     public function toObject()
     {
@@ -122,7 +122,7 @@ class Smokescreen implements \JsonSerializable
      * Outputs a JSON string of the resulting transformed and serialized data.
      * @param int $options
      * @return string
-     * @throws \RexSoftware\Smokescreen\Exception\JsonEncodeException
+     * @throws \Rexlabs\Smokescreen\Exception\JsonEncodeException
      */
     public function toJson($options = 0): string
     {
@@ -139,8 +139,8 @@ class Smokescreen implements \JsonSerializable
      * Implements PHP's JsonSerializable interface.
      * @return array
      * @see Smokescreen::toArray()
-     * @throws \RexSoftware\Smokescreen\Exception\InvalidTransformerException
-     * @throws \RexSoftware\Smokescreen\Exception\MissingResourceException
+     * @throws \Rexlabs\Smokescreen\Exception\InvalidTransformerException
+     * @throws \Rexlabs\Smokescreen\Exception\MissingResourceException
      */
     public function jsonSerialize(): array
     {
@@ -150,8 +150,8 @@ class Smokescreen implements \JsonSerializable
     /**
      * Return the transformed data as an array
      * @return array
-     * @throws \RexSoftware\Smokescreen\Exception\InvalidTransformerException
-     * @throws \RexSoftware\Smokescreen\Exception\MissingResourceException
+     * @throws \Rexlabs\Smokescreen\Exception\InvalidTransformerException
+     * @throws \Rexlabs\Smokescreen\Exception\MissingResourceException
      */
     public function toArray(): array
     {
@@ -167,8 +167,8 @@ class Smokescreen implements \JsonSerializable
      * @param ResourceInterface|mixed $resource
      * @param Includes                $includes
      * @return array|mixed
-     * @throws \RexSoftware\Smokescreen\Exception\UnhandledResourceType
-     * @throws \RexSoftware\Smokescreen\Exception\InvalidTransformerException
+     * @throws \Rexlabs\Smokescreen\Exception\UnhandledResourceType
+     * @throws \Rexlabs\Smokescreen\Exception\InvalidTransformerException
      */
     protected function serializeResource($resource, Includes $includes): array
     {
@@ -270,7 +270,7 @@ class Smokescreen implements \JsonSerializable
      * @param mixed|TransformerInterface|callable|null $transformer
      * @param Includes                                 $includes
      * @return array
-     * @throws \RexSoftware\Smokescreen\Exception\InvalidTransformerException
+     * @throws \Rexlabs\Smokescreen\Exception\InvalidTransformerException
      */
     protected function transformItem($item, $transformer, Includes $includes): array
     {

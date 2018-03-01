@@ -1,11 +1,11 @@
 <?php
 
-namespace RexSoftware\Smokescreen\Resource;
+namespace Rexlabs\Smokescreen\Resource;
 
-use RexSoftware\Smokescreen\Exception\InvalidSerializerException;
-use RexSoftware\Smokescreen\Exception\InvalidTransformerException;
-use RexSoftware\Smokescreen\Serializer\SerializerInterface;
-use RexSoftware\Smokescreen\Transformer\TransformerInterface;
+use Rexlabs\Smokescreen\Exception\InvalidSerializerException;
+use Rexlabs\Smokescreen\Exception\InvalidTransformerException;
+use Rexlabs\Smokescreen\Serializer\SerializerInterface;
+use Rexlabs\Smokescreen\Transformer\TransformerInterface;
 
 abstract class AbstractResource implements ResourceInterface
 {

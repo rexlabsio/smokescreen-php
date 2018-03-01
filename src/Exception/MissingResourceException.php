@@ -1,5 +1,5 @@
 <?php
-namespace RexSoftware\Smokescreen\Exception;
+namespace Rexlabs\Smokescreen\Exception;
 
 
 class MissingResourceException extends \RuntimeException

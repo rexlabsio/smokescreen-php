@@ -1,10 +1,10 @@
 <?php
 
-namespace RexSoftware\Smokescreen\Resource;
+namespace Rexlabs\Smokescreen\Resource;
 
-use RexSoftware\Smokescreen\Pagination\CursorInterface;
-use RexSoftware\Smokescreen\Pagination\PageableInterface;
-use RexSoftware\Smokescreen\Pagination\PaginatorInterface;
+use Rexlabs\Smokescreen\Pagination\CursorInterface;
+use Rexlabs\Smokescreen\Pagination\PageableInterface;
+use Rexlabs\Smokescreen\Pagination\PaginatorInterface;
 
 class Collection extends AbstractResource implements PageableInterface, \IteratorAggregate
 {

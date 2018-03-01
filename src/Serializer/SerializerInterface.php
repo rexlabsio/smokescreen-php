@@ -1,8 +1,8 @@
 <?php
-namespace RexSoftware\Smokescreen\Serializer;
+namespace Rexlabs\Smokescreen\Serializer;
 
-use RexSoftware\Smokescreen\Pagination\CursorInterface;
-use RexSoftware\Smokescreen\Pagination\PaginatorInterface;
+use Rexlabs\Smokescreen\Pagination\CursorInterface;
+use Rexlabs\Smokescreen\Pagination\PaginatorInterface;
 
 interface SerializerInterface
 {

@@ -1,5 +1,10 @@
 # Smokescreen
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+[![Build Status](https://travis-ci.org/rexlabsio/smokescreen-php.svg?branch=master)](https://travis-ci.org/rexlabsio/smokescreen-php)
+[![Code Coverage](https://scrutinizer-ci.com/g/rexlabsio/smokescreen-php/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/rexlabsio/smokescreen-php/?branch=master)
+[![Packagist](https://img.shields.io/packagist/v/rexlabs/smokescreen.svg)](https://packagist.org/packages/rexlabs/smokescreen)
+
 ## Overview
 
 This package is a vanilla PHP (with no dependencies) library  for transforming and serializing data; typically RESTful API responses.
@@ -8,8 +13,8 @@ This package is a vanilla PHP (with no dependencies) library  for transforming a
 
 ```php
 <?php
-require 'vendor/autoload.php'
-use RexSoftware\Smokescreen\Smokescreen;
+require 'vendor/autoload.php';
+use Rexlabs\Smokescreen\Smokescreen;
 
 class MyController
 {
@@ -43,21 +48,19 @@ So vanilla.
 
 ## Installation
 
-This package is currently hosted on RexSoftware's private packagist repository. First ensure you have configured your 
-`composer.json` to use this repository.
-
 Install package via composer:
 
-`composer require rexsoftware/smokescreen`
+`composer require rexlabs/smokescreen`
 
 ## Laravel package
 
 We provide a Laravel wrapper package which provides some nice conveniences for working
-within the Laravel framework: `rexsoftware/laravel-smokescreen` which you should install instead of this one.
+within the Laravel framework: `rexlabs/laravel-smokescreen` which you should install instead of this one.
 
 See the Github repository for more information:
 
-[Smokescreen on Rexlabsio Github](https://github.com/rexlabsio/smokescreen)
+- [Laravel Smokescreen Package](https://packagist.org/packages/rexlabs/laravel-smokescreen)
+- [Laravel Smokescreen Repository](https://github.com/rexlabsio/smokescreen-laravel-php)
 
 ## API
 
@@ -266,7 +269,7 @@ $smokescreen
     ->parseIncludes('id,subject,user{id,full_name},comments{id,user}:limit(3),image');
 ```
 
-The default parser `RexSoftware\Smokescreen\Includes\IncludeParser` allows specifying a comma seperated list
+The default parser `Rexlabs\Smokescreen\Includes\IncludeParser` allows specifying a comma seperated list
 of includes which may be either a property returned from the `transform()` method, or an include key declared
 in the `$includes` array definition (See Transformers section below).
 
@@ -477,7 +480,7 @@ We took all the good ideas from Fractal, and made it more extensible and safer f
 ## Contributing
 
 Pull-requests are welcome. Please ensure code is PSR compliant.
-[Smokescreen on Github](http://github.com/)
+[Smokescreen on Github](http://github.com/rexlabsio/smokescreen-php)
 
 ## Who do I talk to?
 
@@ -485,3 +488,9 @@ Talk to team #phoenix, or one of these people:
  
 - Jodie Dunlop <jodie.dunlop@rexsoftware.com.au>
 - Alex Babkov <alex.babkov@rexsoftware.com.au>
+
+## About
+
+- Author: [Jodie Dunlop](https://github.com/jodiedunlop)
+- License: [MIT](LICENSE)
+- Copyright (c) 2018 Rex Software Pty Ltd

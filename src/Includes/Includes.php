@@ -1,9 +1,9 @@
 <?php
-namespace RexSoftware\Smokescreen\Includes;
+namespace Rexlabs\Smokescreen\Includes;
 
 /**
  * Container object for managing include keys and optional mapped parameters.
- * @package RexSoftware\Smokescreen\Includes
+ * @package Rexlabs\Smokescreen\Includes
  */
 class Includes
 {

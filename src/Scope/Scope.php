@@ -1,16 +1,16 @@
 <?php
 
-namespace RexSoftware\Smokescreen\Scope;
+namespace Rexlabs\Smokescreen\Scope;
 
-use RexSoftware\Smokescreen\Includes\Includes;
-use RexSoftware\Smokescreen\Resource\Collection;
-use RexSoftware\Smokescreen\Resource\Item;
-use RexSoftware\Smokescreen\Resource\ResourceInterface;
+use Rexlabs\Smokescreen\Includes\Includes;
+use Rexlabs\Smokescreen\Resource\Collection;
+use Rexlabs\Smokescreen\Resource\Item;
+use Rexlabs\Smokescreen\Resource\ResourceInterface;
 
 /**
  * Scopes hold the current resource being transformed, a possible reference to the parent scope
  * the resource (which points to the data and transformer), and the includes for this scope.
- * @package RexSoftware\Smokescreen\Scope
+ * @package Rexlabs\Smokescreen\Scope
  */
 class Scope
 {

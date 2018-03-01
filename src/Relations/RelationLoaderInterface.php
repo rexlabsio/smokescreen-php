@@ -1,7 +1,7 @@
 <?php
-namespace RexSoftware\Smokescreen\Relations;
+namespace Rexlabs\Smokescreen\Relations;
 
-use RexSoftware\Smokescreen\Resource\ResourceInterface;
+use Rexlabs\Smokescreen\Resource\ResourceInterface;
 
 interface RelationLoaderInterface
 {

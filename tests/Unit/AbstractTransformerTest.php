@@ -1,8 +1,8 @@
 <?php
-namespace RexSoftware\Smokescreen\Tests\Unit;
+namespace Rexlabs\Smokescreen\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
-use RexSoftware\Smokescreen\Transformer\AbstractTransformer;
+use Rexlabs\Smokescreen\Transformer\AbstractTransformer;
 
 class AbstractTransformerTest extends TestCase
 {
