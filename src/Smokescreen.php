@@ -1,4 +1,5 @@
 <?php
+
 namespace Rexlabs\Smokescreen;
 
 use Rexlabs\Smokescreen\Exception\InvalidTransformerException;
@@ -18,6 +19,7 @@ use Rexlabs\Smokescreen\Transformer\TransformerInterface;
 
 /**
  * Smokescreen is a library for transforming and serializing data - typically RESTful API output.
+ *
  * @package Rexlabs\Smokescreen
  */
 class Smokescreen implements \JsonSerializable
@@ -38,8 +40,9 @@ class Smokescreen implements \JsonSerializable
     protected $includes;
 
     /**
-     * Return the current resource
-     * @return ResourceInterface|null
+     * Return the current resource.
+     *
+     * @return ResourceInterface|mixed|null
      */
     public function getResource()
     {
@@ -47,30 +50,48 @@ class Smokescreen implements \JsonSerializable
     }
 
     /**
-     * Set the resource item to be transformed
-     * @param mixed                     $data
-     * @param TransformerInterface|null $transformer
-     * @param string|null               $key
+     * Set the resource to be transformed.
+     *
+     * @param ResourceInterface|mixed|null $resource
+     *
      * @return $this
      */
-    public function item($data, TransformerInterface $transformer = null, $key = null)
+    public function setResource($resource)
     {
-        $this->resource = new Item($data, $transformer, $key);
+        $this->resource = $resource;
+
+        return $this;
+    }
+
+    /**
+     * Set the resource item to be transformed.
+     *
+     * @param mixed                              $data
+     * @param TransformerInterface|callable|null $transformer
+     * @param string|null                        $key
+     *
+     * @return $this
+     */
+    public function item($data, $transformer = null, $key = null)
+    {
+        $this->setResource(new Item($data, $transformer, $key));
 
         return $this;
     }
 
     /**
      * Set the resource collection to be transformed
-     * @param mixed                     $data
-     * @param TransformerInterface|null $transformer
-     * @param string|null               $key
-     * @param callable|null             $callback
+     *
+     * @param mixed                              $data
+     * @param TransformerInterface|callable|null $transformer
+     * @param string|null                        $key
+     * @param callable|null                      $callback
+     *
      * @return $this
      */
     public function collection($data, TransformerInterface $transformer = null, $key = null, callable $callback = null)
     {
-        $this->resource = new Collection($data, $transformer, $key);
+        $this->setResource(new Collection($data, $transformer, $key));
         if ($callback !== null) {
             $callback($this->resource);
         }
@@ -80,7 +101,8 @@ class Smokescreen implements \JsonSerializable
 
     /**
      * Sets the transformer to be used to transform the resource ... later
-     * @return callable|null|TransformerInterface
+     *
+     * @return TransformerInterface|callable|null
      * @throws MissingResourceException
      */
     public function getTransformer()
@@ -94,11 +116,13 @@ class Smokescreen implements \JsonSerializable
 
     /**
      * Sets the transformer to be used to transform the resource ... later
-     * @param TransformerInterface|null $transformer
+     *
+     * @param TransformerInterface|callable|null $transformer
+     *
      * @return $this
      * @throws MissingResourceException
      */
-    public function setTransformer(TransformerInterface $transformer = null)
+    public function setTransformer($transformer = null)
     {
         if (!$this->resource) {
             throw new MissingResourceException('Resource must be specified before setting a transformer');
@@ -176,9 +200,131 @@ class Smokescreen implements \JsonSerializable
     }
 
     /**
+     * @return SerializerInterface
+     */
+    public function getSerializer(): SerializerInterface
+    {
+        return $this->serializer ?? new DefaultSerializer();
+    }
+
+    /**
+     * Set the serializer which will be used to output the transformed resource
+     *
+     * @param SerializerInterface|null $serializer
+     *
+     * @return $this
+     */
+    public function setSerializer(SerializerInterface $serializer = null)
+    {
+        $this->serializer = $serializer;
+
+        return $this;
+    }
+
+    /**
+     * Get the current includes object
+     *
+     * @return Includes
+     */
+    public function getIncludes(): Includes
+    {
+        return $this->includes ?? new Includes();
+    }
+
+    /**
+     * Set the Includes object used for determining included resources
+     *
+     * @param Includes $includes
+     *
+     * @return $this
+     */
+    public function setIncludes(Includes $includes)
+    {
+        $this->includes = $includes;
+
+        return $this;
+    }
+
+    /**
+     * Parse the given string to generate a new Includes object
+     *
+     * @param string $str
+     *
+     * @return $this
+     */
+    public function parseIncludes($str)
+    {
+        $this->includes = $this->getIncludeParser()->parse(!empty($str) ? $str : '');
+
+        return $this;
+    }
+
+    /**
+     * Return the include parser object.
+     * If not set explicitly via setIncludeParser(), it will return the default IncludeParser object
+     *
+     * @return IncludeParserInterface
+     * @see Smokescreen::setIncludeParser()
+     */
+    public function getIncludeParser(): IncludeParserInterface
+    {
+        return $this->includeParser ?? new IncludeParser();
+    }
+
+    /**
+     * Set the include parser to handle converting a string to an Includes object
+     *
+     * @param IncludeParserInterface $includeParser
+     *
+     * @return $this
+     */
+    public function setIncludeParser(IncludeParserInterface $includeParser)
+    {
+        $this->includeParser = $includeParser;
+
+        return $this;
+    }
+
+    /**
+     * Get the current relation loader
+     *
+     * @return RelationLoaderInterface|null
+     */
+    public function getRelationLoader()
+    {
+        return $this->relationLoader;
+    }
+
+    /**
+     * Set the relationship loader
+     *
+     * @param RelationLoaderInterface $relationLoader
+     *
+     * @return $this
+     */
+    public function setRelationLoader(RelationLoaderInterface $relationLoader)
+    {
+        $this->relationLoader = $relationLoader;
+
+        return $this;
+    }
+
+    /**
+     * Returns true if a RelationLoaderInterface object has been defined
+     *
+     * @return bool
+     */
+    public function hasRelationLoader(): bool
+    {
+        return $this->relationLoader !== null;
+    }
+
+    /**
      * @param ResourceInterface|mixed $resource
      * @param Includes                $includes
+     *
      * @return array|mixed
+     * @throws \Rexlabs\Smokescreen\Exception\InvalidSerializerException
      * @throws \Rexlabs\Smokescreen\Exception\UnhandledResourceType
      * @throws \Rexlabs\Smokescreen\Exception\InvalidTransformerException
      */
@@ -208,6 +354,7 @@ class Smokescreen implements \JsonSerializable
 
     /**
      * Fire the relation loader (if defined) for this resource
+     *
      * @param ResourceInterface $resource
      */
     protected function loadRelations(ResourceInterface $resource)
@@ -222,6 +369,7 @@ class Smokescreen implements \JsonSerializable
      * @param Includes   $includes
      *
      * @return array
+     * @throws \Rexlabs\Smokescreen\Exception\InvalidSerializerException
      * @throws \Rexlabs\Smokescreen\Exception\UnhandledResourceType
      * @throws InvalidTransformerException
      */
@@ -239,48 +387,27 @@ class Smokescreen implements \JsonSerializable
 
         // The collection can have a custom serializer defined
         $serializer = $collection->getSerializer() ?? $defaultSerializer;
-        $isSerializerInterface = $serializer instanceof SerializerInterface;
 
-        if ($isSerializerInterface) {
+        if ($serializer instanceof SerializerInterface) {
             // Serialize via object implementing SerializerInterface
             $output = $serializer->collection($collection->getResourceKey(), $items);
+            if ($collection->hasPaginator()) {
+                $output = array_merge($output, $serializer->paginator($collection->getPaginator()));
+            }
         } elseif (\is_callable($serializer)) {
             // Serialize via a callable/closure
             $output = $serializer($collection->getResourceKey(), $items);
         } else {
-            // No serialization
+            // Serialization disabled for this resource
             $output = $items;
-        }
-
-        if ($isSerializerInterface && $collection->hasPaginator()) {
-            $output = array_merge($output, $serializer->paginator($collection->getPaginator()));
         }
 
         return $output;
     }
 
     /**
-     * @return SerializerInterface
-     */
-    public function getSerializer(): SerializerInterface
-    {
-        return $this->serializer ?? new DefaultSerializer();
-    }
-
-    /**
-     * Set the serializer which will be used to output the transformed resource
-     * @param SerializerInterface|null $serializer
-     * @return $this
-     */
-    public function setSerializer(SerializerInterface $serializer = null)
-    {
-        $this->serializer = $serializer;
-
-        return $this;
-    }
-
-    /**
      * Apply transformation to the item.
+     *
      * @param mixed                                    $item
      * @param mixed|TransformerInterface|callable|null $transformer
      * @param Includes                                 $includes
@@ -300,17 +427,6 @@ class Smokescreen implements \JsonSerializable
             return (array)$transformer($item);
         }
 
-        // Otherwise, we expect a transformer object
-        if (!$transformer instanceof TransformerInterface) {
-            throw new InvalidTransformerException('Transformer must implement TransformerInterface');
-        }
-
-        // We need to double-check it has a transform() method - perhaps this could be done on set?
-        // Since PHP doesn't support contravariance, we can't define the transform() signature on the interface
-        if (!method_exists($transformer, 'transform')) {
-            throw new InvalidTransformerException('Transformer must provide a transform() method');
-        }
-
         // Only these keys may be mapped
         $availableIncludeKeys = $transformer->getAvailableIncludes();
 
@@ -318,12 +434,12 @@ class Smokescreen implements \JsonSerializable
         $wantIncludeKeys = $includes->baseKeys() ?: $transformer->getDefaultIncludes();
 
         // Find the keys that are declared in the $includes of the transformer
-        $mappedIncludeKeys = array_filter($wantIncludeKeys, function($includeKey) use ($availableIncludeKeys) {
+        $mappedIncludeKeys = array_filter($wantIncludeKeys, function ($includeKey) use ($availableIncludeKeys) {
             return \in_array($includeKey, $availableIncludeKeys, true);
         });
 
         // We can consider our props anything that has not been mapped
-        $filterProps = array_filter($wantIncludeKeys, function($includeKey) use ($mappedIncludeKeys) {
+        $filterProps = array_filter($wantIncludeKeys, function ($includeKey) use ($mappedIncludeKeys) {
             return !\in_array($includeKey, $mappedIncludeKeys, true);
         });
 
@@ -342,7 +458,7 @@ class Smokescreen implements \JsonSerializable
 
         // Filter the sparse field-set
         if (!empty($filterProps)) {
-            $filteredData = array_filter($data, function($key) use ($filterProps) {
+            $filteredData = array_filter($data, function ($key) use ($filterProps) {
                 return \in_array($key, $filterProps, true);
             }, ARRAY_FILTER_USE_KEY);
 
@@ -373,6 +489,7 @@ class Smokescreen implements \JsonSerializable
 
     /**
      * Execute the transformer
+     *
      * @param mixed $transformer
      * @param array $include
      * @param mixed $item
@@ -386,6 +503,7 @@ class Smokescreen implements \JsonSerializable
 
     /**
      * Applies the serializer to the Item resource.
+     *
      * @param Item     $item
      * @param Includes $includes
      *
@@ -418,92 +536,6 @@ class Smokescreen implements \JsonSerializable
         }
 
         return $output;
-    }
-
-    /**
-     * Get the current includes object
-     * @return Includes
-     */
-    public function getIncludes(): Includes
-    {
-        return $this->includes ?? new Includes();
-    }
-
-    /**
-     * Set the Includes object used for determining included resources
-     * @param Includes $includes
-     * @return $this
-     */
-    public function setIncludes(Includes $includes)
-    {
-        $this->includes = $includes;
-
-        return $this;
-    }
-
-    /**
-     * Parse the given string to generate a new Includes object
-     * @param string $str
-     * @return $this
-     */
-    public function parseIncludes($str)
-    {
-        $this->includes = $this->getIncludeParser()->parse(!empty($str) ? $str : '');
-
-        return $this;
-    }
-
-    /**
-     * Return the include parser object.
-     * If not set explicitly via setIncludeParser(), it will return the default IncludeParser object
-     * @return IncludeParserInterface
-     * @see Smokescreen::setIncludeParser()
-     */
-    public function getIncludeParser(): IncludeParserInterface
-    {
-        return $this->includeParser ?? new IncludeParser();
-    }
-
-    /**
-     * Set the include parser to handle converting a string to an Includes object
-     * @param IncludeParserInterface $includeParser
-     * @return $this
-     */
-    public function setIncludeParser(IncludeParserInterface $includeParser)
-    {
-        $this->includeParser = $includeParser;
-
-        return $this;
-    }
-
-    /**
-     * Get the current relation loader
-     * @return RelationLoaderInterface|null
-     */
-    public function getRelationLoader()
-    {
-        return $this->relationLoader;
-    }
-
-    /**
-     * Set the relationship loader
-     * @param RelationLoaderInterface $relationLoader
-     * @return $this
-     */
-    public function setRelationLoader(RelationLoaderInterface $relationLoader)
-    {
-        $this->relationLoader = $relationLoader;
-
-        return $this;
-    }
-
-    /**
-     * Returns true if a RelationLoaderInterface object has been defined
-     * @return bool
-     */
-    public function hasRelationLoader(): bool
-    {
-        return $this->relationLoader !== null;
     }
 }
 

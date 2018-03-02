@@ -217,7 +217,7 @@ abstract class AbstractResource implements ResourceInterface
 
     /**
      * Determines if the given argument is a valid transformer.
-     * @param callable|TransformerInterface $transformer
+     * @param mixed $transformer
      *
      * @return bool
      */
@@ -227,7 +227,7 @@ abstract class AbstractResource implements ResourceInterface
             return true;
         }
 
-        if (\is_callable($transformer, true)) {
+        if (\is_callable($transformer)) {
             return true;
         }
 
@@ -243,7 +243,7 @@ abstract class AbstractResource implements ResourceInterface
     }
 
     /**
-     * @return callable|SerializerInterface|null
+     * @return callable|SerializerInterface|false|null
      */
     public function getSerializer()
     {
@@ -252,20 +252,45 @@ abstract class AbstractResource implements ResourceInterface
 
     /**
      * Sets a custom serializer to be used for this resource
+     * - Usually you will set this to an instance of SerializerInterface.
+     * - Set to false to force no serialization on this resource.
+     * - When set to null the default serializer will be used.
+     * - Optionally set a closure/callback to be used for serialization.
      *
-     * @param callable|SerializerInterface|null $serializer
+     * @param callable|SerializerInterface|false|null $serializer
      * @throws InvalidSerializerException
      * @return $this
      */
     public function setSerializer($serializer)
     {
         if ($serializer !== null) {
-            if (!($serializer instanceof SerializerInterface || \is_callable($serializer))) {
-                throw new InvalidSerializerException('Serializer must be one of: callable, SerializerInterface, or null');
+            if (!$this->isValidSerializer($serializer)) {
+                throw new InvalidSerializerException('Serializer must be one of: callable, SerializerInterface, false or null');
             }
         }
         $this->serializer = $serializer;
 
         return $this;
+    }
+
+    /**
+     * @param mixed $serializer
+     *
+     * @return bool
+     */
+    public function isValidSerializer($serializer): bool
+    {
+        if ($serializer === false) {
+            // False is a valid value (forces serialization to be off)
+            return true;
+        }
+        if ($serializer instanceof SerializerInterface) {
+            return true;
+        }
+        if (\is_callable($serializer)) {
+            return true;
+        }
+
+        return false;
     }
 }
