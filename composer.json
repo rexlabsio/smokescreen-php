@@ -1,5 +1,15 @@
 {
   "name": "rexlabs/smokescreen",
+  "keywords": [
+    "smokescreen",
+    "api",
+    "transform",
+    "json",
+    "hypermedia",
+    "webservices",
+    "serializer",
+    "fractal"
+  ],
   "authors": [
     {
       "name": "Jodie Dunlop",
@@ -24,5 +34,6 @@
     "test": "phpunit",
     "tests": "phpunit --colors=always",
     "coverage": "phpunit --coverage-html ./tests/report"
-  }
+  },
+  "license": "MIT"
 }
