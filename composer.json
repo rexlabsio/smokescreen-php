@@ -1,5 +1,6 @@
 {
   "name": "rexlabs/smokescreen",
+  "description": "Smokescreen is a PHP library for transforming and serializing data such as API responses.",
   "keywords": [
     "smokescreen",
     "api",
