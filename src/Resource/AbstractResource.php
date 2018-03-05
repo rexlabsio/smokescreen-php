@@ -40,7 +40,7 @@ abstract class AbstractResource implements ResourceInterface
     /**
      * Provide a custom serializer for this resource.
      *
-     * @var callable|SerializerInterface|null
+     * @var callable|SerializerInterface|false|null
      */
     protected $serializer;
 
