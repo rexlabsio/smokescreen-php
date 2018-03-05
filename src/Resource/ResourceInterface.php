@@ -61,7 +61,7 @@ interface ResourceInterface
     /**
      * Get the serializer.
      *
-     * @return callable|SerializerInterface|null
+     * @return callable|SerializerInterface|false|null
      */
     public function getSerializer();
 
