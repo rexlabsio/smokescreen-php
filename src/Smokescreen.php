@@ -434,12 +434,12 @@ class Smokescreen implements \JsonSerializable
         $wantIncludeKeys = $includes->baseKeys() ?: $transformer->getDefaultIncludes();
 
         // Find the keys that are declared in the $includes of the transformer
-        $mappedIncludeKeys = array_filter($wantIncludeKeys, function ($includeKey) use ($availableIncludeKeys) {
+        $mappedIncludeKeys = array_filter($wantIncludeKeys, function($includeKey) use ($availableIncludeKeys) {
             return \in_array($includeKey, $availableIncludeKeys, true);
         });
 
         // We can consider our props anything that has not been mapped
-        $filterProps = array_filter($wantIncludeKeys, function ($includeKey) use ($mappedIncludeKeys) {
+        $filterProps = array_filter($wantIncludeKeys, function($includeKey) use ($mappedIncludeKeys) {
             return !\in_array($includeKey, $mappedIncludeKeys, true);
         });
 
@@ -458,7 +458,7 @@ class Smokescreen implements \JsonSerializable
 
         // Filter the sparse field-set
         if (!empty($filterProps)) {
-            $filteredData = array_filter($data, function ($key) use ($filterProps) {
+            $filteredData = array_filter($data, function($key) use ($filterProps) {
                 return \in_array($key, $filterProps, true);
             }, ARRAY_FILTER_USE_KEY);
 
