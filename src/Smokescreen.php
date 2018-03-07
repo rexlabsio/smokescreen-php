@@ -6,6 +6,7 @@ use Rexlabs\Smokescreen\Exception\InvalidTransformerException;
 use Rexlabs\Smokescreen\Exception\JsonEncodeException;
 use Rexlabs\Smokescreen\Exception\MissingResourceException;
 use Rexlabs\Smokescreen\Exception\UnhandledResourceType;
+use Rexlabs\Smokescreen\Helpers\JsonHelper;
 use Rexlabs\Smokescreen\Includes\IncludeParser;
 use Rexlabs\Smokescreen\Includes\IncludeParserInterface;
 use Rexlabs\Smokescreen\Includes\Includes;
@@ -158,12 +159,7 @@ class Smokescreen implements \JsonSerializable
      */
     public function toJson($options = 0): string
     {
-        $json = json_encode($this->jsonSerialize(), $options);
-        if (JSON_ERROR_NONE !== json_last_error()) {
-            throw new JsonEncodeException(json_last_error_msg());
-        }
-
-        return $json;
+        return JsonHelper::encode($this->jsonSerialize(), $options);
     }
 
     /**
