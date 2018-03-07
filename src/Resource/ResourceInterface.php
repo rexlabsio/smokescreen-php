@@ -53,7 +53,7 @@ interface ResourceInterface
 
     /**
      * An array of relationship keys
-     * @return mixed
+     * @return array
      */
     public function getRelationships(): array;
 
