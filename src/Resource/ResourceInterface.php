@@ -57,7 +57,6 @@ interface ResourceInterface
      */
     public function getRelationships(): array;
 
-
     /**
      * Get the serializer.
      *
@@ -77,5 +76,4 @@ interface ResourceInterface
      * @return $this
      */
     public function setSerializer($serializer);
-
 }
