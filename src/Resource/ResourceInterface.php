@@ -45,7 +45,7 @@ interface ResourceInterface
     /**
      * Set the transformer.
      *
-     * @param callable|TransformerInterface
+     * @param TransformerInterface|callable|null
      *
      * @return $this
      */
@@ -61,7 +61,7 @@ interface ResourceInterface
     /**
      * Get the serializer.
      *
-     * @return callable|SerializerInterface|false|null
+     * @return SerializerInterface|callable|false|null
      */
     public function getSerializer();
 
@@ -73,7 +73,7 @@ interface ResourceInterface
     /**
      * Set the serializer.
      *
-     * @param callable|SerializerInterface|null
+     * @param SerializerInterface|callable|false|null
      * @return $this
      */
     public function setSerializer($serializer);

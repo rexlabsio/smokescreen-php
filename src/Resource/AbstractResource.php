@@ -243,7 +243,7 @@ abstract class AbstractResource implements ResourceInterface
     }
 
     /**
-     * @return callable|SerializerInterface|false|null
+     * @return SerializerInterface|callable|false|null
      */
     public function getSerializer()
     {
@@ -257,7 +257,7 @@ abstract class AbstractResource implements ResourceInterface
      * - When set to null the default serializer will be used.
      * - Optionally set a closure/callback to be used for serialization.
      *
-     * @param callable|SerializerInterface|false|null $serializer
+     * @param SerializerInterface|callable|false|null $serializer
      * @throws InvalidSerializerException
      * @return $this
      */
