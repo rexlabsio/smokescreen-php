@@ -65,7 +65,7 @@ class Smokescreen implements \JsonSerializable
      * Set the resource item to be transformed.
      *
      * @param mixed                              $data
-     * @param TransformerInterface|callable|null $transformer
+     * @param TransformerInterface|mixed|null $transformer
      * @param string|null                        $key
      *
      * @return $this
@@ -81,7 +81,7 @@ class Smokescreen implements \JsonSerializable
      * Set the resource collection to be transformed.
      *
      * @param mixed                              $data
-     * @param TransformerInterface|callable|null $transformer
+     * @param TransformerInterface|mixed|null $transformer
      * @param string|null                        $key
      * @param callable|null                      $callback
      *
@@ -102,7 +102,7 @@ class Smokescreen implements \JsonSerializable
      *
      * @throws MissingResourceException
      *
-     * @return TransformerInterface|callable|null
+     * @return TransformerInterface|mixed|null
      */
     public function getTransformer()
     {
@@ -116,7 +116,7 @@ class Smokescreen implements \JsonSerializable
     /**
      * Sets the transformer to be used to transform the resource ... later.
      *
-     * @param TransformerInterface|callable|null $transformer
+     * @param TransformerInterface|mixed|null $transformer
      *
      * @throws MissingResourceException
      *
@@ -332,12 +332,12 @@ class Smokescreen implements \JsonSerializable
      */
     protected function serializeResource($resource, Includes $includes): array
     {
-        // Relationship loading
+        // Load relations for any resource which implements the interface.
         if ($resource instanceof ResourceInterface) {
             $this->loadRelations($resource);
         }
 
-        // Build the output by recursively transforming each resource
+        // Build the output by recursively transforming each resource.
         $output = null;
         if ($resource instanceof Collection) {
             $output = $this->serializeCollection($resource, $includes);
@@ -378,17 +378,17 @@ class Smokescreen implements \JsonSerializable
      */
     protected function serializeCollection(Collection $collection, Includes $includes): array
     {
-        // Get the globally set serializer (resource may override)
+        // Get the globally set serializer (resource may override).
         $defaultSerializer = $this->getSerializer();
 
-        // Collection resources implement IteratorAggregate ... so that's nice
+        // Collection resources implement IteratorAggregate ... so that's nice.
         $items = [];
         foreach ($collection as $item) {
             // $item might be a Model or an array etc.
             $items[] = $this->transformItem($item, $collection->getTransformer(), $includes);
         }
 
-        // The collection can have a custom serializer defined
+        // The collection can have a custom serializer defined.
         $serializer = $collection->getSerializer() ?? $defaultSerializer;
 
         if ($serializer instanceof SerializerInterface) {
@@ -423,11 +423,11 @@ class Smokescreen implements \JsonSerializable
     protected function transformItem($item, $transformer, Includes $includes): array
     {
         if ($transformer === null) {
-            // No transformation can be applied
+            // No transformation can be applied.
             return (array) $item;
         }
         if (\is_callable($transformer)) {
-            // Callable should simply return an array
+            // Callable should simply return an array.
             return (array) $transformer($item);
         }
 
@@ -442,7 +442,7 @@ class Smokescreen implements \JsonSerializable
             return \in_array($includeKey, $availableIncludeKeys, true);
         });
 
-        // We can consider our props anything that has not been mapped
+        // We can consider our props anything that has not been mapped.
         $filterProps = array_filter($wantIncludeKeys, function ($includeKey) use ($mappedIncludeKeys) {
             return !\in_array($includeKey, $mappedIncludeKeys, true);
         });
