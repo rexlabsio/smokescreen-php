@@ -133,9 +133,9 @@ class AbstractTransformer implements TransformerInterface
     public function getRelationships(): array
     {
         return array_column(
-            array_map(function ($includeKey, $settings) {
-                return [$includeKey, $settings['relation']];
-            }, array_keys($this->getCachedIncludeMap()), array_values($this->getCachedIncludeMap())),
+            array_filter(array_map(function ($includeKey, $settings) {
+                return $settings['relation'] ? [$includeKey, $settings['relation']] : null;
+            }, array_keys($this->getCachedIncludeMap()), array_values($this->getCachedIncludeMap()))),
             1, 0
         );
     }
