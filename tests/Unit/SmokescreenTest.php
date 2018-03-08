@@ -1,6 +1,6 @@
 <?php
 /**
- * smokescreen
+ * smokescreen.
  *
  * User: rhys
  * Date: 7/1/18
@@ -141,11 +141,11 @@ class SmokescreenTest extends TestCase
             'id'         => '1234',
             'first_name' => 'Walter',
             'last_name'  => 'Lilly',
-        ], function($item) {
+        ], function ($item) {
             return [
-                'id' => 'xxx'.$item['id'],
+                'id'         => 'xxx'.$item['id'],
                 'first_name' => 'xxx'.$item['first_name'],
-                'last_name' => 'xxx'.$item['last_name'],
+                'last_name'  => 'xxx'.$item['last_name'],
             ];
         });
         $this->assertTrue(\is_callable($smokescreen->getTransformer()));
@@ -194,9 +194,7 @@ class SmokescreenTest extends TestCase
     {
         /* Test that a custom include method is called on the transformer */
 
-        $transformer = new class extends AbstractTransformer
-        {
-
+        $transformer = new class() extends AbstractTransformer {
             public $tokenTransformer;
             protected $includes = [
                 'user_api_token' => 'method:includeTheUserApiToken',
@@ -215,8 +213,7 @@ class SmokescreenTest extends TestCase
             }
         };
 
-        $transformer->tokenTransformer = new class extends AbstractTransformer
-        {
+        $transformer->tokenTransformer = new class() extends AbstractTransformer {
             public function transform($item)
             {
                 return [
@@ -233,7 +230,7 @@ class SmokescreenTest extends TestCase
         ];
 
         /* assert */
-        $smokescreen = (new Smokescreen)->parseIncludes('user_api_token')->item($user, $transformer);
+        $smokescreen = (new Smokescreen())->parseIncludes('user_api_token')->item($user, $transformer);
 
         $this->assertEquals($user, $smokescreen->toArray());
     }
@@ -249,7 +246,7 @@ class SmokescreenTest extends TestCase
         ];
 
         /* assert */
-        $smokescreen = (new Smokescreen)->item($user);
+        $smokescreen = (new Smokescreen())->item($user);
 
         $userObj = $smokescreen->toObject();
         $this->assertInstanceOf(\stdClass::class, $userObj);
@@ -272,7 +269,7 @@ class SmokescreenTest extends TestCase
         ];
 
         /* assert */
-        $smokescreen = (new Smokescreen)->item($user);
+        $smokescreen = (new Smokescreen())->item($user);
 
         $this->assertEquals($user, $smokescreen->toArray());
     }
@@ -280,9 +277,7 @@ class SmokescreenTest extends TestCase
     /** @test */
     public function resource_can_override_serializer()
     {
-        $transformer = new class extends AbstractTransformer
-        {
-
+        $transformer = new class() extends AbstractTransformer {
             protected $serializer;
 
             protected $includes = [
@@ -291,8 +286,7 @@ class SmokescreenTest extends TestCase
 
             public function __construct()
             {
-                $this->serializer = new class extends DefaultSerializer
-                {
+                $this->serializer = new class() extends DefaultSerializer {
                     public function collection($resourceKey, array $data): array
                     {
                         return ['custom_serialize' => $data];
@@ -324,9 +318,8 @@ class SmokescreenTest extends TestCase
             }
         };
 
-
         /* assert */
-        $smokescreen = (new Smokescreen)->parseIncludes('images{url}')->item([
+        $smokescreen = (new Smokescreen())->parseIncludes('images{url}')->item([
             'id'         => '1234',
             'first_name' => 'Walter',
             'last_name'  => 'Lilly',
@@ -353,8 +346,7 @@ class SmokescreenTest extends TestCase
     /** @test */
     public function include_can_return_array_instead_of_resource()
     {
-        $transformer = new class extends AbstractTransformer
-        {
+        $transformer = new class() extends AbstractTransformer {
             protected $includes = [
                 'images',
             ];
@@ -383,9 +375,8 @@ class SmokescreenTest extends TestCase
             }
         };
 
-
         /* assert */
-        $smokescreen = (new Smokescreen)->parseIncludes('images{url}')->item([
+        $smokescreen = (new Smokescreen())->parseIncludes('images{url}')->item([
             'id'         => '1234',
             'first_name' => 'Walter',
             'last_name'  => 'Lilly',
@@ -410,8 +401,7 @@ class SmokescreenTest extends TestCase
     /** @test */
     public function can_serialize_an_object_with_to_array_method()
     {
-        $objResource = new class()
-        {
+        $objResource = new class() {
             public function toArray()
             {
                 return [
@@ -514,8 +504,7 @@ class SmokescreenTest extends TestCase
     /** @test */
     public function does_trigger_relationship_loading()
     {
-        $transformer = new class() extends AbstractTransformer
-        {
+        $transformer = new class() extends AbstractTransformer {
             protected $includes = [
                 'owner'    => 'relation:users',
                 'comments' => 'relation:comments',
@@ -537,19 +526,16 @@ class SmokescreenTest extends TestCase
 
         $relationLoader->expects($this->once())->method('load')->with($smokescreen->getResource());
 
-
         $smokescreen->setRelationLoader($relationLoader);
         $this->assertTrue($smokescreen->hasRelationLoader());
         $this->assertInstanceOf(RelationLoaderInterface::class, $smokescreen->getRelationLoader());
         $smokescreen->toArray();
-
     }
 
     /** @test */
     public function only_default_props_are_returned()
     {
-        $transformer = new class extends AbstractTransformer
-        {
+        $transformer = new class() extends AbstractTransformer {
             protected $defaultProps = [
                 'id', // Only id returned
             ];
@@ -561,14 +547,13 @@ class SmokescreenTest extends TestCase
                     'full_name' => "{$person['first_name']} {$person['last_name']}",
                 ];
             }
-
         };
 
         $smokescreen = new Smokescreen();
         $smokescreen->item([
-            'id' => 123,
+            'id'         => 123,
             'first_name' => 'Jerry',
-            'last_name' => 'Seinfeld',
+            'last_name'  => 'Seinfeld',
         ], $transformer);
         $this->assertEquals([
             'id' => 123,
@@ -576,10 +561,9 @@ class SmokescreenTest extends TestCase
 
         $smokescreen->parseIncludes('id,full_name');
         $this->assertEquals([
-            'id' => 123,
+            'id'        => 123,
             'full_name' => 'Jerry Seinfeld',
         ], $smokescreen->toArray());
-
     }
 
     /** @test */
@@ -594,8 +578,7 @@ class SmokescreenTest extends TestCase
 
     protected function createTransformer(): AbstractTransformer
     {
-        return new class extends AbstractTransformer
-        {
+        return new class() extends AbstractTransformer {
             protected $includes = [
                 'images',
             ];
@@ -627,8 +610,7 @@ class SmokescreenTest extends TestCase
 
     protected function createSerializer(): SerializerInterface
     {
-        return new class extends DefaultSerializer
-        {
+        return new class() extends DefaultSerializer {
             public function collection($resourceKey, array $data): array
             {
                 return ['custom_serialize' => $data];

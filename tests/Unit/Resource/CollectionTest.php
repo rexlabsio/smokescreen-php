@@ -47,13 +47,11 @@ class CollectionTest extends TestCase
             ],
         ];
 
-
         $collection = new Collection();
 
         // Pass plain array
         $collection->setData($data);
         $this->assertInstanceOf(\ArrayIterator::class, $collection->getIterator());
-
 
         // Pass in iterator
         $collection->setData(new \ArrayIterator($data));
@@ -83,7 +81,6 @@ class CollectionTest extends TestCase
             ],
         ];
 
-
         $collection = new Collection();
 
         // Pass plain array
@@ -109,8 +106,7 @@ class CollectionTest extends TestCase
      */
     public function createCursor(): CursorInterface
     {
-        return new class() implements CursorInterface
-        {
+        return new class() implements CursorInterface {
             public function getCurrent()
             {
                 return 'current';
@@ -138,8 +134,7 @@ class CollectionTest extends TestCase
      */
     public function createPaginator(): PaginatorInterface
     {
-        return new class() implements PaginatorInterface
-        {
+        return new class() implements PaginatorInterface {
             public function getCurrentPage(): int
             {
                 return 1;
@@ -174,8 +169,7 @@ class CollectionTest extends TestCase
 
     public function createIteratorAggregate($data = null): \IteratorAggregate
     {
-        return new class($data) implements \IteratorAggregate
-        {
+        return new class($data) implements \IteratorAggregate {
             protected $data;
 
             public function __construct($data)

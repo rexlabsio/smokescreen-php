@@ -29,7 +29,7 @@ interface ResourceInterface
     public function getTransformer();
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function hasTransformer(): bool;
 
@@ -52,7 +52,8 @@ interface ResourceInterface
     public function setTransformer($transformer);
 
     /**
-     * An array of relationship keys
+     * An array of relationship keys.
+     *
      * @return array
      */
     public function getRelationships(): array;
@@ -65,14 +66,15 @@ interface ResourceInterface
     public function getSerializer();
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function hasSerializer(): bool;
-    
+
     /**
      * Set the serializer.
      *
      * @param SerializerInterface|callable|false|null
+     *
      * @return $this
      */
     public function setSerializer($serializer);

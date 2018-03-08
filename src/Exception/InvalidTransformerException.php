@@ -1,8 +1,7 @@
 <?php
-namespace Rexlabs\Smokescreen\Exception;
 
+namespace Rexlabs\Smokescreen\Exception;
 
 class InvalidTransformerException extends \InvalidArgumentException
 {
-
 }

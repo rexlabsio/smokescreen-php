@@ -59,30 +59,30 @@ class DefaultSerializerTest extends TestCase
         $paginator = $this->createPaginator(100);
         $this->assertEquals([
             'pagination' => [
-                'total' => $paginator->getTotal(),
-                'count' => $paginator->getCount(),
-                'per_page' => $paginator->getPerPage(),
+                'total'        => $paginator->getTotal(),
+                'count'        => $paginator->getCount(),
+                'per_page'     => $paginator->getPerPage(),
                 'current_page' => $paginator->getCurrentPage(),
-                'total_pages' => $paginator->getLastPage(),
-                'links' => [
+                'total_pages'  => $paginator->getLastPage(),
+                'links'        => [
                     'next' => 'http://localhost/2',
                 ],
-            ]
+            ],
         ], $serializer->paginator($paginator));
 
         $paginator = $this->createPaginator(50, 2);
         $this->assertEquals([
             'pagination' => [
-                'total' => $paginator->getTotal(),
-                'count' => $paginator->getCount(),
-                'per_page' => $paginator->getPerPage(),
+                'total'        => $paginator->getTotal(),
+                'count'        => $paginator->getCount(),
+                'per_page'     => $paginator->getPerPage(),
                 'current_page' => $paginator->getCurrentPage(),
-                'total_pages' => $paginator->getLastPage(),
-                'links' => [
+                'total_pages'  => $paginator->getLastPage(),
+                'links'        => [
                     'previous' => 'http://localhost/1',
-                    'next' => 'http://localhost/3',
+                    'next'     => 'http://localhost/3',
                 ],
-            ]
+            ],
         ], $serializer->paginator($paginator));
     }
 
@@ -95,9 +95,9 @@ class DefaultSerializerTest extends TestCase
         $this->assertEquals([
             'cursor' => [
                 'current' => 'current',
-                'prev' => 'prev',
-                'next' => 'next',
-                'count' => 10,
+                'prev'    => 'prev',
+                'next'    => 'next',
+                'count'   => 10,
             ],
         ], $serializer->cursor($cursor));
     }
@@ -107,8 +107,7 @@ class DefaultSerializerTest extends TestCase
      */
     public function createCursor(): CursorInterface
     {
-        return new class() implements CursorInterface
-        {
+        return new class() implements CursorInterface {
             public function getCurrent()
             {
                 return 'current';
@@ -133,15 +132,13 @@ class DefaultSerializerTest extends TestCase
 
     /**
      * @param int $total
-     *
      * @param int $currentPage
      *
      * @return PaginatorInterface
      */
     public function createPaginator(int $total = 10, int $currentPage = 1): PaginatorInterface
     {
-        return new class($total, $currentPage) implements PaginatorInterface
-        {
+        return new class($total, $currentPage) implements PaginatorInterface {
             protected $perPage = 15;
             protected $total;
             protected $currentPage;
@@ -169,8 +166,9 @@ class DefaultSerializerTest extends TestCase
 
             public function getCount(): int
             {
-                $offset = ($this->currentPage-1) * $this->perPage;
+                $offset = ($this->currentPage - 1) * $this->perPage;
                 $remainder = $this->total - $offset;
+
                 return $remainder < $this->perPage ? $remainder : $this->perPage;
             }
 

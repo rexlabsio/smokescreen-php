@@ -8,17 +8,16 @@ use Rexlabs\Smokescreen\Pagination\PaginatorInterface;
 /**
  * The default serializer:
  * - Returns collections nested under a "data" key
- * - Returns items without any nesting
- * @package Rexlabs\Smokescreen\Serializer
+ * - Returns items without any nesting.
  */
 class DefaultSerializer implements SerializerInterface
 {
     /**
      * Serialize a collection.
-     * The data will be nested under a "data" key
+     * The data will be nested under a "data" key.
      *
      * @param string $resourceKey
-     * @param array $data
+     * @param array  $data
      *
      * @return array
      */
@@ -29,10 +28,10 @@ class DefaultSerializer implements SerializerInterface
 
     /**
      * Serialize an item.
-     * The item data will be returned as-is. (not nested)
+     * The item data will be returned as-is. (not nested).
      *
      * @param string $resourceKey
-     * @param array $data
+     * @param array  $data
      *
      * @return array
      */
@@ -43,7 +42,7 @@ class DefaultSerializer implements SerializerInterface
 
     /**
      * Serialize null resource.
-     * ¯\_(ツ)_/¯
+     * ¯\_(ツ)_/¯.
      *
      * @return array
      */
@@ -65,11 +64,11 @@ class DefaultSerializer implements SerializerInterface
         $lastPage = $paginator->getLastPage();
 
         $pagination = [
-            'total' => $paginator->getTotal(),
-            'count' => $paginator->getCount(),
-            'per_page' => $paginator->getPerPage(),
+            'total'        => $paginator->getTotal(),
+            'count'        => $paginator->getCount(),
+            'per_page'     => $paginator->getPerPage(),
             'current_page' => $currentPage,
-            'total_pages' => $lastPage,
+            'total_pages'  => $lastPage,
         ];
 
         $pagination['links'] = [];
@@ -97,11 +96,10 @@ class DefaultSerializer implements SerializerInterface
         return [
             'cursor' => [
                 'current' => $cursor->getCurrent(),
-                'prev' => $cursor->getPrev(),
-                'next' => $cursor->getNext(),
-                'count' => (int)$cursor->getCount(),
+                'prev'    => $cursor->getPrev(),
+                'next'    => $cursor->getNext(),
+                'count'   => (int) $cursor->getCount(),
             ],
         ];
-
     }
 }

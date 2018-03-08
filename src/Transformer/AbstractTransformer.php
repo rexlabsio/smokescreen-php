@@ -1,4 +1,5 @@
 <?php
+
 namespace Rexlabs\Smokescreen\Transformer;
 
 use Rexlabs\Smokescreen\Exception\ParseDefinitionException;
@@ -22,7 +23,8 @@ class AbstractTransformer implements TransformerInterface
 //    protected $scope;
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
+     *
      * @throws ParseDefinitionException
      */
     public function getAvailableIncludes(): array
@@ -31,10 +33,13 @@ class AbstractTransformer implements TransformerInterface
     }
 
     /**
-     * Return a cached version of the include map
+     * Return a cached version of the include map.
+     *
      * @see AbstractTransformer::getIncludeMap()
-     * @return array
+     *
      * @throws ParseDefinitionException
+     *
+     * @return array
      */
     protected function getCachedIncludeMap(): array
     {
@@ -48,8 +53,10 @@ class AbstractTransformer implements TransformerInterface
     /**
      * Process the $includes property and convert the directives into a map
      * indexed by the include key, and specifying: default, relation, method.
-     * @return array
+     *
      * @throws ParseDefinitionException
+     *
+     * @return array
      */
     public function getIncludeMap(): array
     {
@@ -94,7 +101,7 @@ class AbstractTransformer implements TransformerInterface
                 $settings['relation'] = [];
             }
             if (!isset($settings['method'])) {
-                $settings['method'] = 'include' . StrHelper::studlyCase($includeKey);
+                $settings['method'] = 'include'.StrHelper::studlyCase($includeKey);
             }
             if (!isset($settings['default'])) {
                 $settings['default'] = false;
@@ -107,24 +114,26 @@ class AbstractTransformer implements TransformerInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
+     *
      * @throws ParseDefinitionException
      */
     public function getDefaultIncludes(): array
     {
-        return array_values(array_filter(array_keys($this->getCachedIncludeMap()), function($includeKey) {
+        return array_values(array_filter(array_keys($this->getCachedIncludeMap()), function ($includeKey) {
             return $this->getCachedIncludeMap()[$includeKey]['default'];
         }));
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
+     *
      * @throws ParseDefinitionException
      */
     public function getRelationships(): array
     {
         return array_column(
-            array_map(function($includeKey, $settings) {
+            array_map(function ($includeKey, $settings) {
                 return [$includeKey, $settings['relation']];
             }, array_keys($this->getCachedIncludeMap()), array_values($this->getCachedIncludeMap())),
             1, 0
@@ -132,7 +141,7 @@ class AbstractTransformer implements TransformerInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getDefaultProps(): array
     {
@@ -148,10 +157,12 @@ class AbstractTransformer implements TransformerInterface
 //    }
 
     /**
-     * Create a new Item resource
-     * @param mixed $data
-     * @param mixed|null $transformer
+     * Create a new Item resource.
+     *
+     * @param mixed       $data
+     * @param mixed|null  $transformer
      * @param string|null $resourceKey
+     *
      * @return Item
      */
     public function item($data, $transformer = null, $resourceKey = null): Item
@@ -160,10 +171,12 @@ class AbstractTransformer implements TransformerInterface
     }
 
     /**
-     * Create new Collection resource
-     * @param mixed $data
-     * @param mixed|null $transformer
+     * Create new Collection resource.
+     *
+     * @param mixed       $data
+     * @param mixed|null  $transformer
      * @param string|null $resourceKey
+     *
      * @return Collection
      */
     public function collection($data, $transformer = null, $resourceKey = null): Collection

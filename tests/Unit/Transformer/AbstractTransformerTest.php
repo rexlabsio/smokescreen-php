@@ -11,8 +11,7 @@ class AbstractTransformerTest extends TestCase
     /** @test */
     public function can_declare_includes_with_plain_array()
     {
-        $transformer = new class extends AbstractTransformer
-        {
+        $transformer = new class() extends AbstractTransformer {
             protected $includes = [
                 'user',
                 'account',
@@ -28,8 +27,7 @@ class AbstractTransformerTest extends TestCase
     /** @test */
     public function can_declare_includes_with_assoc_array()
     {
-        $transformer = new class extends AbstractTransformer
-        {
+        $transformer = new class() extends AbstractTransformer {
             protected $includes = [
                 'user'    => 'method:includeUser',
                 'account' => 'method:includeAccount',
@@ -45,12 +43,11 @@ class AbstractTransformerTest extends TestCase
     /** @test */
     public function can_get_default_includes()
     {
-        $transformer = new class extends AbstractTransformer
-        {
+        $transformer = new class() extends AbstractTransformer {
             protected $includes = [
                 'user',
                 'account',
-                'phone' => 'default',
+                'phone'   => 'default',
                 'address' => 'default',
             ];
         };
@@ -71,8 +68,7 @@ class AbstractTransformerTest extends TestCase
     /** @test */
     public function bad_include_definition_throws_exception()
     {
-        $transformer = new class extends AbstractTransformer
-        {
+        $transformer = new class() extends AbstractTransformer {
             protected $includes = [
                 'user',
                 'account',

@@ -1,4 +1,5 @@
 <?php
+
 namespace Rexlabs\Smokescreen\Tests\Unit\Includes;
 
 use PHPUnit\Framework\TestCase;
@@ -10,7 +11,7 @@ class IncludesTest extends TestCase
     /** @test */
     public function base_keys_only_returns_top_level_keys()
     {
-        $includes = (new IncludeParser)->parse('category,comments{user},user{id}');
+        $includes = (new IncludeParser())->parse('category,comments{user},user{id}');
 
         $this->assertArraySubset([
             'category',
@@ -22,23 +23,23 @@ class IncludesTest extends TestCase
     /** @test */
     public function splice_returns_child_includes_without_parent()
     {
-        $includes = (new IncludeParser)->parse('cast{actor,movie}');
+        $includes = (new IncludeParser())->parse('cast{actor,movie}');
         $castIncludes = $includes->splice('cast');
 
         $this->assertArraySubset([
-            'cast'
+            'cast',
         ], $includes->baseKeys());
 
         $this->assertArraySubset([
             'actor',
-            'movie'
+            'movie',
         ], $castIncludes->baseKeys());
     }
 
     /** @test */
     public function can_add_keys()
     {
-        $includes = (new IncludeParser)->parse('cast{actor,movie}');
+        $includes = (new IncludeParser())->parse('cast{actor,movie}');
         $this->assertCount(3, $includes->keys());
         $this->assertTrue($includes->has('cast'));
         $this->assertTrue($includes->has('cast.actor'));
@@ -64,7 +65,7 @@ class IncludesTest extends TestCase
     /** @test */
     public function can_remove_keys()
     {
-        $includes = (new IncludeParser)->parse('title,cast{actor,movie}');
+        $includes = (new IncludeParser())->parse('title,cast{actor,movie}');
         $this->assertCount(4, $includes->keys());
 
         $includes->remove('title');
@@ -77,7 +78,7 @@ class IncludesTest extends TestCase
     /** @test */
     public function can_reset_includes()
     {
-        $includes = (new IncludeParser)->parse('title,cast{actor,movie}:limit(5)');
+        $includes = (new IncludeParser())->parse('title,cast{actor,movie}:limit(5)');
         $this->assertTrue($includes->hasKeys());
         $this->assertTrue($includes->hasParams());
 
@@ -89,7 +90,7 @@ class IncludesTest extends TestCase
     /** @test */
     public function can_set_params()
     {
-        $includes = (new IncludeParser)->parse('movies:limit(10)');
+        $includes = (new IncludeParser())->parse('movies:limit(10)');
         $this->assertEquals(['movies' => ['limit' => 10]], $includes->params());
 
         $this->expectException(ParseIncludesException::class);
