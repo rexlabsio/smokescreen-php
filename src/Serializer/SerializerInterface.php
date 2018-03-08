@@ -1,4 +1,5 @@
 <?php
+
 namespace Rexlabs\Smokescreen\Serializer;
 
 use Rexlabs\Smokescreen\Pagination\CursorInterface;
@@ -10,7 +11,7 @@ interface SerializerInterface
      * Serialize a collection.
      *
      * @param string $resourceKey
-     * @param array $data
+     * @param array  $data
      *
      * @return array
      */
@@ -20,7 +21,7 @@ interface SerializerInterface
      * Serialize an item.
      *
      * @param string $resourceKey
-     * @param array $data
+     * @param array  $data
      *
      * @return array
      */
@@ -39,6 +40,7 @@ interface SerializerInterface
      * Serialize a paginator.
      *
      * @param PaginatorInterface $paginator
+     *
      * @return mixed
      */
     public function paginator(PaginatorInterface $paginator);
@@ -47,6 +49,7 @@ interface SerializerInterface
      * Serialize a cursor.
      *
      * @param CursorInterface $cursor
+     *
      * @return array
      */
     public function cursor(CursorInterface $cursor): array;

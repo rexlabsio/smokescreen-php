@@ -1,6 +1,6 @@
 <?php
-namespace Rexlabs\Smokescreen\Pagination;
 
+namespace Rexlabs\Smokescreen\Pagination;
 
 interface PageableInterface
 {

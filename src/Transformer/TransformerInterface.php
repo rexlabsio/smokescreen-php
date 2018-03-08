@@ -1,4 +1,5 @@
 <?php
+
 namespace Rexlabs\Smokescreen\Transformer;
 
 interface TransformerInterface
@@ -30,7 +31,6 @@ interface TransformerInterface
      * @return array
      */
     public function getDefaultProps(): array;
-
 
     /**
      * Get the relationships for this transformer.

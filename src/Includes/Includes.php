@@ -1,11 +1,11 @@
 <?php
+
 namespace Rexlabs\Smokescreen\Includes;
 
 use Rexlabs\Smokescreen\Exception\ParseIncludesException;
 
 /**
  * Container object for managing include keys and optional mapped parameters.
- * @package Rexlabs\Smokescreen\Includes
  */
 class Includes
 {
@@ -16,7 +16,8 @@ class Includes
     protected $params = [];
 
     /**
-     * Provide a list of keys, and optional parameters for those keys
+     * Provide a list of keys, and optional parameters for those keys.
+     *
      * @param array $keys
      * @param array $params
      */
@@ -28,6 +29,7 @@ class Includes
 
     /**
      * @param array $keys
+     *
      * @return $this
      */
     public function set(array $keys)
@@ -39,8 +41,10 @@ class Includes
 
     /**
      * Provide a list of keys, so that depth-keys are expanded to include parents
-     * Given a two keys of [user.id, photo.url], this method will return [user, photo, user.id, photo.url]
+     * Given a two keys of [user.id, photo.url], this method will return [user, photo, user.id, photo.url].
+     *
      * @param array $keys
+     *
      * @return array
      */
     protected function expandKeys(array $keys): array
@@ -65,12 +69,14 @@ class Includes
     /**
      * Add one or more keys.
      * Duplicate keys will be silently ignored.
+     *
      * @param string|array|mixed $keys
+     *
      * @return $this
      */
     public function add($keys)
     {
-        foreach ($this->expandKeys((array)$keys) as $key) {
+        foreach ($this->expandKeys((array) $keys) as $key) {
             if (!$this->has($key)) {
                 $this->keys[] = $key;
             }
@@ -80,8 +86,10 @@ class Includes
     }
 
     /**
-     * Determine if a given key exists
+     * Determine if a given key exists.
+     *
      * @param $key
+     *
      * @return bool
      */
     public function has($key): bool
@@ -90,7 +98,8 @@ class Includes
     }
 
     /**
-     * Get an array of all keys, note this will include expanded keys (parents)
+     * Get an array of all keys, note this will include expanded keys (parents).
+     *
      * @return array
      */
     public function keys(): array
@@ -100,6 +109,7 @@ class Includes
 
     /**
      * Returns true if any keys have been set.
+     *
      * @return bool
      */
     public function hasKeys(): bool
@@ -108,15 +118,16 @@ class Includes
     }
 
     /**
-     * Remove one or more keys
+     * Remove one or more keys.
+     *
      * @param array|string $keys
      */
     public function remove($keys)
     {
-        $keys = (array)$keys; // Cast all the things
-        $this->keys = array_filter($this->keys(), function($key) use ($keys) {
+        $keys = (array) $keys; // Cast all the things
+        $this->keys = array_filter($this->keys(), function ($key) use ($keys) {
             foreach ($keys as $remove) {
-                if (preg_match('/^' . preg_quote($remove, '/') . '(\..+)?$/', $key)) {
+                if (preg_match('/^'.preg_quote($remove, '/').'(\..+)?$/', $key)) {
                     // Keys and descendant keys will be removed
                     return false;
                 }
@@ -127,18 +138,20 @@ class Includes
     }
 
     /**
-     * Only keys that don't descend (eg. don't contain a dot)
+     * Only keys that don't descend (eg. don't contain a dot).
+     *
      * @return array
      */
     public function baseKeys(): array
     {
-        return \array_values(\array_filter($this->keys(), function($key) {
+        return \array_values(\array_filter($this->keys(), function ($key) {
             return \strpos($key, '.') === false;
         }));
     }
 
     /**
-     * Return the params associative array
+     * Return the params associative array.
+     *
      * @return array
      */
     public function params(): array
@@ -147,7 +160,8 @@ class Includes
     }
 
     /**
-     * Returns true if any parameters have been set
+     * Returns true if any parameters have been set.
+     *
      * @return bool
      */
     public function hasParams(): bool
@@ -156,10 +170,13 @@ class Includes
     }
 
     /**
-     * An array of parameters indexed by key
+     * An array of parameters indexed by key.
+     *
      * @param array $params
-     * @return $this
+     *
      * @throws ParseIncludesException
+     *
+     * @return $this
      */
     public function setParams(array $params)
     {
@@ -176,8 +193,10 @@ class Includes
 
     /**
      * Get the parameters for the given key
-     * An empty array will be returned for non-matched keys
+     * An empty array will be returned for non-matched keys.
+     *
      * @param string $key
+     *
      * @return array
      */
     public function paramsFor(string $key): array
@@ -191,7 +210,8 @@ class Includes
     }
 
     /**
-     * All keys and params will be reset
+     * All keys and params will be reset.
+     *
      * @return $this
      */
     public function reset()
@@ -204,9 +224,12 @@ class Includes
 
     /**
      * Returns a new Includes object containing all keys spliced below the given parent key,
-     * as well as any mapped params
+     * as well as any mapped params.
+     *
      * @param string $parentKey
+     *
      * @return static
+     *
      * @see Includes::descendantsOf()
      * @see Includes::allParamsFor()
      */
@@ -227,8 +250,10 @@ class Includes
     /**
      * Given a parent key, return all the descendant keys (without the parent prefix)
      * Example: Given key is "user", the current keys are ["user.id", "user.photos", "user.photos.id"]
-     * The result will be: ["id", "photos", "photos.id"]
+     * The result will be: ["id", "photos", "photos.id"].
+     *
      * @param string $parentKey
+     *
      * @return array
      */
     public function descendantsOf(string $parentKey): array
@@ -239,7 +264,7 @@ class Includes
             if (strpos($key, "{$parentKey}.") === 0) {
                 // Found a match, chop off the parent key
                 $keys[] = preg_replace(
-                    '/^' . preg_quote($parentKey . '.', '/') . '/', // Starts with parent
+                    '/^'.preg_quote($parentKey.'.', '/').'/', // Starts with parent
                     '', // Remove it
                     $key
                 );
@@ -251,8 +276,10 @@ class Includes
 
     /**
      * Get the parameters for the given keys as an associative array indexed by key
-     * An empty array will be returned if there are no matched keys
+     * An empty array will be returned if there are no matched keys.
+     *
      * @param array $keys
+     *
      * @return array
      */
     public function allParamsFor(array $keys): array

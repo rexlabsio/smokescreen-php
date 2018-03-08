@@ -1,11 +1,14 @@
 <?php
+
 namespace Rexlabs\Smokescreen\Includes;
 
 class IncludeParser implements IncludeParserInterface
 {
     /**
-     * Parse given string into an Includes object
+     * Parse given string into an Includes object.
+     *
      * @param string $str
+     *
      * @return Includes
      */
     public function parse(string $str): Includes
@@ -96,7 +99,7 @@ class IncludeParser implements IncludeParserInterface
 
                         // Chop our parameter out of the original string
                         $str =
-                            substr($str, 0, $state['pos']) .
+                            substr($str, 0, $state['pos']).
                             substr($str, $state['pos'] + $len);
 
                         // We need to move the position head back one after the chop
@@ -124,19 +127,22 @@ class IncludeParser implements IncludeParserInterface
     }
 
     /**
-     * Helper function to prefix all of the parent keys
+     * Helper function to prefix all of the parent keys.
+     *
      * @param string $key
-     * @param array $parent
+     * @param array  $parent
+     *
      * @return string
      */
     protected function prefixParentKeys($key, array $parent): string
     {
         return !empty($parent) ?
-            $this->flattenKeys($parent) . ".$key" : $key;
+            $this->flattenKeys($parent).".$key" : $key;
     }
 
     /**
      * @param array $keys
+     *
      * @return string
      */
     protected function flattenKeys(array $keys): string

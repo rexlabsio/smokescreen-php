@@ -1,4 +1,5 @@
 <?php
+
 namespace Rexlabs\Smokescreen\Pagination;
 
 interface PaginatorInterface

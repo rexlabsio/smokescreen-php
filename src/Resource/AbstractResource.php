@@ -161,7 +161,8 @@ abstract class AbstractResource implements ResourceInterface
 
     /**
      * Get a list of relationships from the transformer
-     * Only applicable when the transformer is an instance of the TransformerInterface (eg. AbstractTransformer)
+     * Only applicable when the transformer is an instance of the TransformerInterface (eg. AbstractTransformer).
+     *
      * @return array
      */
     public function getRelationships(): array
@@ -177,7 +178,7 @@ abstract class AbstractResource implements ResourceInterface
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function hasTransformer(): bool
     {
@@ -199,8 +200,9 @@ abstract class AbstractResource implements ResourceInterface
      *
      * @param callable|TransformerInterface|null $transformer
      *
-     * @return $this
      * @throws InvalidTransformerException
+     *
+     * @return $this
      */
     public function setTransformer($transformer)
     {
@@ -217,6 +219,7 @@ abstract class AbstractResource implements ResourceInterface
 
     /**
      * Determines if the given argument is a valid transformer.
+     *
      * @param mixed $transformer
      *
      * @return bool
@@ -235,7 +238,7 @@ abstract class AbstractResource implements ResourceInterface
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function hasSerializer(): bool
     {
@@ -258,7 +261,9 @@ abstract class AbstractResource implements ResourceInterface
      * - Optionally set a closure/callback to be used for serialization.
      *
      * @param SerializerInterface|callable|false|null $serializer
+     *
      * @throws InvalidSerializerException
+     *
      * @return $this
      */
     public function setSerializer($serializer)

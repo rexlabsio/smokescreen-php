@@ -48,7 +48,7 @@ class AbstractResourceTest extends TestCase
     {
         $resource = new Item();
 
-        $resource->setTransformer(function($item) {
+        $resource->setTransformer(function ($item) {
             return $item;
         });
         $this->assertTrue(\is_callable($resource->getTransformer()));
@@ -104,7 +104,7 @@ class AbstractResourceTest extends TestCase
     {
         $transformer = new class() extends AbstractTransformer {
             protected $includes = [
-                'owner' => 'relation:users',
+                'owner'    => 'relation:users',
                 'comments' => 'relation:comments',
             ];
 
@@ -116,8 +116,8 @@ class AbstractResourceTest extends TestCase
 
         $collection = new Collection([], $transformer);
         $this->assertEquals([
-            'owner' => [ 'users' ],
-            'comments' => [ 'comments' ],
+            'owner'    => ['users'],
+            'comments' => ['comments'],
         ], $collection->getRelationships());
     }
 
@@ -137,7 +137,7 @@ class AbstractResourceTest extends TestCase
     {
         $resource = new Item();
 
-        $resource->setSerializer(function($item) {
+        $resource->setSerializer(function ($item) {
             return $item;
         });
         $this->assertTrue(\is_callable($resource->getSerializer()));
@@ -164,7 +164,6 @@ class AbstractResourceTest extends TestCase
     protected function createAbstractResource()
     {
         return new class() extends AbstractResource {
-
         };
     }
 
@@ -183,13 +182,13 @@ class AbstractResourceTest extends TestCase
 
             public function null()
             {
-                return null;
             }
 
             public function paginator(PaginatorInterface $paginator)
             {
                 return [];
             }
+
             public function cursor(CursorInterface $cursor): array
             {
                 return [];

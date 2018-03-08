@@ -13,11 +13,11 @@ class Collection extends AbstractResource implements PageableInterface, \Iterato
     /** @var PaginatorInterface */
     protected $paginator;
 
-    /** @var  CursorInterface */
+    /** @var CursorInterface */
     protected $cursor;
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getPaginator()
     {
@@ -25,7 +25,7 @@ class Collection extends AbstractResource implements PageableInterface, \Iterato
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function setPaginator(PaginatorInterface $paginator)
     {
@@ -36,7 +36,7 @@ class Collection extends AbstractResource implements PageableInterface, \Iterato
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function hasPaginator(): bool
     {
@@ -44,7 +44,7 @@ class Collection extends AbstractResource implements PageableInterface, \Iterato
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getCursor()
     {
@@ -52,7 +52,7 @@ class Collection extends AbstractResource implements PageableInterface, \Iterato
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function setCursor(CursorInterface $cursor)
     {
@@ -63,7 +63,7 @@ class Collection extends AbstractResource implements PageableInterface, \Iterato
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function hasCursor(): bool
     {
@@ -74,8 +74,9 @@ class Collection extends AbstractResource implements PageableInterface, \Iterato
      * Returns an Iterator (to implement the ArrayIterator) interface for
      * easily traversing a collection.
      *
-     * @return \Traversable
      * @throws \Rexlabs\Smokescreen\Exception\NotIterableException
+     *
+     * @return \Traversable
      */
     public function getIterator(): \Traversable
     {
@@ -97,8 +98,9 @@ class Collection extends AbstractResource implements PageableInterface, \Iterato
     /**
      * Converts the Collection data to an array.
      *
-     * @return array|\ArrayIterator|mixed|null
      * @throws \Rexlabs\Smokescreen\Exception\ArrayConversionException
+     *
+     * @return array|\ArrayIterator|mixed|null
      */
     public function toArray()
     {

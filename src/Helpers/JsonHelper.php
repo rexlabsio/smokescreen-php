@@ -8,11 +8,13 @@ class JsonHelper
 {
     /**
      * Encodes data as a JSON string representation.
+     *
      * @param mixed $data
      * @param int   $options
      *
-     * @return string
      * @throws \Rexlabs\Smokescreen\Exception\JsonEncodeException
+     *
+     * @return string
      */
     public static function encode($data, $options = 0): string
     {
