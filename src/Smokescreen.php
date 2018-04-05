@@ -5,6 +5,7 @@ namespace Rexlabs\Smokescreen;
 use Rexlabs\Smokescreen\Exception\InvalidTransformerException;
 use Rexlabs\Smokescreen\Exception\MissingResourceException;
 use Rexlabs\Smokescreen\Exception\UnhandledResourceType;
+use Rexlabs\Smokescreen\Helpers\ArrayHelper;
 use Rexlabs\Smokescreen\Helpers\JsonHelper;
 use Rexlabs\Smokescreen\Includes\IncludeParser;
 use Rexlabs\Smokescreen\Includes\IncludeParserInterface;
@@ -458,7 +459,7 @@ class Smokescreen implements \JsonSerializable
         }
 
         // Get the base data from the transformation
-        $data = (array) $transformer->transform($item);
+        $data = $transformer->getTransformedData($item);
 
         // Filter the sparse field-set
         if (!empty($filterProps)) {
@@ -480,11 +481,18 @@ class Smokescreen implements \JsonSerializable
 
             if ($resource instanceof ResourceInterface) {
                 // Resource object
-                $data[$resource->getResourceKey() ?: $includeKey] = !$resource->getData() ? null : $this->serializeResource($resource,
-                    $includes->splice($includeKey));
+                ArrayHelper::mutate(
+                    $data,
+                    $resource->getResourceKey() ?: $includeKey,
+                    !$resource->getData() ? null : $this->serializeResource($resource, $includes->splice($includeKey))
+                );
             } else {
                 // Plain old array
-                $data[$includeKey] = $this->serializeResource($resource, $includes->splice($includeKey));
+                ArrayHelper::mutate(
+                    $data,
+                    $includeKey,
+                    $this->serializeResource($resource, $includes->splice($includeKey))
+                );
             }
         }
 

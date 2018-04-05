@@ -33,17 +33,6 @@ class AbstractResourceTest extends TestCase
     }
 
     /** @test */
-    public function cannot_set_transformer_without_transform_method()
-    {
-        $resource = $this->createAbstractResource();
-        $transformer = new class() extends AbstractTransformer {
-        };
-
-        $this->expectException(InvalidTransformerException::class);
-        $resource->setTransformer($transformer);
-    }
-
-    /** @test */
     public function can_set_transformer_to_callable()
     {
         $resource = new Item();

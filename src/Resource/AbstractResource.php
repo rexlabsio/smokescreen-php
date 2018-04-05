@@ -226,7 +226,7 @@ abstract class AbstractResource implements ResourceInterface
      */
     public function isValidTransformer($transformer): bool
     {
-        if ($transformer instanceof TransformerInterface && method_exists($transformer, 'transform')) {
+        if ($transformer instanceof TransformerInterface) {
             return true;
         }
 
