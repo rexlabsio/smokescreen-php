@@ -484,7 +484,7 @@ class Smokescreen implements \JsonSerializable
                 ArrayHelper::mutate(
                     $data,
                     $resource->getResourceKey() ?: $includeKey,
-                    !$resource->getData() ? null : $this->serializeResource($resource, $includes->splice($includeKey))
+                    $resource->getData() ? $this->serializeResource($resource, $includes->splice($includeKey)) : null
                 );
             } else {
                 // Plain old array

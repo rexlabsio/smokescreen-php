@@ -73,19 +73,21 @@ trait FormatProps
 
             // Convert property to a snake-case version.
             // It may be a nested (dot-notation) key.
-            $prop = StrHelper::snakeCase($key);
-
+            $propKey = StrHelper::snakeCase($key);
             if ($definition instanceof \Closure) {
                 // If the definition is a function, execute it on the value
-                $value = $definition->bindTo($this)($model, $prop);
+                $value = $definition->bindTo($this)($model, $propKey);
             } else {
                 // Format the field according to the definition
-                $settings = $definition !== null ? $this->parseDefinition($definition) : [];
-                $value = $this->getPropValue($model, $prop, $settings);
+                $value = $this->getPropValue(
+                    $model,
+                    $propKey,
+                    $this->propDefinitionToArray($definition)
+                );
             }
 
             // Set the prop value in the array
-            ArrayHelper::mutate($data, $prop, $value);
+            ArrayHelper::mutate($data, $propKey, $value);
         }
 
         return $data;
@@ -167,36 +169,38 @@ trait FormatProps
      * Parses a definition string into an array.
      * Supports a value like integer|arg1:val|arg2:val|arg3
      *
-     * @param string $definition
+     * @param string $str
      *
      * @return array
      * @throws \Rexlabs\Smokescreen\Exception\ParseDefinitionException
      */
-    protected function parseDefinition(string $definition): array
+    protected function propDefinitionToArray($str): array
     {
         $settings = [];
-        $parts = preg_split('/\s*\|\s*/', $definition);
-        foreach ($parts as $part) {
-            // Each part may consist of "directive:value" or it may just be "directive".
-            if (!preg_match('/^([^:]+)(:(.+))?$/', $part, $match)) {
-                throw new ParseDefinitionException("Unable to parse field definition: $definition");
-            }
-            $directive = $match[1];
-            $value = $match[3] ?? null;
+        if (!empty($str)) {
+            $parts = preg_split('/\s*\|\s*/', $str);
+            foreach ($parts as $part) {
+                // Each part may consist of "directive:value" or it may just be "directive".
+                if (!preg_match('/^([^:]+)(:(.+))?$/', $part, $match)) {
+                    throw new ParseDefinitionException("Unable to parse field definition: $str");
+                }
+                $directive = $match[1];
+                $value = $match[3] ?? null;
 
-            // As a short-cut, we will allow the type to be provided without a "type:" prefix.
-            if (preg_match('/^(int|integer|real|float|double|string|bool|array|date|datetime)$/', $directive)) {
-                if ($value !== null) {
-                    // If a value was also provided, we'll store that in a separate entry.
-                    $settings[StrHelper::snakeCase(strtolower($directive))] = $value;
+                // As a short-cut, we will allow the type to be provided without a "type:" prefix.
+                if (preg_match('/^(int|integer|real|float|double|string|bool|array|date|datetime)$/', $directive)) {
+                    if ($value !== null) {
+                        // If a value was also provided, we'll store that in a separate entry.
+                        $settings[StrHelper::snakeCase(strtolower($directive))] = $value;
+                    }
+
+                    $directive = 'type';
+                    $value = $part;
                 }
 
-                $directive = 'type';
-                $value = $part;
+                // Normalise our directive (as snake_case) and store the value.
+                $settings[StrHelper::snakeCase(strtolower($directive))] = $value;
             }
-
-            // Normalise our directive (as snake_case) and store the value.
-            $settings[StrHelper::snakeCase(strtolower($directive))] = $value;
         }
 
         return $settings;
