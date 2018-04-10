@@ -1,9 +1,10 @@
 # Smokescreen
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+[![Packagist](https://img.shields.io/packagist/v/rexlabs/smokescreen.svg)](https://packagist.org/packages/rexlabs/smokescreen)
 [![Build Status](https://travis-ci.org/rexlabsio/smokescreen-php.svg?branch=master)](https://travis-ci.org/rexlabsio/smokescreen-php)
 [![Code Coverage](https://scrutinizer-ci.com/g/rexlabsio/smokescreen-php/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/rexlabsio/smokescreen-php/?branch=master)
-[![Packagist](https://img.shields.io/packagist/v/rexlabs/smokescreen.svg)](https://packagist.org/packages/rexlabs/smokescreen)
+[![StyleCI](https://styleci.io/repos/116249928/shield?branch=master)](https://styleci.io/repos/116249928)
 
 ## Overview
 
