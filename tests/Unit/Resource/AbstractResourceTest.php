@@ -4,7 +4,6 @@ namespace Rexlabs\Smokescreen\Tests\Unit\Resource;
 
 use PHPUnit\Framework\TestCase;
 use Rexlabs\Smokescreen\Exception\InvalidSerializerException;
-use Rexlabs\Smokescreen\Exception\InvalidTransformerException;
 use Rexlabs\Smokescreen\Pagination\CursorInterface;
 use Rexlabs\Smokescreen\Pagination\PaginatorInterface;
 use Rexlabs\Smokescreen\Resource\AbstractResource;

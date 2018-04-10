@@ -9,9 +9,11 @@ class IncludeDefinition extends AbstractDefinition
     public function relation(): array
     {
         $relation = $this->get('relation', []);
-        return !\is_array($relation) ?
-            preg_split('/\s*,\s*', $relation) :
-            $relation;
+        if (!\is_array($relation)) {
+            $relation = (array)preg_split('/\s*,\s*', $relation);
+        }
+
+        return $relation;
     }
 
     public function method()
