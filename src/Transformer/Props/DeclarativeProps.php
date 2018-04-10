@@ -7,6 +7,7 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
 use Rexlabs\Smokescreen\Definition\DefinitionParser;
+use Rexlabs\Smokescreen\Exception\InvalidDefinitionException;
 use Rexlabs\Smokescreen\Helpers\ArrayHelper;
 use Rexlabs\Smokescreen\Helpers\StrHelper;
 
@@ -160,7 +161,7 @@ trait DeclarativeProps
             return $this->$method($value, $propDefinition);
         }
 
-        throw new \InvalidArgumentException("Unsupported format type: {$propDefinition['type']}");
+        throw new InvalidDefinitionException("Unsupported format type: {$propDefinition->type()}");
     }
 
     protected function getDefinitionParser(): DefinitionParser

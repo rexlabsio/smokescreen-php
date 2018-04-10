@@ -3,6 +3,7 @@
 namespace Rexlabs\Smokescreen\Definition;
 
 use Rexlabs\Smokescreen\Exception\ParseDefinitionException;
+use Rexlabs\Smokescreen\Helpers\StrHelper;
 
 class DefinitionParser
 {
@@ -50,8 +51,8 @@ class DefinitionParser
                     // If a value was also provided, we'll store that in a separate entry.
                     $definition[$this->normalizeKey($key)] = $value;
                 }
-                $key = $this->shortKeys[$key];
                 $value = $key;
+                $key = $this->shortKeys[$key];
             }
 
             if (!$this->isAllowedKey($key)) {
@@ -62,6 +63,8 @@ class DefinitionParser
             $definition[$this->normalizeKey($key)] = $value;
         }
 
+
+
         return $definition;
     }
 
@@ -71,7 +74,7 @@ class DefinitionParser
      *
      * @return string
      */
-    protected function normalizeKey($key)
+    protected function normalizeKey($key): string
     {
         return StrHelper::snakeCase(strtolower($key));
     }
