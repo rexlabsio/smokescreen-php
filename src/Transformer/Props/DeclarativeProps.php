@@ -1,16 +1,16 @@
 <?php
 
-namespace Rexlabs\Smokescreen\Transformer\Concerns;
+namespace Rexlabs\Smokescreen\Transformer\Props;
 
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
-use Rexlabs\Smokescreen\Exception\ParseDefinitionException;
+use Rexlabs\Smokescreen\Definition\DefinitionParser;
 use Rexlabs\Smokescreen\Helpers\ArrayHelper;
 use Rexlabs\Smokescreen\Helpers\StrHelper;
 
-trait FormatProps
+trait DeclarativeProps
 {
     /** @var array */
     protected $props = [];
@@ -23,6 +23,9 @@ trait FormatProps
 
     /** @var mixed|null Optionally set a default timezone */
     protected $defaultTimezone;
+
+    /** @var DefinitionParser|null */
+    protected $definitionParser;
 
     public function getProps(): array
     {
@@ -79,11 +82,7 @@ trait FormatProps
                 $value = $definition->bindTo($this)($model, $propKey);
             } else {
                 // Format the field according to the definition
-                $value = $this->getPropValue(
-                    $model,
-                    $propKey,
-                    $this->propDefinitionToArray($definition)
-                );
+                $value = $this->getPropValue($model, $this->parsePropDefinition($propKey, $definition));
             }
 
             // Set the prop value in the array
@@ -96,41 +95,38 @@ trait FormatProps
 
     /**
      * @param \ArrayAccess|array $model
-     * @param string             $prop
-     * @param array              $settings
+     * @param PropDefinition     $propDefinition
      *
      * @return mixed|null
      * @throws \InvalidArgumentException
      */
-    protected function getPropValue($model, $prop, $settings)
+    protected function getPropValue($model, PropDefinition $propDefinition)
     {
-        // If a 'map' setting is provided, map to that key on the model instead.
-        $mapKey = $settings['map'] ?? $prop;
-
         // Get the model value via array access.
-        $value = $model[$mapKey] ?? null;
+        $value = $model[$propDefinition->mapKey()] ?? null;
 
         // Format the value the property value.
-        $value = $this->formatPropValue($value, $settings);
+        $value = $this->formatPropValue($value, $propDefinition);
 
         return $value;
     }
 
     /**
-     * @param $value
-     * @param $settings
+     * @param mixed          $value
+     * @param PropDefinition $propDefinition
      *
      * @return array|string
      * @throws \InvalidArgumentException
      */
-    protected function formatPropValue($value, $settings)
+    protected function formatPropValue($value, $propDefinition)
     {
-        if (empty($settings['type'])) {
+        if (!$propDefinition->type()) {
             return $value;
         }
 
-        // Cast the value according to 'type' (if defined).
-        switch ($settings['type']) {
+        // Built-in types.
+        // Cast the value according to 'type'
+        switch ($propDefinition->type()) {
             case 'int':
             case 'integer':
                 return (int)$value;
@@ -146,9 +142,11 @@ trait FormatProps
             case 'array':
                 return (array)$value;
             case 'date':
-                return $this->formatDate($value, $settings);
+                return $this->formatDate($value, $propDefinition);
             case 'datetime':
-                return $this->formatDateTime($value, $settings);
+                return $this->formatDatetime($value, $propDefinition);
+            case 'datetime_utc':
+                return $this->formatDatetimeUtc($value, $propDefinition);
             default:
                 // Fall through
                 break;
@@ -157,53 +155,48 @@ trait FormatProps
 
         // As a final attempt, try to locate a matching method on the class that
         // is prefixed with 'format'.
-        $method = 'format' . StrHelper::studlyCase($settings['type']);
+        $method = 'format' . StrHelper::studlyCase($propDefinition->type());
         if (method_exists($this, $method)) {
-            return $this->$method($value, $settings);
+            return $this->$method($value, $propDefinition);
         }
 
-        throw new \InvalidArgumentException("Unsupported format type: {$settings['type']}");
+        throw new \InvalidArgumentException("Unsupported format type: {$propDefinition['type']}");
+    }
+
+    protected function getDefinitionParser(): DefinitionParser
+    {
+        if ($this->definitionParser === null) {
+            $this->definitionParser = new DefinitionParser();
+            $this->definitionParser->addShortKeys('type', [
+                'int',
+                'integer',
+                'real',
+                'float',
+                'double',
+                'string',
+                'bool',
+                'boolean',
+                'array',
+                'date',
+                'datetime',
+                'datetime_utc',
+            ]);
+        }
+
+        return $this->definitionParser;
     }
 
     /**
-     * Parses a definition string into an array.
-     * Supports a value like integer|arg1:val|arg2:val|arg3
+     * @param string       $propKey
+     * @param string|mixed $definition
      *
-     * @param string $str
-     *
-     * @return array
+     * @return PropDefinition
      * @throws \Rexlabs\Smokescreen\Exception\ParseDefinitionException
      */
-    protected function propDefinitionToArray($str): array
+    protected function parsePropDefinition(string $propKey, $definition): PropDefinition
     {
-        $settings = [];
-        if (!empty($str)) {
-            $parts = preg_split('/\s*\|\s*/', $str);
-            foreach ($parts as $part) {
-                // Each part may consist of "directive:value" or it may just be "directive".
-                if (!preg_match('/^([^:]+)(:(.+))?$/', $part, $match)) {
-                    throw new ParseDefinitionException("Unable to parse field definition: $str");
-                }
-                $directive = $match[1];
-                $value = $match[3] ?? null;
-
-                // As a short-cut, we will allow the type to be provided without a "type:" prefix.
-                if (preg_match('/^(int|integer|real|float|double|string|bool|array|date|datetime)$/', $directive)) {
-                    if ($value !== null) {
-                        // If a value was also provided, we'll store that in a separate entry.
-                        $settings[StrHelper::snakeCase(strtolower($directive))] = $value;
-                    }
-
-                    $directive = 'type';
-                    $value = $part;
-                }
-
-                // Normalise our directive (as snake_case) and store the value.
-                $settings[StrHelper::snakeCase(strtolower($directive))] = $value;
-            }
-        }
-
-        return $settings;
+        return new PropDefinition($propKey, $this->getDefinitionParser()
+            ->parse($definition));
     }
 
     /**
@@ -233,46 +226,49 @@ trait FormatProps
     }
 
     /**
-     * Format a date object
+     * Format a date object.
      *
      * @param DateTimeInterface $date
-     * @param array             $settings
+     * @param PropDefinition    $definition
      *
      * @return string
      */
-    protected function formatDateTime(DateTimeInterface $date, array $settings = []): string
+    protected function formatDatetime(DateTimeInterface $date, PropDefinition $definition): string
     {
-        $timezone = $settings['timezone'] ?? $this->getDefaultTimezone();
+        $timezone = $definition->get('timezone', $this->getDefaultTimezone());
         if ($timezone !== null) {
             $date = $this->convertTimeZone($date, $timezone);
         }
 
-        return $date->format($settings['format'] ?? $this->getDateTimeFormat());
+        return $date->format($definition->get('format', $this->getDateTimeFormat()));
     }
 
     /**
      * Shortcut method for converting a date to UTC and returning the formatted string.
      *
      * @param DateTimeInterface $date
-     * @param array             $settings
+     * @param PropDefinition    $propDefinition
      *
      * @return string
      * @see FormatsFields::formatDateTime()
      */
-    protected function formatDateTimeUtc(DateTimeInterface $date, array $settings = []): string
+    protected function formatDatetimeUtc(DateTimeInterface $date, PropDefinition $propDefinition): string
     {
-        $settings['timezone'] = 'UTC';
-        return $this->formatDateTime($date, $settings);
+        return $this->formatDatetime($date, $propDefinition->set('timezone', 'UTC'));
     }
 
     /**
      * @param DateTimeInterface $date
-     * @param array             $settings
+     * @param PropDefinition    $propDefinition
      *
      * @return string
      */
-    protected function formatDate(DateTimeInterface $date, array $settings = []): string
+    protected function formatDate(DateTimeInterface $date, PropDefinition $propDefinition): string
     {
-        return $this->formatDateTime($date, $settings);
+        if (!$propDefinition->hasDirective('format')) {
+            $propDefinition->set('format', $this->getDateFormat());
+        }
+
+        return $this->formatDatetime($date, $propDefinition);
     }
 }

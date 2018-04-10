@@ -6,11 +6,11 @@ use Rexlabs\Smokescreen\Exception\ParseDefinitionException;
 use Rexlabs\Smokescreen\Helpers\StrHelper;
 use Rexlabs\Smokescreen\Resource\Collection;
 use Rexlabs\Smokescreen\Resource\Item;
-use Rexlabs\Smokescreen\Transformer\Concerns\FormatProps;
+use Rexlabs\Smokescreen\Transformer\Props\DeclarativeProps;
 
 class AbstractTransformer implements TransformerInterface
 {
-    use FormatProps;
+    use DeclarativeProps;
     
 //    protected $autoIncludes = true;
 
