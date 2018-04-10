@@ -8,7 +8,7 @@ use Rexlabs\Smokescreen\Helpers\StrHelper;
 class DefinitionParser
 {
     /**
-     * A list of keys that are allowed to be present
+     * A list of keys that are allowed to be present.
      *
      * @var array
      */
@@ -23,12 +23,13 @@ class DefinitionParser
 
     /**
      * Parses a definition string into an array.
-     * Supports a value like integer|arg1:val|arg2:val|arg3
+     * Supports a value like integer|arg1:val|arg2:val|arg3.
      *
      * @param string $str
      *
-     * @return array
      * @throws \Rexlabs\Smokescreen\Exception\ParseDefinitionException
+     *
+     * @return array
      */
     public function parse($str): array
     {
@@ -63,13 +64,12 @@ class DefinitionParser
             $definition[$this->normalizeKey($key)] = $value;
         }
 
-
-
         return $definition;
     }
 
     /**
-     * Normalize a directive key
+     * Normalize a directive key.
+     *
      * @param string $key
      *
      * @return string
@@ -84,6 +84,7 @@ class DefinitionParser
      * An empty array will allow any key.
      * An exception will be thrown while parsing when the allowed keys are not empty, and the
      * directive key is not present in this list.
+     *
      * @param array $keys
      *
      * @return $this
@@ -97,6 +98,7 @@ class DefinitionParser
 
     /**
      * Determine if a given key is permitted.
+     *
      * @param $key
      *
      * @return bool

@@ -35,6 +35,7 @@ trait DeclarativeProps
 
     /**
      * Get the default date formatter string.
+     *
      * @return string
      */
     protected function getDateFormat(): string
@@ -44,6 +45,7 @@ trait DeclarativeProps
 
     /**
      * Get the default date-time formatter string.
+     *
      * @return string
      */
     protected function getDatetimeFormat(): string
@@ -54,6 +56,7 @@ trait DeclarativeProps
     /**
      * Get the default timezone that dates should be coerced into.
      * A null value means the datetime object will not be converted.
+     *
      * @return DateTimeZone|string|null
      */
     protected function getDefaultTimezone()
@@ -68,8 +71,9 @@ trait DeclarativeProps
      * @param \ArrayAccess|array $model
      * @param array              $props
      *
-     * @return array
      * @throws \InvalidArgumentException
+     *
+     * @return array
      */
     protected function withProps($model, array $props): array
     {
@@ -106,13 +110,13 @@ trait DeclarativeProps
         return $data;
     }
 
-
     /**
      * @param \ArrayAccess|array $model
      * @param PropDefinition     $propDefinition
      *
-     * @return mixed|null
      * @throws \InvalidArgumentException
+     *
+     * @return mixed|null
      */
     protected function getPropValue($model, PropDefinition $propDefinition)
     {
@@ -129,8 +133,9 @@ trait DeclarativeProps
      * @param mixed          $value
      * @param PropDefinition $propDefinition
      *
-     * @return mixed
      * @throws \InvalidArgumentException
+     *
+     * @return mixed
      */
     protected function formatPropValue($value, $propDefinition)
     {
@@ -143,18 +148,18 @@ trait DeclarativeProps
         switch ($propDefinition->type()) {
             case 'int':
             case 'integer':
-                return (int)$value;
+                return (int) $value;
             case 'real':
             case 'float':
             case 'double':
-                return (float)$value;
+                return (float) $value;
             case 'string':
-                return (string)$value;
+                return (string) $value;
             case 'bool':
             case 'boolean':
-                return (bool)$value;
+                return (bool) $value;
             case 'array':
-                return (array)$value;
+                return (array) $value;
             case 'date':
                 return $this->formatDate($value, $propDefinition);
             case 'datetime':
@@ -169,7 +174,7 @@ trait DeclarativeProps
 
         // As a final attempt, try to locate a matching method on the class that
         // is prefixed with 'format'.
-        $method = 'format' . StrHelper::studlyCase($propDefinition->type());
+        $method = 'format'.StrHelper::studlyCase($propDefinition->type());
         if (method_exists($this, $method)) {
             return $this->$method($value, $propDefinition);
         }
@@ -204,8 +209,9 @@ trait DeclarativeProps
      * @param string       $propKey
      * @param string|mixed $definition
      *
-     * @return PropDefinition
      * @throws \Rexlabs\Smokescreen\Exception\ParseDefinitionException
+     *
+     * @return PropDefinition
      */
     protected function parsePropDefinition(string $propKey, $definition): PropDefinition
     {
@@ -264,6 +270,7 @@ trait DeclarativeProps
      * @param PropDefinition    $propDefinition
      *
      * @return string
+     *
      * @see FormatsFields::formatDateTime()
      */
     protected function formatDatetimeUtc(DateTimeInterface $date, PropDefinition $propDefinition): string

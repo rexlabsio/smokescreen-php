@@ -10,7 +10,7 @@ class IncludeDefinition extends AbstractDefinition
     {
         $relation = $this->get('relation', []);
         if (!\is_array($relation)) {
-            $relation = (array)preg_split('/\s*,\s*', $relation);
+            $relation = (array) preg_split('/\s*,\s*', $relation);
         }
 
         return $relation;
