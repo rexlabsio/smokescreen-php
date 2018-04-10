@@ -18,6 +18,6 @@ class IncludeDefinition extends AbstractDefinition
 
     public function isDefault()
     {
-        return $this->hasDirective('default');
+        return $this->has('default');
     }
 }

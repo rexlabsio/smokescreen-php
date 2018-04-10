@@ -265,7 +265,7 @@ trait DeclarativeProps
      */
     protected function formatDate(DateTimeInterface $date, PropDefinition $propDefinition): string
     {
-        if (!$propDefinition->hasDirective('format')) {
+        if (!$propDefinition->has('format')) {
             $propDefinition->set('format', $this->getDateFormat());
         }
 
