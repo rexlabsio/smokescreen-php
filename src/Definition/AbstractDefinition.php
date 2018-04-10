@@ -5,7 +5,7 @@ namespace Rexlabs\Smokescreen\Definition;
 class AbstractDefinition
 {
     /**
-     * An optional key which identifies this definition
+     * An optional key which identifies this definition.
      *
      * @var string|null
      */
@@ -65,7 +65,7 @@ class AbstractDefinition
     }
 
     /**
-     * Returns true if the given directive exists (even if it is null)
+     * Returns true if the given directive exists (even if it is null).
      *
      * @param string $directive
      *

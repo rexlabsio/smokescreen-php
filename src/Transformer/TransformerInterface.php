@@ -47,6 +47,5 @@ interface TransformerInterface
 //     */
 //    public function getScope(): Scope;
 
-
     public function getTransformedData($data): array;
 }

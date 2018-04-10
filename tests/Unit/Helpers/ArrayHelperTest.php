@@ -14,7 +14,7 @@ class ArrayHelperTest extends TestCase
 
         ArrayHelper::mutate($data, 'test', 'value');
         $this->assertEquals([
-            'test' => 'value'
+            'test' => 'value',
         ], $data);
 
         ArrayHelper::mutate($data, 'deep.test', 'value');
@@ -22,7 +22,7 @@ class ArrayHelperTest extends TestCase
             'test' => 'value',
             'deep' => [
                 'test' => 'value',
-            ]
+            ],
         ], $data);
 
         ArrayHelper::mutate($data, 'even.deeper.test', 'value');
@@ -34,8 +34,8 @@ class ArrayHelperTest extends TestCase
             'even' => [
                 'deeper' => [
                     'test' => 'value',
-                ]
-            ]
+                ],
+            ],
         ], $data);
 
         ArrayHelper::mutate($data, 'even.deeper.test', 'new_value');
@@ -47,8 +47,8 @@ class ArrayHelperTest extends TestCase
             'even' => [
                 'deeper' => [
                     'test' => 'new_value',
-                ]
-            ]
+                ],
+            ],
         ], $data);
     }
 }

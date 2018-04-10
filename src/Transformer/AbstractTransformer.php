@@ -11,7 +11,7 @@ use Rexlabs\Smokescreen\Transformer\Props\DeclarativeProps;
 class AbstractTransformer implements TransformerInterface
 {
     use DeclarativeProps;
-    
+
 //    protected $autoIncludes = true;
 
     /** @var array The list of available includes */
@@ -190,8 +190,9 @@ class AbstractTransformer implements TransformerInterface
     /**
      * @param $data
      *
-     * @return array
      * @throws \InvalidArgumentException
+     *
+     * @return array
      */
     public function getTransformedData($data): array
     {

@@ -65,9 +65,9 @@ class Smokescreen implements \JsonSerializable
     /**
      * Set the resource item to be transformed.
      *
-     * @param mixed                              $data
+     * @param mixed                           $data
      * @param TransformerInterface|mixed|null $transformer
-     * @param string|null                        $key
+     * @param string|null                     $key
      *
      * @return $this
      */
@@ -81,10 +81,10 @@ class Smokescreen implements \JsonSerializable
     /**
      * Set the resource collection to be transformed.
      *
-     * @param mixed                              $data
+     * @param mixed                           $data
      * @param TransformerInterface|mixed|null $transformer
-     * @param string|null                        $key
-     * @param callable|null                      $callback
+     * @param string|null                     $key
+     * @param callable|null                   $callback
      *
      * @return $this
      */
