@@ -8,7 +8,10 @@ class IncludeDefinition extends AbstractDefinition
 {
     public function relation(): array
     {
-        return $this->get('relation', []);
+        $relation = $this->get('relation', []);
+        return !\is_array($relation) ?
+            preg_split('/\s*,\s*', $relation) :
+            $relation;
     }
 
     public function method()

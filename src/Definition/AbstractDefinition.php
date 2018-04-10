@@ -52,6 +52,7 @@ class AbstractDefinition
 
     /**
      * Replace the definition settings with the given associative array.
+     *
      * @param array $definition
      *
      * @return $this
@@ -65,6 +66,7 @@ class AbstractDefinition
 
     /**
      * Returns true if the given directive exists (even if it is null)
+     *
      * @param string $directive
      *
      * @return bool
@@ -76,8 +78,9 @@ class AbstractDefinition
 
     /**
      * Get the value for a directive if it exists, otherwise return a default.
-     * @param string $directive
-     * @param null   $default
+     *
+     * @param string     $directive
+     * @param mixed|null $default
      *
      * @return mixed|null
      */
@@ -88,8 +91,9 @@ class AbstractDefinition
 
     /**
      * Set a value for a directive.
+     *
      * @param string $directive
-     * @param        $value
+     * @param mixed  $value
      *
      * @return $this
      */
@@ -102,6 +106,7 @@ class AbstractDefinition
 
     /**
      * Get the underlying associative array definition.
+     *
      * @return array
      */
     public function toArray()

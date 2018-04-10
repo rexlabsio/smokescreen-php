@@ -33,17 +33,30 @@ trait DeclarativeProps
         return $this->props;
     }
 
+    /**
+     * Get the default date formatter string.
+     * @return string
+     */
     protected function getDateFormat(): string
     {
         return $this->dateFormat;
     }
 
-    protected function getDateTimeFormat(): string
+    /**
+     * Get the default date-time formatter string.
+     * @return string
+     */
+    protected function getDatetimeFormat(): string
     {
         return $this->dateTimeFormat;
     }
 
-    protected function getDefaultTimezone(): string
+    /**
+     * Get the default timezone that dates should be coerced into.
+     * A null value means the datetime object will not be converted.
+     * @return DateTimeZone|string|null
+     */
+    protected function getDefaultTimezone()
     {
         return $this->defaultTimezone;
     }
@@ -116,7 +129,7 @@ trait DeclarativeProps
      * @param mixed          $value
      * @param PropDefinition $propDefinition
      *
-     * @return array|string
+     * @return mixed
      * @throws \InvalidArgumentException
      */
     protected function formatPropValue($value, $propDefinition)
@@ -241,7 +254,7 @@ trait DeclarativeProps
             $date = $this->convertTimeZone($date, $timezone);
         }
 
-        return $date->format($definition->get('format', $this->getDateTimeFormat()));
+        return $date->format($definition->get('format', $this->getDatetimeFormat()));
     }
 
     /**

@@ -322,8 +322,8 @@ class Smokescreen implements \JsonSerializable
     }
 
     /**
-     * @param ResourceInterface|mixed $resource
-     * @param Includes                $includes
+     * @param ResourceInterface|array|mixed $resource
+     * @param Includes                      $includes
      *
      * @throws \Rexlabs\Smokescreen\Exception\InvalidSerializerException
      * @throws \Rexlabs\Smokescreen\Exception\UnhandledResourceType
