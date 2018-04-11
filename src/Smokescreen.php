@@ -17,6 +17,7 @@ use Rexlabs\Smokescreen\Resource\ResourceInterface;
 use Rexlabs\Smokescreen\Serializer\DefaultSerializer;
 use Rexlabs\Smokescreen\Serializer\SerializerInterface;
 use Rexlabs\Smokescreen\Transformer\TransformerInterface;
+use Rexlabs\Smokescreen\Transformer\TransformerResolverInterface;
 
 /**
  * Smokescreen is a library for transforming and serializing data - typically RESTful API output.
@@ -37,6 +38,9 @@ class Smokescreen implements \JsonSerializable
 
     /** @var Includes */
     protected $includes;
+
+    /** @var TransformerResolverInterface */
+    protected $transformerResolver;
 
     /**
      * Return the current resource.
@@ -200,6 +204,13 @@ class Smokescreen implements \JsonSerializable
     {
         if (!$this->resource) {
             throw new MissingResourceException('No resource has been defined to transform');
+        }
+
+        // If there is no transformer assigned to the resource, we'll try find one.
+        if (!$this->resource->hasTransformer()) {
+            // Try to resolve one based on the underlying model (if any).
+            $transformer = $this->resolveTransformerForResource($this->resource);
+            $this->resource->setTransformer($transformer);
         }
 
         // Kick of serialization of the resource
@@ -570,6 +581,7 @@ class Smokescreen implements \JsonSerializable
      * @throws InvalidTransformerException
      *
      * @return array
+     * @throws IncludeException
      */
     protected function serializeItem(Item $item, Includes $includes): array
     {
@@ -596,5 +608,46 @@ class Smokescreen implements \JsonSerializable
         }
 
         return $output;
+    }
+
+    /**
+     * Resolve the transformer to be used for a resource.
+     * Returns an interface, callable or null when a transformer cannot be resolved.
+     *
+     * @param $resource
+     *
+     * @return TransformerInterface|mixed|null
+     */
+    protected function resolveTransformerForResource($resource)
+    {
+        $transformer = null;
+
+        if ($this->transformerResolver !== null) {
+            $transformer = $this->transformerResolver->resolve($resource);
+        }
+
+        return $transformer;
+    }
+
+    /**
+     * @return TransformerResolverInterface|null
+     */
+    public function getTransformerResolver(): TransformerResolverInterface
+    {
+        return $this->transformerResolver;
+    }
+
+    /**
+     * Set the transformer resolve to user
+     *
+     * @param TransformerResolverInterface|null $transformerResolver
+     *
+     * @return $this
+     */
+    public function setTransformerResolver(TransformerResolverInterface $transformerResolver = null)
+    {
+        $this->transformerResolver = $transformerResolver;
+
+        return $this;
     }
 }
