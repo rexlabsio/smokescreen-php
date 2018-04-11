@@ -2,6 +2,7 @@
 
 namespace Rexlabs\Smokescreen;
 
+use Rexlabs\Smokescreen\Exception\IncludeException;
 use Rexlabs\Smokescreen\Exception\InvalidTransformerException;
 use Rexlabs\Smokescreen\Exception\MissingResourceException;
 use Rexlabs\Smokescreen\Exception\UnhandledResourceType;
@@ -64,11 +65,12 @@ class Smokescreen implements \JsonSerializable
     /**
      * Set the resource item to be transformed.
      *
-     * @param mixed                              $data
+     * @param mixed                           $data
      * @param TransformerInterface|mixed|null $transformer
-     * @param string|null                        $key
+     * @param string|null                     $key
      *
      * @return $this
+     * @throws \Rexlabs\Smokescreen\Exception\InvalidTransformerException
      */
     public function item($data, $transformer = null, $key = null)
     {
@@ -80,12 +82,13 @@ class Smokescreen implements \JsonSerializable
     /**
      * Set the resource collection to be transformed.
      *
-     * @param mixed                              $data
+     * @param mixed                           $data
      * @param TransformerInterface|mixed|null $transformer
-     * @param string|null                        $key
-     * @param callable|null                      $callback
+     * @param string|null                     $key
+     * @param callable|null                   $callback
      *
      * @return $this
+     * @throws \Rexlabs\Smokescreen\Exception\InvalidTransformerException
      */
     public function collection($data, TransformerInterface $transformer = null, $key = null, callable $callback = null)
     {
@@ -140,6 +143,7 @@ class Smokescreen implements \JsonSerializable
      * @throws \Rexlabs\Smokescreen\Exception\JsonEncodeException
      *
      * @return \stdClass
+     * @throws IncludeException
      */
     public function toObject(): \stdClass
     {
@@ -157,6 +161,7 @@ class Smokescreen implements \JsonSerializable
      * @throws \Rexlabs\Smokescreen\Exception\JsonEncodeException
      *
      * @return string
+     * @throws IncludeException
      */
     public function toJson($options = 0): string
     {
@@ -174,6 +179,7 @@ class Smokescreen implements \JsonSerializable
      * @return array
      *
      * @see Smokescreen::toArray()
+     * @throws IncludeException
      */
     public function jsonSerialize(): array
     {
@@ -188,6 +194,7 @@ class Smokescreen implements \JsonSerializable
      * @throws \Rexlabs\Smokescreen\Exception\MissingResourceException
      *
      * @return array
+     * @throws IncludeException
      */
     public function toArray(): array
     {
@@ -329,6 +336,7 @@ class Smokescreen implements \JsonSerializable
      * @throws \Rexlabs\Smokescreen\Exception\InvalidTransformerException
      *
      * @return array|mixed
+     * @throws IncludeException
      */
     protected function serializeResource($resource, Includes $includes): array
     {
@@ -375,6 +383,7 @@ class Smokescreen implements \JsonSerializable
      * @throws InvalidTransformerException
      *
      * @return array
+     * @throws IncludeException
      */
     protected function serializeCollection(Collection $collection, Includes $includes): array
     {
@@ -415,10 +424,12 @@ class Smokescreen implements \JsonSerializable
      * @param mixed|TransformerInterface|callable|null $transformer
      * @param Includes                                 $includes
      *
+     * @throws \Rexlabs\Smokescreen\Exception\InvalidSerializerException
      * @throws \Rexlabs\Smokescreen\Exception\UnhandledResourceType
      * @throws \Rexlabs\Smokescreen\Exception\InvalidTransformerException
      *
      * @return array
+     * @throws IncludeException
      */
     protected function transformItem($item, $transformer, Includes $includes): array
     {
@@ -476,7 +487,7 @@ class Smokescreen implements \JsonSerializable
         // Add includes to the payload
         $includeMap = $transformer->getIncludeMap();
         foreach ($mappedIncludeKeys as $includeKey) {
-            $resource = $this->executeTransformerInclude($transformer, $includeMap[$includeKey], $item);
+            $resource = $this->executeTransformerInclude($transformer, $includeKey, $includeMap[$includeKey], $item);
 
             if ($resource instanceof ResourceInterface) {
                 // Resource object
@@ -494,15 +505,59 @@ class Smokescreen implements \JsonSerializable
     /**
      * Execute the transformer.
      *
-     * @param mixed $transformer
-     * @param array $include
-     * @param mixed $item
+     * @param mixed  $transformer
+     * @param string $includeKey
+     * @param array  $includeDefinition
+     * @param mixed  $item
      *
-     * @return mixed
+     * @return ResourceInterface
+     * @throws \Rexlabs\Smokescreen\Exception\UnhandledResourceType
+     * @throws \Rexlabs\Smokescreen\Exception\InvalidTransformerException
+     * @throws IncludeException
      */
-    protected function executeTransformerInclude($transformer, $include, $item)
+    protected function executeTransformerInclude($transformer, $includeKey, $includeDefinition, $item)
     {
-        return \call_user_func([$transformer, $include['method']], $item);
+        // Transformer explicitly provided an include method
+        $method = $includeDefinition['method'];
+        if (method_exists($transformer, $method)) {
+            return $transformer->$method($item);
+        }
+
+        // Otherwise try handle the include automatically
+        return $this->autoWireInclude($includeKey, $includeDefinition, $item);
+    }
+
+    /**
+     * @param string $includeKey
+     * @param array  $includeDefinition
+     * @param        $item
+     *
+     * @return Collection|Item
+     * @throws \Rexlabs\Smokescreen\Exception\InvalidTransformerException
+     * @throws IncludeException
+     */
+    protected function autoWireInclude($includeKey, $includeDefinition, $item)
+    {
+        // Get the included data
+        $data = null;
+        if (\is_array($item) || $item instanceof \ArrayAccess) {
+            $data = $item[$includeKey];
+        } elseif (\is_object($item) && property_exists($item, $includeKey)) {
+            $data = $item->$includeKey;
+        } else {
+            throw new IncludeException("Cannot auto-wire include for $includeKey: Cannot get include data");
+        }
+
+        // Wrap the included data in a resource
+        $resourceType = $includeDefinition['resource_type'] ?? 'item';
+        switch ($resourceType) {
+            case 'collection':
+                return new Collection($data);
+            case 'item':
+                return new Item($data);
+            default:
+                throw new IncludeException("Cannot auto-wire include for $includeKey: Invalid resource type $resourceType");
+        }
     }
 
     /**

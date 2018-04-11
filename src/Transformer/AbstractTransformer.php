@@ -91,6 +91,12 @@ class AbstractTransformer implements TransformerInterface
                                 $settings['method'] = $val;
                             }
                             break;
+                        case 'item':
+                            $settings['resource_type'] = 'item';
+                            break;
+                        case 'collection':
+                            $settings['resource_type'] = 'collection';
+                            break;
                         default:
                             throw new ParseDefinitionException("Invalid key '{$directive}' for {$includeKey}");
                     }
@@ -105,6 +111,9 @@ class AbstractTransformer implements TransformerInterface
             }
             if (!isset($settings['default'])) {
                 $settings['default'] = false;
+            }
+            if (!isset($settings['resource_type'])) {
+                $settings['resource_type'] = null;
             }
 
             $map[$includeKey] = $settings;
