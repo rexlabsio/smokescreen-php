@@ -207,13 +207,6 @@ class Smokescreen implements \JsonSerializable
             throw new MissingResourceException('No resource has been defined to transform');
         }
 
-        // If there is no transformer assigned to the resource, we'll try find one.
-        if (!$this->resource->hasTransformer()) {
-            // Try to resolve one based on the underlying model (if any).
-            $transformer = $this->resolveTransformerForResource($this->resource);
-            $this->resource->setTransformer($transformer);
-        }
-
         // Kick of serialization of the resource
         return $this->serializeResource($this->resource, $this->getIncludes());
     }
@@ -352,8 +345,15 @@ class Smokescreen implements \JsonSerializable
      */
     protected function serializeResource($resource, Includes $includes): array
     {
-        // Load relations for any resource which implements the interface.
+
         if ($resource instanceof ResourceInterface) {
+            if (!$resource->hasTransformer()) {
+                // Try to resolve a transformer for a resource that does not have one assigned.
+                $transformer = $this->resolveTransformerForResource($resource);
+                $resource->setTransformer($transformer);
+            }
+
+            // Load relations for any resource which implements the interface.
             $this->loadRelations($resource);
         }
 
@@ -640,7 +640,7 @@ class Smokescreen implements \JsonSerializable
     /**
      * @return TransformerResolverInterface|null
      */
-    public function getTransformerResolver(): TransformerResolverInterface
+    public function getTransformerResolver()
     {
         return $this->transformerResolver;
     }
