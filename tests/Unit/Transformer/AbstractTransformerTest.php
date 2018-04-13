@@ -30,13 +30,15 @@ class AbstractTransformerTest extends TestCase
         $transformer = new class() extends AbstractTransformer {
             protected $includes = [
                 'user'    => 'method:includeUser',
-                'account' => 'method:includeAccount',
+                'account' => 'method:includeAccount|item',
+                'events' => 'collection'
             ];
         };
 
         $this->assertEquals([
             'user',
             'account',
+            'events',
         ], $transformer->getAvailableIncludes());
     }
 

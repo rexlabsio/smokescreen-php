@@ -10,6 +10,7 @@
 namespace Rexlabs\Smokescreen\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
+use Rexlabs\Smokescreen\Exception\IncludeException;
 use Rexlabs\Smokescreen\Exception\InvalidTransformerException;
 use Rexlabs\Smokescreen\Exception\JsonEncodeException;
 use Rexlabs\Smokescreen\Exception\MissingResourceException;
@@ -19,10 +20,12 @@ use Rexlabs\Smokescreen\Includes\Includes;
 use Rexlabs\Smokescreen\Relations\RelationLoaderInterface;
 use Rexlabs\Smokescreen\Resource\Collection;
 use Rexlabs\Smokescreen\Resource\Item;
+use Rexlabs\Smokescreen\Resource\ResourceInterface;
 use Rexlabs\Smokescreen\Serializer\DefaultSerializer;
 use Rexlabs\Smokescreen\Serializer\SerializerInterface;
 use Rexlabs\Smokescreen\Smokescreen;
 use Rexlabs\Smokescreen\Transformer\AbstractTransformer;
+use Rexlabs\Smokescreen\Transformer\TransformerResolverInterface;
 
 class SmokescreenTest extends TestCase
 {
@@ -85,8 +88,8 @@ class SmokescreenTest extends TestCase
         $smokescreen = new Smokescreen();
         $smokescreen->collection([
             'id'         => '1234',
-            'first_name' => 'Walter',
-            'last_name'  => 'Lilly',
+            'first_name' => 'John',
+            'last_name'  => 'Doe',
         ], $transformer);
         $this->assertEquals($transformer, $smokescreen->getTransformer());
     }
@@ -105,8 +108,8 @@ class SmokescreenTest extends TestCase
         $smokescreen = new Smokescreen();
         $smokescreen->collection([
             'id'         => '1234',
-            'first_name' => 'Walter',
-            'last_name'  => 'Lilly',
+            'first_name' => 'John',
+            'last_name'  => 'Doe',
         ]);
         $this->assertNull($smokescreen->getTransformer());
     }
@@ -118,8 +121,8 @@ class SmokescreenTest extends TestCase
         $smokescreen = new Smokescreen();
         $smokescreen->collection([
             'id'         => '1234',
-            'first_name' => 'Walter',
-            'last_name'  => 'Lilly',
+            'first_name' => 'John',
+            'last_name'  => 'Doe',
         ]);
         $smokescreen->setTransformer($transformer);
         $this->assertEquals($transformer, $smokescreen->getTransformer());
@@ -139,8 +142,8 @@ class SmokescreenTest extends TestCase
         $smokescreen = new Smokescreen();
         $smokescreen->item([
             'id'         => '1234',
-            'first_name' => 'Walter',
-            'last_name'  => 'Lilly',
+            'first_name' => 'John',
+            'last_name'  => 'Doe',
         ], function ($item) {
             return [
                 'id'         => 'xxx'.$item['id'],
@@ -151,8 +154,8 @@ class SmokescreenTest extends TestCase
         $this->assertTrue(\is_callable($smokescreen->getTransformer()));
         $this->assertEquals([
             'id'         => 'xxx1234',
-            'first_name' => 'xxxWalter',
-            'last_name'  => 'xxxLilly',
+            'first_name' => 'xxxJohn',
+            'last_name'  => 'xxxDoe',
         ], $smokescreen->toArray());
     }
 
@@ -163,8 +166,8 @@ class SmokescreenTest extends TestCase
         $this->expectException(InvalidTransformerException::class);
         $smokescreen->item([
             'id'         => '1234',
-            'first_name' => 'Walter',
-            'last_name'  => 'Lilly',
+            'first_name' => 'John',
+            'last_name'  => 'Doe',
         ], 'invalid_transformer');
     }
 
@@ -174,8 +177,8 @@ class SmokescreenTest extends TestCase
         $smokescreen = new Smokescreen();
         $smokescreen->item([
             'id'         => '1234',
-            'first_name' => "Walter \xB1\x31", // Bad UTF8
-            'last_name'  => 'Lilly',
+            'first_name' => "John \xB1\x31", // Bad UTF8
+            'last_name'  => 'Doe',
         ]);
         $this->expectException(JsonEncodeException::class);
         $smokescreen->toJson();
@@ -321,13 +324,13 @@ class SmokescreenTest extends TestCase
         /* assert */
         $smokescreen = (new Smokescreen())->parseIncludes('images{url}')->item([
             'id'         => '1234',
-            'first_name' => 'Walter',
-            'last_name'  => 'Lilly',
+            'first_name' => 'John',
+            'last_name'  => 'Doe',
         ], $transformer);
 
         $this->assertEquals([
             'id'        => '1234',
-            'full_name' => 'Walter Lilly',
+            'full_name' => 'John Doe',
             'images'    => [
                 'custom_serialize' => [
                     [
@@ -378,13 +381,13 @@ class SmokescreenTest extends TestCase
         /* assert */
         $smokescreen = (new Smokescreen())->parseIncludes('images{url}')->item([
             'id'         => '1234',
-            'first_name' => 'Walter',
-            'last_name'  => 'Lilly',
+            'first_name' => 'John',
+            'last_name'  => 'Doe',
         ], $transformer);
 
         $this->assertEquals([
             'id'        => '1234',
-            'full_name' => 'Walter Lilly',
+            'full_name' => 'John Doe',
             'images'    => [
                 [
                     'id'  => 'image-1',
@@ -576,22 +579,136 @@ class SmokescreenTest extends TestCase
         $this->assertEquals($customSerializer, $smokescreen->getSerializer());
     }
 
+    /** @test */
+    public function can_set_transformer_resolver()
+    {
+        $resolver = $this->createTransformerResolver();
+
+        $smokescreen = new Smokescreen();
+        $this->assertNull($smokescreen->getTransformerResolver());
+        $smokescreen->setTransformerResolver($resolver);
+        $this->assertEquals($resolver, $smokescreen->getTransformerResolver());
+    }
+
+    /** @test */
+    public function can_autowire_include()
+    {
+        $resolver = $this->createTransformerResolver();
+        $transformer = $this->createTransformer();
+        $person = $this->createPersonArray();
+
+        $smokescreen = new Smokescreen();
+        $smokescreen->setTransformerResolver($resolver);
+        $smokescreen->item($person, $transformer);
+        $smokescreen->parseIncludes('parent');
+        $this->assertEquals([
+            'id'         => '234',
+            'full_name' => 'John Doe',
+            'parent'     => [
+                'id' => 123,
+                'first_name' => 'Mother',
+                'last_name' => 'Dearest',
+            ],
+        ], $smokescreen->toArray());
+    }
+
+    /** @test */
+    public function can_autowire_include_with_object()
+    {
+        $resolver = $this->createTransformerResolver();
+        $transformer = $this->createTransformer();
+        $person = $this->createPersonObject();
+
+        $smokescreen = new Smokescreen();
+        $smokescreen->setTransformerResolver($resolver);
+        $smokescreen->item($person, $transformer);
+        $smokescreen->parseIncludes('parent,children');
+        $this->assertEquals([
+            'id'         => '234',
+            'full_name' => 'John Doe',
+            'parent'     => [
+                'id' => 123,
+                'first_name' => 'Mother',
+                'last_name' => 'Dearest',
+            ],
+            'children'     => [
+                'data' => [
+                    [
+                        'id' => 345,
+                        'first_name' => 'LilJane',
+                        'last_name' => 'Doe',
+                    ],
+                    [
+                        'id' => 456,
+                        'first_name' => 'LilJohn',
+                        'last_name' => 'Doe',
+                    ]
+                ]
+            ],
+        ], $smokescreen->toArray());
+
+    }
+
+    protected function createPersonObject(): \stdClass
+    {
+        $parent = new \stdClass();
+        $parent->id = 123;
+        $parent->first_name = 'Mother';
+        $parent->last_name = 'Dearest';
+
+        // Our person
+        $person = new \stdClass();
+        $person->id = 234;
+        $person->first_name = 'John';
+        $person->last_name = 'Doe';
+
+        $child1 = new \stdClass();
+        $child1->id = 345;
+        $child1->first_name = 'LilJane';
+        $child1->last_name = 'Doe';
+
+        $child2 = new \stdClass();
+        $child2->id = 456;
+        $child2->first_name = 'LilJohn';
+        $child2->last_name = 'Doe';
+        
+        $person->parent = $parent;
+        $person->children = [ $child1, $child2 ];
+
+        return $person;
+    }
+
+    protected function createPersonArray(): array
+    {
+        return (array) $this->createPersonObject();
+    }
+
     protected function createTransformer(): AbstractTransformer
     {
         return new class() extends AbstractTransformer {
             protected $includes = [
                 'images',
+                'parent',
+                'children' => 'collection',
             ];
 
             public function transform($person)
             {
-                return [
-                    'id'        => $person['id'],
-                    'full_name' => "{$person['first_name']} {$person['last_name']}",
-                ];
+                // Handle both array and object for the purpose of our tests
+                if (is_array($person)) {
+                    return [
+                        'id'        => $person['id'],
+                        'full_name' => "{$person['first_name']} {$person['last_name']}",
+                    ];
+                } else {
+                    return [
+                        'id'        => $person->id,
+                        'full_name' => "{$person->first_name} {$person->last_name}",
+                    ];
+                }
             }
 
-            public function includeImages($item)
+            public function includeImages($person)
             {
                 // Returning an array instead of a collection
                 return [
@@ -614,6 +731,20 @@ class SmokescreenTest extends TestCase
             public function collection($resourceKey, array $data): array
             {
                 return ['custom_serialize' => $data];
+            }
+        };
+    }
+
+    protected function createTransformerResolver(): TransformerResolverInterface
+    {
+        return new class() implements TransformerResolverInterface{
+            public function resolve(ResourceInterface $resource)
+            {
+                // Return a closure as the resolved transformer
+                // which returns the exact item given to it
+                return function($item) {
+                  return json_decode(json_encode($item), true);
+                };
             }
         };
     }
