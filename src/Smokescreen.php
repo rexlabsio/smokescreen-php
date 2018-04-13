@@ -344,7 +344,6 @@ class Smokescreen implements \JsonSerializable
      */
     protected function serializeResource($resource, Includes $includes): array
     {
-
         if ($resource instanceof ResourceInterface) {
             if (!$resource->hasTransformer()) {
                 // Try to resolve a transformer for a resource that does not have one assigned.
@@ -552,23 +551,19 @@ class Smokescreen implements \JsonSerializable
         // Get the included data
         $data = null;
         if (\is_array($item) || $item instanceof \ArrayAccess) {
-            $data = $item[$includeKey];
-        } elseif (\is_object($item) && property_exists($item, $includeKey)) {
-            $data = $item->$includeKey;
+            $data = $item[$includeKey] ?? null;
+        } elseif (\is_object($item)) {
+            $data = $item->$includeKey ?? null;
         } else {
             throw new IncludeException("Cannot auto-wire include for $includeKey: Cannot get include data");
         }
 
-        // Wrap the included data in a resource
-        $resourceType = $includeDefinition['resource_type'] ?? 'item';
-        switch ($resourceType) {
-            case 'collection':
-                return new Collection($data);
-            case 'item':
-                return new Item($data);
-            default:
-                throw new IncludeException("Cannot auto-wire include for $includeKey: Invalid resource type $resourceType");
+        if (!empty($includeDefinition['resource_type']) && $includeDefinition['resource_type'] === 'collection') {
+            return new Collection($data);
         }
+
+        // Assume unless declared, that the resource is an item.
+        return new Item($data);
     }
 
     /**
