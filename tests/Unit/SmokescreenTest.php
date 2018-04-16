@@ -10,7 +10,6 @@
 namespace Rexlabs\Smokescreen\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
-use Rexlabs\Smokescreen\Exception\IncludeException;
 use Rexlabs\Smokescreen\Exception\InvalidTransformerException;
 use Rexlabs\Smokescreen\Exception\JsonEncodeException;
 use Rexlabs\Smokescreen\Exception\MissingResourceException;
@@ -603,11 +602,11 @@ class SmokescreenTest extends TestCase
         $smokescreen->parseIncludes('parent');
         $this->assertEquals([
             'id'         => '234',
-            'full_name' => 'John Doe',
+            'full_name'  => 'John Doe',
             'parent'     => [
-                'id' => 123,
+                'id'         => 123,
                 'first_name' => 'Mother',
-                'last_name' => 'Dearest',
+                'last_name'  => 'Dearest',
             ],
         ], $smokescreen->toArray());
     }
@@ -625,28 +624,27 @@ class SmokescreenTest extends TestCase
         $smokescreen->parseIncludes('parent,children');
         $this->assertEquals([
             'id'         => '234',
-            'full_name' => 'John Doe',
+            'full_name'  => 'John Doe',
             'parent'     => [
-                'id' => 123,
+                'id'         => 123,
                 'first_name' => 'Mother',
-                'last_name' => 'Dearest',
+                'last_name'  => 'Dearest',
             ],
             'children'     => [
                 'data' => [
                     [
-                        'id' => 345,
+                        'id'         => 345,
                         'first_name' => 'LilJane',
-                        'last_name' => 'Doe',
+                        'last_name'  => 'Doe',
                     ],
                     [
-                        'id' => 456,
+                        'id'         => 456,
                         'first_name' => 'LilJohn',
-                        'last_name' => 'Doe',
-                    ]
-                ]
+                        'last_name'  => 'Doe',
+                    ],
+                ],
             ],
         ], $smokescreen->toArray());
-
     }
 
     protected function createPersonObject(): \stdClass
@@ -671,9 +669,9 @@ class SmokescreenTest extends TestCase
         $child2->id = 456;
         $child2->first_name = 'LilJohn';
         $child2->last_name = 'Doe';
-        
+
         $person->parent = $parent;
-        $person->children = [ $child1, $child2 ];
+        $person->children = [$child1, $child2];
 
         return $person;
     }
@@ -737,13 +735,13 @@ class SmokescreenTest extends TestCase
 
     protected function createTransformerResolver(): TransformerResolverInterface
     {
-        return new class() implements TransformerResolverInterface{
+        return new class() implements TransformerResolverInterface {
             public function resolve(ResourceInterface $resource)
             {
                 // Return a closure as the resolved transformer
                 // which returns the exact item given to it
-                return function($item) {
-                  return json_decode(json_encode($item), true);
+                return function ($item) {
+                    return json_decode(json_encode($item), true);
                 };
             }
         };

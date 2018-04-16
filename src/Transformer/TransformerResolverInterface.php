@@ -10,6 +10,7 @@ interface TransformerResolverInterface
      * Determines the Transformer object to be used for a particular resource.
      *
      * @param ResourceInterface $resource
+     *
      * @return TransformerInterface|mixed|null
      */
     public function resolve(ResourceInterface $resource);
