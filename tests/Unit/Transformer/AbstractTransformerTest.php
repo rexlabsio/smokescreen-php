@@ -31,7 +31,7 @@ class AbstractTransformerTest extends TestCase
             protected $includes = [
                 'user'    => 'method:includeUser',
                 'account' => 'method:includeAccount|item',
-                'events' => 'collection'
+                'events'  => 'collection',
             ];
         };
 

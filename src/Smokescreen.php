@@ -73,8 +73,9 @@ class Smokescreen implements \JsonSerializable
      * @param TransformerInterface|mixed|null $transformer
      * @param string|null                     $key
      *
-     * @return $this
      * @throws \Rexlabs\Smokescreen\Exception\InvalidTransformerException
+     *
+     * @return $this
      */
     public function item($data, $transformer = null, $key = null)
     {
@@ -91,8 +92,9 @@ class Smokescreen implements \JsonSerializable
      * @param string|null                     $key
      * @param callable|null                   $callback
      *
-     * @return $this
      * @throws \Rexlabs\Smokescreen\Exception\InvalidTransformerException
+     *
+     * @return $this
      */
     public function collection($data, TransformerInterface $transformer = null, $key = null, callable $callback = null)
     {
@@ -145,9 +147,9 @@ class Smokescreen implements \JsonSerializable
      * @throws \Rexlabs\Smokescreen\Exception\MissingResourceException
      * @throws \Rexlabs\Smokescreen\Exception\InvalidTransformerException
      * @throws \Rexlabs\Smokescreen\Exception\JsonEncodeException
+     * @throws IncludeException
      *
      * @return \stdClass
-     * @throws IncludeException
      */
     public function toObject(): \stdClass
     {
@@ -163,9 +165,9 @@ class Smokescreen implements \JsonSerializable
      * @throws \Rexlabs\Smokescreen\Exception\MissingResourceException
      * @throws \Rexlabs\Smokescreen\Exception\InvalidTransformerException
      * @throws \Rexlabs\Smokescreen\Exception\JsonEncodeException
+     * @throws IncludeException
      *
      * @return string
-     * @throws IncludeException
      */
     public function toJson($options = 0): string
     {
@@ -179,11 +181,11 @@ class Smokescreen implements \JsonSerializable
      * @throws \Rexlabs\Smokescreen\Exception\UnhandledResourceType
      * @throws \Rexlabs\Smokescreen\Exception\InvalidTransformerException
      * @throws \Rexlabs\Smokescreen\Exception\MissingResourceException
+     * @throws IncludeException
      *
      * @return array
      *
      * @see Smokescreen::toArray()
-     * @throws IncludeException
      */
     public function jsonSerialize(): array
     {
@@ -196,9 +198,9 @@ class Smokescreen implements \JsonSerializable
      * @throws \Rexlabs\Smokescreen\Exception\UnhandledResourceType
      * @throws \Rexlabs\Smokescreen\Exception\InvalidTransformerException
      * @throws \Rexlabs\Smokescreen\Exception\MissingResourceException
+     * @throws IncludeException
      *
      * @return array
-     * @throws IncludeException
      */
     public function toArray(): array
     {
@@ -338,9 +340,9 @@ class Smokescreen implements \JsonSerializable
      * @throws \Rexlabs\Smokescreen\Exception\InvalidSerializerException
      * @throws \Rexlabs\Smokescreen\Exception\UnhandledResourceType
      * @throws \Rexlabs\Smokescreen\Exception\InvalidTransformerException
+     * @throws IncludeException
      *
      * @return array|mixed
-     * @throws IncludeException
      */
     protected function serializeResource($resource, Includes $includes): array
     {
@@ -391,9 +393,9 @@ class Smokescreen implements \JsonSerializable
      * @throws \Rexlabs\Smokescreen\Exception\InvalidSerializerException
      * @throws \Rexlabs\Smokescreen\Exception\UnhandledResourceType
      * @throws InvalidTransformerException
+     * @throws IncludeException
      *
      * @return array
-     * @throws IncludeException
      */
     protected function serializeCollection(Collection $collection, Includes $includes): array
     {
@@ -437,9 +439,9 @@ class Smokescreen implements \JsonSerializable
      * @throws \Rexlabs\Smokescreen\Exception\InvalidSerializerException
      * @throws \Rexlabs\Smokescreen\Exception\UnhandledResourceType
      * @throws \Rexlabs\Smokescreen\Exception\InvalidTransformerException
+     * @throws IncludeException
      *
      * @return array
-     * @throws IncludeException
      */
     protected function transformItem($item, $transformer, Includes $includes): array
     {
@@ -520,10 +522,11 @@ class Smokescreen implements \JsonSerializable
      * @param array  $includeDefinition
      * @param mixed  $item
      *
-     * @return ResourceInterface
      * @throws \Rexlabs\Smokescreen\Exception\UnhandledResourceType
      * @throws \Rexlabs\Smokescreen\Exception\InvalidTransformerException
      * @throws IncludeException
+     *
+     * @return ResourceInterface
      */
     protected function executeTransformerInclude($transformer, $includeKey, $includeDefinition, $item)
     {
@@ -542,9 +545,10 @@ class Smokescreen implements \JsonSerializable
      * @param array  $includeDefinition
      * @param        $item
      *
-     * @return Collection|Item
      * @throws \Rexlabs\Smokescreen\Exception\InvalidTransformerException
      * @throws IncludeException
+     *
+     * @return Collection|Item
      */
     protected function autoWireInclude($includeKey, $includeDefinition, $item)
     {
@@ -574,9 +578,9 @@ class Smokescreen implements \JsonSerializable
      *
      * @throws \Rexlabs\Smokescreen\Exception\UnhandledResourceType
      * @throws InvalidTransformerException
+     * @throws IncludeException
      *
      * @return array
-     * @throws IncludeException
      */
     protected function serializeItem(Item $item, Includes $includes): array
     {
@@ -633,7 +637,7 @@ class Smokescreen implements \JsonSerializable
     }
 
     /**
-     * Set the transformer resolve to user
+     * Set the transformer resolve to user.
      *
      * @param TransformerResolverInterface|null $transformerResolver
      *
