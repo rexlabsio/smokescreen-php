@@ -139,7 +139,13 @@ trait DeclarativeProps
      */
     protected function formatPropValue($value, $propDefinition)
     {
+        // There must be a type defined for this property definition.
         if (!$propDefinition->type()) {
+            return $value;
+        }
+
+        // Null values are not formatted.
+        if ($value === null) {
             return $value;
         }
 
