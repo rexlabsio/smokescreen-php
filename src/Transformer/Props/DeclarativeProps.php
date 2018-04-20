@@ -104,7 +104,7 @@ trait DeclarativeProps
             }
 
             // Set the prop value in the array
-            ArrayHelper::mutate($data, $propKey, $value);
+            ArrayHelper::mutate($data, $key, $value);
         }
 
         return $data;
