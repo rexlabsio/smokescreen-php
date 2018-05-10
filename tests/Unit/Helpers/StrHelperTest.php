@@ -15,4 +15,13 @@ class StrHelperTest extends TestCase
         $this->assertEquals('SnakeCase', StrHelper::studlyCase('_snake_case'));
         $this->assertEquals('KebabCase', StrHelper::studlyCase('kebab-case'));
     }
+
+    /** @test */
+    public function convert_to_snake_case()
+    {
+        $this->assertEquals('snake_case', StrHelper::snakeCase('snake_case'));
+        $this->assertEquals('studly_case', StrHelper::snakeCase('StudlyCase'));
+        $this->assertEquals('kebab_case', StrHelper::snakeCase('kebab-case'));
+        $this->assertEquals('dot_property', StrHelper::snakeCase('dot.property'));
+    }
 }

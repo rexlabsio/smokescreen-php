@@ -4,7 +4,6 @@ namespace Rexlabs\Smokescreen\Tests\Unit\Resource;
 
 use PHPUnit\Framework\TestCase;
 use Rexlabs\Smokescreen\Exception\InvalidSerializerException;
-use Rexlabs\Smokescreen\Exception\InvalidTransformerException;
 use Rexlabs\Smokescreen\Pagination\CursorInterface;
 use Rexlabs\Smokescreen\Pagination\PaginatorInterface;
 use Rexlabs\Smokescreen\Resource\AbstractResource;
@@ -30,17 +29,6 @@ class AbstractResourceTest extends TestCase
         $resource->setTransformer($transformer);
         $this->assertTrue($resource->hasTransformer());
         $this->assertInstanceOf(TransformerInterface::class, $resource->getTransformer());
-    }
-
-    /** @test */
-    public function cannot_set_transformer_without_transform_method()
-    {
-        $resource = $this->createAbstractResource();
-        $transformer = new class() extends AbstractTransformer {
-        };
-
-        $this->expectException(InvalidTransformerException::class);
-        $resource->setTransformer($transformer);
     }
 
     /** @test */

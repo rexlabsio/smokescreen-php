@@ -6,9 +6,12 @@ use Rexlabs\Smokescreen\Exception\ParseDefinitionException;
 use Rexlabs\Smokescreen\Helpers\StrHelper;
 use Rexlabs\Smokescreen\Resource\Collection;
 use Rexlabs\Smokescreen\Resource\Item;
+use Rexlabs\Smokescreen\Transformer\Props\DeclarativeProps;
 
 class AbstractTransformer implements TransformerInterface
 {
+    use DeclarativeProps;
+
 //    protected $autoIncludes = true;
 
     /** @var array The list of available includes */
@@ -191,5 +194,23 @@ class AbstractTransformer implements TransformerInterface
     public function collection($data, $transformer = null, $resourceKey = null): Collection
     {
         return new Collection($data, $transformer, $resourceKey);
+    }
+
+    /**
+     * @param $data
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @return array
+     */
+    public function getTransformedData($data): array
+    {
+        if (method_exists($this, 'transform')) {
+            // Transformer provides a 'transform' method
+            return (array) $this->transform($data);
+        }
+
+        // Otherwise, use the withProps method which calls getProps()
+        return $this->withProps($data, $this->getProps());
     }
 }
