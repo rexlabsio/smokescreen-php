@@ -92,8 +92,9 @@ class Smokescreen implements \JsonSerializable
      * @param string|null                     $key
      * @param callable|null                   $callback
      *
-     * @return $this
      * @throws \Rexlabs\Smokescreen\Exception\InvalidTransformerException
+     *
+     * @return $this
      */
     public function collection($data, TransformerInterface $transformer = null, $key = null, callable $callback = null)
     {
