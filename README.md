@@ -9,16 +9,22 @@
 ## Overview
 
 Smokescreen is a PHP library for transforming data.  This is ideal for transforming and serializing
-API responses but can be applied to a number of scenarios.
-
-- Simple intuitive interface
-- Allows embedding of related resources
-- Supports eager loading
-- Supports sparse field sets
-- Can handle serializing to customisable formats
-- No other dependencies
+API responses but can be applied to many scenarios.
 
 See also [Smokescreen Laravel Library](https://github.com/rexlabsio/smokescreen-laravel-php)
+
+## Features
+
+- Simple intuitive interface
+- Transform any type of data (arrays, models, etc.)
+- Embedding of related resources (aka. includes)
+- Declarative includes
+- Includes auto-wiring
+- Declarative fields (including sparse field sets)
+- Eager loading
+- Flexible transformation and serialization
+- Support for lazy loading
+- No other dependencies
 
 ## Usage
 
@@ -105,8 +111,7 @@ Install package via composer:
 
 ## Laravel package
 
-We provide a Laravel wrapper package which provides some nice conveniences for working
-within the Laravel framework: `rexlabs/laravel-smokescreen` which you should install instead of this one.
+We provide a Laravel wrapper package which provides some nice conveniences for working within the Laravel framework: `rexlabs/laravel-smokescreen`
 
 See the Github repository for more information:
 
