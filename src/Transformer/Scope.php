@@ -199,7 +199,7 @@ class Scope
     /**
      * @param mixed $data
      *
-     * @return array
+     * @return array|mixed
      */
     public function transform($data)
     {

@@ -194,7 +194,7 @@ class Pipeline
     protected function transformData(Scope $scope, $data): array
     {
         // Get the base data from the transformation
-        $transformedData = $scope->transform($data);
+        $transformedData = (array) $scope->transform($data);
 
         // Add includes to the payload
         $includeMap = $scope->includeMap();
