@@ -1,0 +1,254 @@
+diff --git a/src/Smokescreen.php b/src/Smokescreen.php
+index e776b4c8cf770ccd0ba705f73dfab96d76129b22..77910213bf1843105dfe1955d6406d3c3fc81a73 100644
+--- a/src/Smokescreen.php
++++ b/src/Smokescreen.php
+@@ -211,12 +211,14 @@ class Smokescreen implements \JsonSerializable
+         if (!$this->resource) {
+             throw new MissingResourceException('No resource has been defined to transform');
+         }
++
+         return $this->transform();
+     }
+ 
+     /**
+-     * @return array
+      * @throws Exception\IncludeException
++     *
++     * @return array
+      */
+     protected function transform()
+     {
+@@ -231,7 +233,7 @@ class Smokescreen implements \JsonSerializable
+         if (($relationLoader = $this->getRelationLoader()) !== null) {
+             $pipeline->setRelationLoader($relationLoader);
+         }
+-        
++
+         return $pipeline->transform($scope);
+     }
+ 
+diff --git a/src/Transformer/Pipeline.php b/src/Transformer/Pipeline.php
+index 009573f1af68cfb055f2a6028d716ffba4a04a55..856c99a75e6003a88d7727369b4cf3a41be997c3 100644
+--- a/src/Transformer/Pipeline.php
++++ b/src/Transformer/Pipeline.php
+@@ -44,8 +44,9 @@ class Pipeline
+     /**
+      * @param Scope $scope
+      *
+-     * @return array
+      * @throws IncludeException
++     *
++     * @return array
+      */
+     public function transform(Scope $scope): array
+     {
+@@ -57,6 +58,7 @@ class Pipeline
+             if (\is_object($resource) && method_exists($resource, 'toArray')) {
+                 return $resource->toArray();
+             }
++
+             throw new UnhandledResourceType('Unable to serialize resource of type '.\gettype($resource));
+         }
+ 
+@@ -104,15 +106,15 @@ class Pipeline
+      *
+      * @param Scope $scope
+      *
+-     * @return array
+      * @throws IncludeException
++     *
++     * @return array
+      */
+     protected function transformItemResource(Scope $scope): array
+     {
+         // Get the globally set serializer (resource may override)
+         $defaultSerializer = $this->getSerializer();
+ 
+-
+         // The collection can have a custom serializer defined
+         // TODO: Check resource type is item
+         $item = $scope->resource();
+@@ -137,12 +139,12 @@ class Pipeline
+         return $output;
+     }
+ 
+-
+     /**
+      * @param Scope $scope
+      *
+-     * @return array
+      * @throws IncludeException
++     *
++     * @return array
+      */
+     protected function transformCollectionResource(Scope $scope): array
+     {
+@@ -179,15 +181,15 @@ class Pipeline
+         return $output;
+     }
+ 
+-
+     /**
+      * Apply transformation to the item data.
+      *
+      * @param Scope $scope
+      * @param mixed $data
+      *
+-     * @return array
+      * @throws IncludeException
++     *
++     * @return array
+      */
+     protected function transformData(Scope $scope, $data): array
+     {
+@@ -230,8 +232,9 @@ class Pipeline
+      * @param array  $includeDefinition
+      * @param mixed  $data
+      *
+-     * @return ResourceInterface
+      * @throws IncludeException
++     *
++     * @return ResourceInterface
+      */
+     protected function executeTransformerInclude(Scope $scope, $includeKey, $includeDefinition, $data)
+     {
+@@ -293,4 +296,4 @@ class Pipeline
+     {
+         return $this->serializer;
+     }
+-}
+\ No newline at end of file
++}
+diff --git a/src/Transformer/Scope.php b/src/Transformer/Scope.php
+index 80b993c849ad6f2bdd694e8b4015e24c205a078b..e8cb7062a2f4df99f5b3ccaadb3704495751062c 100644
+--- a/src/Transformer/Scope.php
++++ b/src/Transformer/Scope.php
+@@ -8,7 +8,7 @@ use Rexlabs\Smokescreen\Resource\ResourceInterface;
+ 
+ class Scope
+ {
+-    /** @var mixed|ResourceInterface  */
++    /** @var mixed|ResourceInterface */
+     protected $resource;
+ 
+     /** @var Includes */
+@@ -24,7 +24,7 @@ class Scope
+      * @param Includes                $includes
+      * @param Scope|null              $parent
+      */
+-    public function __construct($resource, Includes $includes, Scope $parent = null)
++    public function __construct($resource, Includes $includes, self $parent = null)
+     {
+         $this->resource = $resource;
+         $this->includes = $includes;
+@@ -36,7 +36,7 @@ class Scope
+      */
+     public function transformer()
+     {
+-       return $this->resource instanceof ResourceInterface ?
++        return $this->resource instanceof ResourceInterface ?
+            $this->resource->getTransformer() : null;
+     }
+ 
+@@ -84,6 +84,7 @@ class Scope
+ 
+     /**
+      * List of array keys identifying the available includes for this resource.
++     *
+      * @return array
+      */
+     public function availableIncludeKeys(): array
+@@ -98,6 +99,7 @@ class Scope
+ 
+     /**
+      * The include keys that were requested.
++     *
+      * @return array
+      */
+     public function requestedIncludeKeys(): array
+@@ -108,6 +110,7 @@ class Scope
+     /**
+      * The include keys that were either requested or (if empty) the ones
+      * that are are enabled by default.
++     *
+      * @return array
+      */
+     public function includeKeys(): array
+@@ -122,6 +125,7 @@ class Scope
+         if (($transformer = $this->transformer()) !== null && ($transformer instanceof  TransformerInterface)) {
+             $map = $transformer->getIncludeMap();
+         }
++
+         return $map;
+     }
+ 
+@@ -138,11 +142,13 @@ class Scope
+     /**
+      * A list of include keys that were requested and are available for
+      * usage (eg. they are declared in the transformer).
++     *
+      * @return array
+      */
+     public function resolvedIncludeKeys(): array
+     {
+         $availableIncludeKeys = $this->availableIncludeKeys();
++
+         return array_filter($this->includeKeys(), function ($includeKey) use ($availableIncludeKeys) {
+             return \in_array($includeKey, $availableIncludeKeys, true);
+         });
+@@ -151,6 +157,7 @@ class Scope
+     /**
+      * Get a list of relationship keys for all of the includes which
+      * have been resolved.
++     *
+      * @return array
+      */
+     public function resolvedRelationshipKeys(): array
+@@ -164,6 +171,7 @@ class Scope
+                 array_push($keys, ...$relations);
+             }
+         }
++
+         return array_unique($keys);
+     }
+ 
+@@ -227,7 +235,8 @@ class Scope
+     }
+ 
+     /**
+-     * Filters
++     * Filters.
++     *
+      * @param $data
+      *
+      * @return array
+@@ -251,4 +260,4 @@ class Scope
+ 
+         return $data;
+     }
+-}
+\ No newline at end of file
++}
+diff --git a/tests/Unit/SmokescreenTest.php b/tests/Unit/SmokescreenTest.php
+index 758f11b90028aae2065643b24df13e7d1179fa2c..9b737d669b615e17cafa1a2e7039268ad59bf606 100644
+--- a/tests/Unit/SmokescreenTest.php
++++ b/tests/Unit/SmokescreenTest.php
+@@ -528,8 +528,8 @@ class SmokescreenTest extends TestCase
+             [
+                 'id'    => 2,
+                 'title' => 'Another post',
+-                'body'  => 'Not as interesting'
+-            ]
++                'body'  => 'Not as interesting',
++            ],
+         ], $transformer);
+ 
+         $relationLoader = $this->getMockBuilder(RelationLoaderInterface::class)->setMethods(['load'])->getMock();
+@@ -540,7 +540,6 @@ class SmokescreenTest extends TestCase
+         $this->assertTrue($smokescreen->hasRelationLoader());
+         $this->assertInstanceOf(RelationLoaderInterface::class, $smokescreen->getRelationLoader());
+         $smokescreen->toArray();
+-
+     }
+ 
+     /** @test */

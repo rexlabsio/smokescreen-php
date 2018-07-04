@@ -211,12 +211,14 @@ class Smokescreen implements \JsonSerializable
         if (!$this->resource) {
             throw new MissingResourceException('No resource has been defined to transform');
         }
+
         return $this->transform();
     }
 
     /**
-     * @return array
      * @throws Exception\IncludeException
+     *
+     * @return array
      */
     protected function transform()
     {
@@ -231,7 +233,7 @@ class Smokescreen implements \JsonSerializable
         if (($relationLoader = $this->getRelationLoader()) !== null) {
             $pipeline->setRelationLoader($relationLoader);
         }
-        
+
         return $pipeline->transform($scope);
     }
 

@@ -8,7 +8,7 @@ use Rexlabs\Smokescreen\Resource\ResourceInterface;
 
 class Scope
 {
-    /** @var mixed|ResourceInterface  */
+    /** @var mixed|ResourceInterface */
     protected $resource;
 
     /** @var Includes */
@@ -24,7 +24,7 @@ class Scope
      * @param Includes                $includes
      * @param Scope|null              $parent
      */
-    public function __construct($resource, Includes $includes, Scope $parent = null)
+    public function __construct($resource, Includes $includes, self $parent = null)
     {
         $this->resource = $resource;
         $this->includes = $includes;
@@ -36,7 +36,7 @@ class Scope
      */
     public function transformer()
     {
-       return $this->resource instanceof ResourceInterface ?
+        return $this->resource instanceof ResourceInterface ?
            $this->resource->getTransformer() : null;
     }
 
@@ -84,6 +84,7 @@ class Scope
 
     /**
      * List of array keys identifying the available includes for this resource.
+     *
      * @return array
      */
     public function availableIncludeKeys(): array
@@ -98,6 +99,7 @@ class Scope
 
     /**
      * The include keys that were requested.
+     *
      * @return array
      */
     public function requestedIncludeKeys(): array
@@ -108,6 +110,7 @@ class Scope
     /**
      * The include keys that were either requested or (if empty) the ones
      * that are are enabled by default.
+     *
      * @return array
      */
     public function includeKeys(): array
@@ -122,6 +125,7 @@ class Scope
         if (($transformer = $this->transformer()) !== null && ($transformer instanceof  TransformerInterface)) {
             $map = $transformer->getIncludeMap();
         }
+
         return $map;
     }
 
@@ -138,11 +142,13 @@ class Scope
     /**
      * A list of include keys that were requested and are available for
      * usage (eg. they are declared in the transformer).
+     *
      * @return array
      */
     public function resolvedIncludeKeys(): array
     {
         $availableIncludeKeys = $this->availableIncludeKeys();
+
         return array_filter($this->includeKeys(), function ($includeKey) use ($availableIncludeKeys) {
             return \in_array($includeKey, $availableIncludeKeys, true);
         });
@@ -151,6 +157,7 @@ class Scope
     /**
      * Get a list of relationship keys for all of the includes which
      * have been resolved.
+     *
      * @return array
      */
     public function resolvedRelationshipKeys(): array
@@ -164,6 +171,7 @@ class Scope
                 array_push($keys, ...$relations);
             }
         }
+
         return array_unique($keys);
     }
 
@@ -227,7 +235,8 @@ class Scope
     }
 
     /**
-     * Filters
+     * Filters.
+     *
      * @param $data
      *
      * @return array

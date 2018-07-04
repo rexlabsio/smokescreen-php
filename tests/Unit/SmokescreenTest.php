@@ -528,8 +528,8 @@ class SmokescreenTest extends TestCase
             [
                 'id'    => 2,
                 'title' => 'Another post',
-                'body'  => 'Not as interesting'
-            ]
+                'body'  => 'Not as interesting',
+            ],
         ], $transformer);
 
         $relationLoader = $this->getMockBuilder(RelationLoaderInterface::class)->setMethods(['load'])->getMock();
@@ -540,7 +540,6 @@ class SmokescreenTest extends TestCase
         $this->assertTrue($smokescreen->hasRelationLoader());
         $this->assertInstanceOf(RelationLoaderInterface::class, $smokescreen->getRelationLoader());
         $smokescreen->toArray();
-
     }
 
     /** @test */

@@ -44,8 +44,9 @@ class Pipeline
     /**
      * @param Scope $scope
      *
-     * @return array
      * @throws IncludeException
+     *
+     * @return array
      */
     public function transform(Scope $scope): array
     {
@@ -57,6 +58,7 @@ class Pipeline
             if (\is_object($resource) && method_exists($resource, 'toArray')) {
                 return $resource->toArray();
             }
+
             throw new UnhandledResourceType('Unable to serialize resource of type '.\gettype($resource));
         }
 
@@ -104,14 +106,14 @@ class Pipeline
      *
      * @param Scope $scope
      *
-     * @return array
      * @throws IncludeException
+     *
+     * @return array
      */
     protected function transformItemResource(Scope $scope): array
     {
         // Get the globally set serializer (resource may override)
         $defaultSerializer = $this->getSerializer();
-
 
         // The collection can have a custom serializer defined
         // TODO: Check resource type is item
@@ -137,12 +139,12 @@ class Pipeline
         return $output;
     }
 
-
     /**
      * @param Scope $scope
      *
-     * @return array
      * @throws IncludeException
+     *
+     * @return array
      */
     protected function transformCollectionResource(Scope $scope): array
     {
@@ -179,15 +181,15 @@ class Pipeline
         return $output;
     }
 
-
     /**
      * Apply transformation to the item data.
      *
      * @param Scope $scope
      * @param mixed $data
      *
-     * @return array
      * @throws IncludeException
+     *
+     * @return array
      */
     protected function transformData(Scope $scope, $data): array
     {
@@ -230,8 +232,9 @@ class Pipeline
      * @param array  $includeDefinition
      * @param mixed  $data
      *
-     * @return ResourceInterface
      * @throws IncludeException
+     *
+     * @return ResourceInterface
      */
     protected function executeTransformerInclude(Scope $scope, $includeKey, $includeDefinition, $data)
     {
