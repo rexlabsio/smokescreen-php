@@ -508,7 +508,7 @@ class SmokescreenTest extends TestCase
     {
         $transformer = new class() extends AbstractTransformer {
             protected $includes = [
-                'owner'    => 'relation:users',
+                'owner'    => 'relation:users|default',
                 'comments' => 'relation:comments',
             ];
 
@@ -518,10 +518,18 @@ class SmokescreenTest extends TestCase
             }
         };
         $smokescreen = new Smokescreen();
-        $smokescreen->item([
-            'id'    => 1,
-            'title' => 'Example post',
-            'body'  => 'Interesting post.',
+        $smokescreen->parseIncludes('owner,comments');
+        $smokescreen->collection([
+            [
+                'id'    => 1,
+                'title' => 'Example post',
+                'body'  => 'Interesting post.',
+            ],
+            [
+                'id'    => 2,
+                'title' => 'Another post',
+                'body'  => 'Not as interesting'
+            ]
         ], $transformer);
 
         $relationLoader = $this->getMockBuilder(RelationLoaderInterface::class)->setMethods(['load'])->getMock();
@@ -532,6 +540,7 @@ class SmokescreenTest extends TestCase
         $this->assertTrue($smokescreen->hasRelationLoader());
         $this->assertInstanceOf(RelationLoaderInterface::class, $smokescreen->getRelationLoader());
         $smokescreen->toArray();
+
     }
 
     /** @test */

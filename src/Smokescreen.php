@@ -16,6 +16,7 @@ use Rexlabs\Smokescreen\Resource\Item;
 use Rexlabs\Smokescreen\Resource\ResourceInterface;
 use Rexlabs\Smokescreen\Serializer\DefaultSerializer;
 use Rexlabs\Smokescreen\Serializer\SerializerInterface;
+use Rexlabs\Smokescreen\Transformer\Scope;
 use Rexlabs\Smokescreen\Transformer\TransformerInterface;
 use Rexlabs\Smokescreen\Transformer\TransformerResolverInterface;
 
@@ -214,7 +215,8 @@ class Smokescreen implements \JsonSerializable
         }
 
         // Kick of serialization of the resource
-        return $this->serializeResource($this->resource, $this->getIncludes());
+        $scope = new Scope($this->resource, $this->getIncludes());
+        return $this->transformResource($scope);
     }
 
     /**
@@ -339,41 +341,40 @@ class Smokescreen implements \JsonSerializable
     }
 
     /**
-     * @param ResourceInterface|array|mixed $resource
-     * @param Includes                      $includes
      *
-     * @throws \Rexlabs\Smokescreen\Exception\InvalidSerializerException
-     * @throws \Rexlabs\Smokescreen\Exception\UnhandledResourceType
-     * @throws \Rexlabs\Smokescreen\Exception\InvalidTransformerException
-     * @throws \Rexlabs\Smokescreen\Exception\IncludeException
+     * @param Scope $scope
      *
      * @return array|mixed
+     * @throws IncludeException
      */
-    protected function serializeResource($resource, Includes $includes): array
+    protected function transformResource(Scope $scope): array
     {
-        if ($resource instanceof ResourceInterface) {
-            if (!$resource->hasTransformer()) {
-                // Try to resolve a transformer for a resource that does not have one assigned.
-                $transformer = $this->resolveTransformerForResource($resource);
-                $resource->setTransformer($transformer);
+        $resource = $scope->resource();
+        if (!($resource instanceof ResourceInterface)) {
+            if (\is_array($resource)) {
+                return $resource;
             }
-
-            // Load relations for any resource which implements the interface.
-            $this->loadRelations($resource);
+            if (\is_object($resource) && method_exists($resource, 'toArray')) {
+                return $resource->toArray();
+            }
+            throw new UnhandledResourceType('Unable to serialize resource of type '.\gettype($resource));
         }
+
+        // Try to resolve a transformer for a resource that does not have one assigned.
+        if (!$resource->hasTransformer()) {
+            $transformer = $this->resolveTransformerForResource($resource);
+            $resource->setTransformer($transformer);
+        }
+
+        // Call the relationship loader for any relations
+        $this->loadRelations($resource, $scope->resolvedRelationshipKeys());
 
         // Build the output by recursively transforming each resource.
         $output = null;
         if ($resource instanceof Collection) {
-            $output = $this->serializeCollection($resource, $includes);
+            $output = $this->transformCollectionResource($scope);
         } elseif ($resource instanceof Item) {
-            $output = $this->serializeItem($resource, $includes);
-        } elseif (\is_array($resource)) {
-            $output = $resource;
-        } elseif (\is_object($resource) && method_exists($resource, 'toArray')) {
-            $output = $resource->toArray();
-        } else {
-            throw new UnhandledResourceType('Unable to serialize resource of type '.\gettype($resource));
+            $output = $this->transformItemResource($scope);
         }
 
         return $output;
@@ -383,35 +384,35 @@ class Smokescreen implements \JsonSerializable
      * Fire the relation loader (if defined) for this resource.
      *
      * @param ResourceInterface $resource
+     * @param array             $relationshipKeys
      */
-    protected function loadRelations(ResourceInterface $resource)
+    protected function loadRelations(ResourceInterface $resource, array $relationshipKeys)
     {
-        if ($this->relationLoader !== null) {
-            $this->relationLoader->load($resource);
+        if ($this->relationLoader !== null && !empty($relationshipKeys)) {
+            print_r($relationshipKeys);
+            $this->relationLoader->load($resource, $relationshipKeys);
         }
     }
 
     /**
-     * @param Collection $collection
-     * @param Includes   $includes
-     *
-     * @throws \Rexlabs\Smokescreen\Exception\InvalidSerializerException
-     * @throws \Rexlabs\Smokescreen\Exception\UnhandledResourceType
-     * @throws \Rexlabs\Smokescreen\Exception\InvalidTransformerException
-     * @throws \Rexlabs\Smokescreen\Exception\IncludeException
+     * @param Scope $scope
      *
      * @return array
+     * @throws IncludeException
      */
-    protected function serializeCollection(Collection $collection, Includes $includes): array
+    protected function transformCollectionResource(Scope $scope): array
     {
         // Get the globally set serializer (resource may override).
         $defaultSerializer = $this->getSerializer();
 
         // Collection resources implement IteratorAggregate ... so that's nice.
+        // TODO: Check type?
+        $collection = $scope->resource();
+
         $items = [];
-        foreach ($collection as $item) {
+        foreach ($collection as $itemData) {
             // $item might be a Model or an array etc.
-            $items[] = $this->transformItem($item, $collection->getTransformer(), $includes);
+            $items[] = $this->transformData($scope, $itemData);
         }
 
         // The collection can have a custom serializer defined.
@@ -437,119 +438,67 @@ class Smokescreen implements \JsonSerializable
     /**
      * Apply transformation to the item.
      *
-     * @param mixed                                    $item
-     * @param mixed|TransformerInterface|callable|null $transformer
-     * @param Includes                                 $includes
-     *
-     * @throws \Rexlabs\Smokescreen\Exception\InvalidSerializerException
-     * @throws \Rexlabs\Smokescreen\Exception\UnhandledResourceType
-     * @throws \Rexlabs\Smokescreen\Exception\InvalidTransformerException
-     * @throws \Rexlabs\Smokescreen\Exception\IncludeException
+     * @param Scope $scope
+     * @param mixed $data
      *
      * @return array
+     * @throws IncludeException
      */
-    protected function transformItem($item, $transformer, Includes $includes): array
+    protected function transformData(Scope $scope, $data): array
     {
-        if ($transformer === null) {
-            // No transformation can be applied.
-            return (array) $item;
-        }
-        if (\is_callable($transformer)) {
-            // Callable should simply return an array.
-            return (array) $transformer($item);
-        }
-
-        // Only these keys may be mapped
-        $availableIncludeKeys = $transformer->getAvailableIncludes();
-
-        // Wanted includes is a either the explicit includes requested, or the defaults for the transformer.
-        $wantIncludeKeys = $includes->baseKeys() ?: $transformer->getDefaultIncludes();
-
-        // Find the keys that are declared in the $includes of the transformer
-        $mappedIncludeKeys = array_filter($wantIncludeKeys, function ($includeKey) use ($availableIncludeKeys) {
-            return \in_array($includeKey, $availableIncludeKeys, true);
-        });
-
-        // We can consider our props anything that has not been mapped.
-        $filterProps = array_filter($wantIncludeKeys, function ($includeKey) use ($mappedIncludeKeys) {
-            return !\in_array($includeKey, $mappedIncludeKeys, true);
-        });
-
-        // Were any filter props explicitly provided?
-        // If not, see if defaults were provided from the transformer.
-        if (empty($filterProps)) {
-            // No explicit props provided
-            $defaultProps = $transformer->getDefaultProps();
-            if (!empty($defaultProps)) {
-                $filterProps = $defaultProps;
-            }
-        }
-
         // Get the base data from the transformation
-        $data = $transformer->getTransformedData($item);
-
-        // Filter the sparse field-set
-        if (!empty($filterProps)) {
-            $filteredData = array_filter($data, function ($key) use ($filterProps) {
-                return \in_array($key, $filterProps, true);
-            }, ARRAY_FILTER_USE_KEY);
-
-            // We must always have some data after filtering
-            // If our filtered data is empty, we should just ignore it
-            if (!empty($filteredData)) {
-                $data = $filteredData;
-            }
-        }
+        $transformedData = $scope->transform($data);
 
         // Add includes to the payload
-        $includeMap = $transformer->getIncludeMap();
-        foreach ($mappedIncludeKeys as $includeKey) {
-            $resource = $this->executeTransformerInclude($transformer, $includeKey, $includeMap[$includeKey], $item);
+        $includeMap = $scope->includeMap();
+        foreach ($scope->resolvedIncludeKeys() as $includeKey) {
+            $resource = $this->executeTransformerInclude($scope, $includeKey, $includeMap[$includeKey], $data);
+
+            // Create a new scope
+            $newScope = new Scope($resource, $scope->includes()->splice($includeKey), $scope);
 
             if ($resource instanceof ResourceInterface) {
                 // Resource object
                 ArrayHelper::mutate(
-                    $data,
+                    $transformedData,
                     $resource->getResourceKey() ?: $includeKey,
-                    $resource->getData() ? $this->serializeResource($resource, $includes->splice($includeKey)) : null
+                    $resource->getData() ? $this->transformResource($newScope) : null
                 );
             } else {
                 // Plain old array
                 ArrayHelper::mutate(
-                    $data,
+                    $transformedData,
                     $includeKey,
-                    $this->serializeResource($resource, $includes->splice($includeKey))
+                    $this->transformResource($newScope)
                 );
             }
         }
 
-        return $data;
+        return $transformedData;
     }
 
     /**
      * Execute the transformer.
      *
-     * @param mixed  $transformer
+     * @param Scope  $scope
      * @param string $includeKey
      * @param array  $includeDefinition
-     * @param mixed  $item
-     *
-     * @throws \Rexlabs\Smokescreen\Exception\UnhandledResourceType
-     * @throws \Rexlabs\Smokescreen\Exception\InvalidTransformerException
-     * @throws \Rexlabs\Smokescreen\Exception\IncludeException
+     * @param mixed  $data
      *
      * @return ResourceInterface
+     * @throws IncludeException
      */
-    protected function executeTransformerInclude($transformer, $includeKey, $includeDefinition, $item)
+    protected function executeTransformerInclude(Scope $scope, $includeKey, $includeDefinition, $data)
     {
         // Transformer explicitly provided an include method
+        $transformer = $scope->transformer();
         $method = $includeDefinition['method'];
         if (method_exists($transformer, $method)) {
-            return $transformer->$method($item);
+            return $transformer->$method($data, $scope);
         }
 
         // Otherwise try handle the include automatically
-        return $this->autoWireInclude($includeKey, $includeDefinition, $item);
+        return $this->autoWireInclude($includeKey, $includeDefinition, $data);
     }
 
     /**
@@ -585,27 +534,25 @@ class Smokescreen implements \JsonSerializable
     /**
      * Applies the serializer to the Item resource.
      *
-     * @param Item     $item
-     * @param Includes $includes
-     *
-     * @throws \Rexlabs\Smokescreen\Exception\InvalidSerializerException
-     * @throws \Rexlabs\Smokescreen\Exception\UnhandledResourceType
-     * @throws \Rexlabs\Smokescreen\Exception\InvalidTransformerException
-     * @throws \Rexlabs\Smokescreen\Exception\IncludeException
+     * @param Scope $scope
      *
      * @return array
+     * @throws IncludeException
      */
-    protected function serializeItem(Item $item, Includes $includes): array
+    protected function transformItemResource(Scope $scope): array
     {
         // Get the globally set serializer (resource may override)
         $defaultSerializer = $this->getSerializer();
 
+
         // The collection can have a custom serializer defined
+        // TODO: Check resource type is item
+        $item = $scope->resource();
         $serializer = $item->getSerializer() ?? $defaultSerializer;
         $isSerializerInterface = $serializer instanceof SerializerInterface;
 
         // Transform the item data
-        $itemData = $this->transformItem($item->getData(), $item->getTransformer(), $includes);
+        $itemData = $this->transformData($scope, $item->getData());
 
         // Serialize the item data
         if ($isSerializerInterface) {
