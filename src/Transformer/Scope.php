@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Rexlabs\Smokescreen\Transformer;
-
 
 use Rexlabs\Smokescreen\Exception\InvalidTransformerException;
 use Rexlabs\Smokescreen\Includes\Includes;
