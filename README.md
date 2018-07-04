@@ -33,7 +33,7 @@ then call either the Smokescreen `item()` or `collection()` method to
 transform the data.
 
 Full documentation is available from:
-http://smokescreen-docs.netlify.com/
+https://smokescreen-docs.netlify.com/
 
 
 ## Requirements and dependencies
