@@ -2,7 +2,6 @@
 
 namespace Rexlabs\Smokescreen\Transformer;
 
-use Rexlabs\Smokescreen\Exception\InvalidTransformerException;
 use Rexlabs\Smokescreen\Includes\Includes;
 use Rexlabs\Smokescreen\Resource\ResourceInterface;
 
@@ -197,36 +196,6 @@ class Scope
     }
 
     /**
-     * @param mixed $data
-     *
-     * @return array|mixed
-     */
-    public function transform($data)
-    {
-        $transformer = $this->transformer();
-
-        // Handle when no transformer is present
-        if (empty($transformer)) {
-            // No transformation
-            return $data;
-        }
-
-        // Handle when transformer is a callable
-        if (\is_callable($transformer)) {
-            // Simply run callable on the data and return the result
-            return $transformer($data);
-        }
-
-        // Ensure we're working with a real transformer from this point forward.
-        if (!($transformer instanceof TransformerInterface)) {
-            throw new InvalidTransformerException('Expected a valid transformer');
-        }
-
-        // Let the transformer do it's thing!
-        return $this->filterData($transformer->getTransformedData($data));
-    }
-
-    /**
      * @return null|Scope
      */
     public function parent()
@@ -235,13 +204,13 @@ class Scope
     }
 
     /**
-     * Filters.
+     * Apply the scope's sparse field-set to the given data.
      *
-     * @param $data
+     * @param array $data
      *
      * @return array
      */
-    protected function filterData($data)
+    public function filterData(array $data)
     {
         // Filter the sparse field-set if we have a specific list of properties
         // defined that we want.

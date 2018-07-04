@@ -3,6 +3,7 @@
 namespace Rexlabs\Smokescreen\Transformer;
 
 use Rexlabs\Smokescreen\Exception\IncludeException;
+use Rexlabs\Smokescreen\Exception\InvalidTransformerException;
 use Rexlabs\Smokescreen\Exception\UnhandledResourceType;
 use Rexlabs\Smokescreen\Helpers\ArrayHelper;
 use Rexlabs\Smokescreen\Relations\RelationLoaderInterface;
@@ -46,9 +47,9 @@ class Pipeline
      *
      * @throws IncludeException
      *
-     * @return array
+     * @return array|null
      */
-    public function transform(Scope $scope): array
+    public function transform(Scope $scope)
     {
         $resource = $scope->resource();
         if (!($resource instanceof ResourceInterface)) {
@@ -60,6 +61,11 @@ class Pipeline
             }
 
             throw new UnhandledResourceType('Unable to serialize resource of type '.\gettype($resource));
+        }
+
+        if (!$resource->getData()) {
+            // There is no data to transform.
+            return null;
         }
 
         // Try to resolve a transformer for a resource that does not have one assigned.
@@ -193,32 +199,45 @@ class Pipeline
      */
     protected function transformData(Scope $scope, $data): array
     {
-        // Get the base data from the transformation
-        $transformedData = (array) $scope->transform($data);
+        $transformer = $scope->transformer();
 
-        // Add includes to the payload
+        // Handle when no transformer is present
+        if (empty($transformer)) {
+            // No transformation
+            return (array) $data;
+        }
+
+        // Handle when transformer is a callable
+        if (\is_callable($transformer)) {
+            // Simply run callable on the data and return the result
+            return (array) $transformer($data);
+        }
+
+        // Ensure we're working with a real transformer from this point forward.
+        if (!($transformer instanceof TransformerInterface)) {
+            throw new InvalidTransformerException('Expected a valid transformer');
+        }
+
+        // Transform the data, and filter any sparse field-set for the scope.
+        $transformedData = $scope->filterData($transformer->getTransformedData($data));
+
+        // Add includes to the payload.
         $includeMap = $scope->includeMap();
         foreach ($scope->resolvedIncludeKeys() as $includeKey) {
-            $resource = $this->executeTransformerInclude($scope, $includeKey, $includeMap[$includeKey], $data);
+            $child = $this->executeTransformerInclude($scope, $includeKey, $includeMap[$includeKey], $data);
 
-            // Create a new scope
-            $newScope = new Scope($resource, $scope->includes()->splice($includeKey), $scope);
+            // Create a new child scope.
+            $childScope = new Scope($child, $scope->includes()->splice($includeKey), $scope);
 
-            if ($resource instanceof ResourceInterface) {
-                // Resource object
-                ArrayHelper::mutate(
-                    $transformedData,
-                    $resource->getResourceKey() ?: $includeKey,
-                    $resource->getData() ? $this->transform($newScope) : null
-                );
-            } else {
-                // Plain old array
-                ArrayHelper::mutate(
-                    $transformedData,
-                    $includeKey,
-                    $this->transform($newScope)
-                );
-            }
+            // If working with a ResourceInterface, use it's own key (if present).
+            $childKey = $child instanceof ResourceInterface && $child->getResourceKey() ?
+                $child->getResourceKey() : $includeKey;
+
+            ArrayHelper::mutate(
+                $transformedData,
+                $childKey,
+                $this->transform($childScope)
+            );
         }
 
         return $transformedData;
