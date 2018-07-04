@@ -32,7 +32,7 @@ class AbstractTransformer implements TransformerInterface
      */
     public function getAvailableIncludes(): array
     {
-        return array_keys($this->getCachedIncludeMap());
+        return array_keys($this->getIncludeMap());
     }
 
     /**
@@ -44,10 +44,10 @@ class AbstractTransformer implements TransformerInterface
      *
      * @return array
      */
-    protected function getCachedIncludeMap(): array
+    public function getIncludeMap(): array
     {
         if ($this->cachedIncludeMap === null) {
-            $this->cachedIncludeMap = $this->getIncludeMap();
+            $this->cachedIncludeMap = $this->getRawIncludeMap();
         }
 
         return $this->cachedIncludeMap;
@@ -61,7 +61,7 @@ class AbstractTransformer implements TransformerInterface
      *
      * @return array
      */
-    public function getIncludeMap(): array
+    protected function getRawIncludeMap(): array
     {
         $map = [];
 
@@ -132,8 +132,8 @@ class AbstractTransformer implements TransformerInterface
      */
     public function getDefaultIncludes(): array
     {
-        return array_values(array_filter(array_keys($this->getCachedIncludeMap()), function ($includeKey) {
-            return $this->getCachedIncludeMap()[$includeKey]['default'];
+        return array_values(array_filter(array_keys($this->getIncludeMap()), function ($includeKey) {
+            return $this->getIncludeMap()[$includeKey]['default'];
         }));
     }
 
@@ -147,7 +147,7 @@ class AbstractTransformer implements TransformerInterface
         return array_column(
             array_filter(array_map(function ($includeKey, $settings) {
                 return $settings['relation'] ? [$includeKey, $settings['relation']] : null;
-            }, array_keys($this->getCachedIncludeMap()), array_values($this->getCachedIncludeMap()))),
+            }, array_keys($this->getIncludeMap()), array_values($this->getIncludeMap()))),
             1, 0
         );
     }
