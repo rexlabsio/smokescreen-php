@@ -389,7 +389,6 @@ class Smokescreen implements \JsonSerializable
     protected function loadRelations(ResourceInterface $resource, array $relationshipKeys)
     {
         if ($this->relationLoader !== null && !empty($relationshipKeys)) {
-            print_r($relationshipKeys);
             $this->relationLoader->load($resource, $relationshipKeys);
         }
     }

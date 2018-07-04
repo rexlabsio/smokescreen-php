@@ -77,7 +77,7 @@ class Scope
     public function defaultIncludeKeys(): array
     {
         $defaultIncludeKeys = [];
-        if (($transformer = $this->transformer()) !== null) {
+        if (($transformer = $this->transformer()) !== null && ($transformer instanceof  TransformerInterface)) {
             $defaultIncludeKeys = $transformer->getDefaultIncludes();
         }
 
@@ -91,7 +91,7 @@ class Scope
     public function availableIncludeKeys(): array
     {
         $availableKeys = [];
-        if (($transformer = $this->transformer()) !== null) {
+        if (($transformer = $this->transformer()) !== null && ($transformer instanceof  TransformerInterface)) {
             $availableKeys = $transformer->getAvailableIncludes();
         }
 
@@ -121,7 +121,7 @@ class Scope
     public function includeMap(): array
     {
         $map = [];
-        if (($transformer = $this->transformer()) !== null) {
+        if (($transformer = $this->transformer()) !== null && ($transformer instanceof  TransformerInterface)) {
             $map = $transformer->getIncludeMap();
         }
         return $map;
@@ -161,7 +161,10 @@ class Scope
 
         $keys = [];
         foreach ($this->resolvedIncludeKeys() as $includeKey) {
-            array_push($keys, ...$includeMap[$includeKey]['relation'] ?? []);
+            $relations = $includeMap[$includeKey]['relation'] ?? [];
+            if (\count($relations) > 0) {
+                array_push($keys, ...$relations);
+            }
         }
         return array_unique($keys);
     }
