@@ -52,6 +52,15 @@ class Pipeline
     public function transform(Scope $scope)
     {
         $resource = $scope->resource();
+        
+        // When we encounter a null resource, we just return null because
+        // there's nothing else we can do with it.
+        if ($resource === null) {
+            return null;
+        }
+        
+        // If the resource is not a ResourceInterface instance we allow it to be
+        // something array-like.
         if (!($resource instanceof ResourceInterface)) {
             if (\is_array($resource)) {
                 return $resource;
@@ -60,15 +69,11 @@ class Pipeline
                 return $resource->toArray();
             }
 
-            throw new UnhandledResourceType('Unable to serialize resource of type '.\gettype($resource));
+            throw new UnhandledResourceType('Unable to serialize resource of type ' . \gettype($resource));
         }
 
-        if (!$resource->getData()) {
-            // There is no data to transform.
-            return null;
-        }
-
-        // Try to resolve a transformer for a resource that does not have one assigned.
+        // Try to resolve a transformer for a resource that does not have one
+        // assigned.
         if (!$resource->hasTransformer()) {
             $transformer = $this->resolveTransformerForResource($resource);
             $resource->setTransformer($transformer);
@@ -77,114 +82,57 @@ class Pipeline
         // Call the relationship loader for any relations
         $this->loadRelations($resource, $scope->resolvedRelationshipKeys());
 
-        // Build the output by recursively transforming each resource.
-        $output = null;
-        if ($resource instanceof Collection) {
-            $output = $this->transformCollectionResource($scope);
-        } elseif ($resource instanceof Item) {
-            $output = $this->transformItemResource($scope);
+        // We can only transform the resource data if we have some data to
+        // transform ...
+        if (($data = $resource->getData()) !== null) {
+            // Build the data by recursively transforming each resource.
+            if ($resource instanceof Collection) {
+                $data = [];
+                foreach ($resource as $itemData) {
+                    $data[] = $this->transformData($scope, $itemData);
+                }
+            } elseif ($resource instanceof Item) {
+                $data = $this->transformData($scope, $data);
+            }
         }
 
-        return $output;
+        // Serialize the transformed data
+        return $this->serialize($resource, $data);
     }
 
     /**
-     * Resolve the transformer to be used for a resource.
-     * Returns an interface, callable or null when a transformer cannot be resolved.
+     * Serialize the data
+     * @param ResourceInterface $resource
+     * @param                   $data
      *
-     * @param $resource
-     *
-     * @return TransformerInterface|mixed|null
+     * @return array|mixed
      */
-    protected function resolveTransformerForResource($resource)
+    protected function serialize(ResourceInterface $resource, $data)
     {
-        $transformer = null;
-
-        if ($this->transformerResolver !== null) {
-            $transformer = $this->transformerResolver->resolve($resource);
-        }
-
-        return $transformer;
-    }
-
-    /**
-     * Applies the serializer to the Item resource.
-     *
-     * @param Scope $scope
-     *
-     * @throws IncludeException
-     *
-     * @return array
-     */
-    protected function transformItemResource(Scope $scope): array
-    {
-        // Get the globally set serializer (resource may override)
-        $defaultSerializer = $this->getSerializer();
-
-        // The collection can have a custom serializer defined
-        // TODO: Check resource type is item
-        $item = $scope->resource();
-        $serializer = $item->getSerializer() ?? $defaultSerializer;
-        $isSerializerInterface = $serializer instanceof SerializerInterface;
-
-        // Transform the item data
-        $itemData = $this->transformData($scope, $item->getData());
-
-        // Serialize the item data
-        if ($isSerializerInterface) {
-            // Serialize via object implementing SerializerInterface
-            $output = $serializer->item($item->getResourceKey(), $itemData);
-        } elseif (\is_callable($serializer)) {
-            // Serialize via a callable/closure
-            $output = $serializer($item->getResourceKey(), $itemData);
-        } else {
-            // No serialization
-            $output = $itemData;
-        }
-
-        return $output;
-    }
-
-    /**
-     * @param Scope $scope
-     *
-     * @throws IncludeException
-     *
-     * @return array
-     */
-    protected function transformCollectionResource(Scope $scope): array
-    {
-        // Get the globally set serializer (resource may override).
-        $defaultSerializer = $this->getSerializer();
-
-        // Collection resources implement IteratorAggregate ... so that's nice.
-        // TODO: Check type?
-        $collection = $scope->resource();
-
-        $items = [];
-        foreach ($collection as $itemData) {
-            // $item might be a Model or an array etc.
-            $items[] = $this->transformData($scope, $itemData);
-        }
-
-        // The collection can have a custom serializer defined.
-        $serializer = $collection->getSerializer() ?? $defaultSerializer;
-
+        // Get the serializer from the resource, or use the default.
+        $serializer = $resource->getSerializer() ?? $this->getSerializer();
+        
         if ($serializer instanceof SerializerInterface) {
-            // Serialize via object implementing SerializerInterface
-            $output = $serializer->collection($collection->getResourceKey(), $items);
-            if ($collection->hasPaginator()) {
-                $output = array_merge($output, $serializer->paginator($collection->getPaginator()));
+            if ($resource instanceof Collection) {
+                if ($data === null) {
+                    return $serializer->nullCollection();
+                }
+                $data = $serializer->collection($resource->getResourceKey(), $data);
+                if ($resource->hasPaginator()) {
+                    $data = array_merge($data, $serializer->paginator($resource->getPaginator()));
+                }
+            } elseif ($resource instanceof Item) {
+                if ($data === null) {
+                    return $serializer->nullItem();
+                }
+                $data = $serializer->item($resource->getResourceKey(), $data);
             }
         } elseif (\is_callable($serializer)) {
             // Serialize via a callable/closure
-            $output = $serializer($collection->getResourceKey(), $items);
-        } else {
-            // Serialization disabled for this resource
-            $output = $items;
+            $data = $serializer($resource->getResourceKey(), $data);
         }
-
-        return $output;
+       
+        return $data;
     }
 
     /**
@@ -266,6 +214,25 @@ class Pipeline
 
         // Otherwise try handle the include automatically
         return $this->autoWireInclude($includeKey, $includeDefinition, $data);
+    }
+
+    /**
+     * Resolve the transformer to be used for a resource.
+     * Returns an interface, callable or null when a transformer cannot be resolved.
+     *
+     * @param $resource
+     *
+     * @return TransformerInterface|mixed|null
+     */
+    protected function resolveTransformerForResource($resource)
+    {
+        $transformer = null;
+
+        if ($this->transformerResolver !== null) {
+            $transformer = $this->transformerResolver->resolve($resource);
+        }
+
+        return $transformer;
     }
 
     /**

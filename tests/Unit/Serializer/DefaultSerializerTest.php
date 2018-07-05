@@ -48,7 +48,8 @@ class DefaultSerializerTest extends TestCase
     {
         $serializer = new DefaultSerializer();
 
-        $this->assertEquals([], $serializer->null());
+        $this->assertEquals([], $serializer->nullCollection());
+        $this->assertEquals(null, $serializer->nullItem());
     }
 
     /** @test */

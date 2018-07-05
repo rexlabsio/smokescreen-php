@@ -28,13 +28,18 @@ interface SerializerInterface
     public function item($resourceKey, array $data): array;
 
     /**
-     * Serialize null resource.
+     * Serialize a null collection.
      *
      * @return mixed
      */
-    public function null();
+    public function nullCollection();
 
-    // TODO: Add meta
+    /**
+     * Serialize a null item.
+     *
+     * @return mixed
+     */
+    public function nullItem();
 
     /**
      * Serialize a paginator.

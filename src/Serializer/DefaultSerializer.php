@@ -41,14 +41,23 @@ class DefaultSerializer implements SerializerInterface
     }
 
     /**
-     * Serialize null resource.
-     * ¯\_(ツ)_/¯.
+     * Serialize a null collection.
      *
-     * @return array
+     * @return mixed
      */
-    public function null()
+    public function nullCollection()
     {
         return [];
+    }
+
+    /**
+     * Serialize a null item.
+     *
+     * @return mixed
+     */
+    public function nullItem()
+    {
+        return null;
     }
 
     /**

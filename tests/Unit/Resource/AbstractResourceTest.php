@@ -168,8 +168,14 @@ class AbstractResourceTest extends TestCase
                 return $data;
             }
 
-            public function null()
+            public function nullItem()
             {
+                return null;
+            }
+
+            public function nullCollection()
+            {
+                return [];
             }
 
             public function paginator(PaginatorInterface $paginator)
