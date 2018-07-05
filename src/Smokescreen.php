@@ -212,7 +212,7 @@ class Smokescreen implements \JsonSerializable
             throw new MissingResourceException('No resource has been defined to transform');
         }
 
-        return $this->transform();
+        return (array) $this->transform();
     }
 
     /**
