@@ -151,6 +151,7 @@ class SmokescreenTest extends TestCase
 
     /**
      * @test
+     *
      * @throws IncludeException
      */
     public function can_set_item_transformer_to_closure()
@@ -191,6 +192,7 @@ class SmokescreenTest extends TestCase
 
     /**
      * @test
+     *
      * @throws IncludeException
      */
     public function invalid_json_throws_exception()
@@ -207,6 +209,7 @@ class SmokescreenTest extends TestCase
 
     /**
      * @test
+     *
      * @throws IncludeException
      */
     public function cannot_export_array_without_resource()
@@ -217,9 +220,10 @@ class SmokescreenTest extends TestCase
     }
 
     /**
-     * Test that a custom include method is called on the transformer
+     * Test that a custom include method is called on the transformer.
      *
      * @test
+     *
      * @throws IncludeException
      */
     public function custom_include_method_used()
@@ -267,6 +271,7 @@ class SmokescreenTest extends TestCase
 
     /**
      * @test
+     *
      * @throws IncludeException
      */
     public function can_output_object()
@@ -291,6 +296,7 @@ class SmokescreenTest extends TestCase
 
     /**
      * @test
+     *
      * @throws IncludeException
      */
     public function transformer_should_not_be_required()
@@ -310,6 +316,7 @@ class SmokescreenTest extends TestCase
 
     /**
      * @test
+     *
      * @throws IncludeException
      */
     public function resource_can_override_serializer()
@@ -382,6 +389,7 @@ class SmokescreenTest extends TestCase
 
     /**
      * @test
+     *
      * @throws IncludeException
      */
     public function include_can_return_array_instead_of_resource()
@@ -440,6 +448,7 @@ class SmokescreenTest extends TestCase
 
     /**
      * @test
+     *
      * @throws IncludeException
      */
     public function can_serialize_an_object_with_to_array_method()
@@ -464,6 +473,7 @@ class SmokescreenTest extends TestCase
 
     /**
      * @test
+     *
      * @throws IncludeException
      */
     public function serialize_object_without_array_method_throws_exception()
@@ -476,8 +486,10 @@ class SmokescreenTest extends TestCase
 
     /**
      * @test
-     * @return void
+     *
      * @throws IncludeException
+     *
+     * @return void
      */
     public function serialize_string_throws_exception()
     {
@@ -489,6 +501,7 @@ class SmokescreenTest extends TestCase
 
     /**
      * @test
+     *
      * @throws IncludeException
      */
     public function can_serialize_collection_with_a_closure()
@@ -519,6 +532,7 @@ class SmokescreenTest extends TestCase
 
     /**
      * @test
+     *
      * @throws IncludeException
      */
     public function can_serialize_item_with_a_closure()
@@ -537,6 +551,7 @@ class SmokescreenTest extends TestCase
 
     /**
      * @test
+     *
      * @throws IncludeException
      */
     public function setting_serializer_to_false_on_resource_disables_serialization()
@@ -571,6 +586,7 @@ class SmokescreenTest extends TestCase
 
     /**
      * @test
+     *
      * @throws IncludeException
      */
     public function does_trigger_relationship_loading()
@@ -602,7 +618,7 @@ class SmokescreenTest extends TestCase
         ], $transformer);
 
         /**
-         * @var RelationLoaderInterface|MockObject $relationLoader
+         * @var RelationLoaderInterface|MockObject
          */
         $relationLoader = $this->getMockBuilder(RelationLoaderInterface::class)->setMethods(['load'])->getMock();
 
@@ -619,6 +635,7 @@ class SmokescreenTest extends TestCase
 
     /**
      * @test
+     *
      * @throws IncludeException
      */
     public function only_default_props_are_returned()
@@ -681,6 +698,7 @@ class SmokescreenTest extends TestCase
 
     /**
      * @test
+     *
      * @throws IncludeException
      */
     public function can_autowire_include()
@@ -706,8 +724,10 @@ class SmokescreenTest extends TestCase
 
     /**
      * @test
-     * @return void
+     *
      * @throws IncludeException
+     *
+     * @return void
      */
     public function null_item_transforms_to_empty_array()
     {
@@ -722,8 +742,10 @@ class SmokescreenTest extends TestCase
 
     /**
      * @test
-     * @return void
+     *
      * @throws IncludeException
+     *
+     * @return void
      */
     public function null_collection_transforms_to_empty_array()
     {
@@ -738,8 +760,10 @@ class SmokescreenTest extends TestCase
 
     /**
      * @test
-     * @return void
+     *
      * @throws IncludeException
+     *
+     * @return void
      */
     public function null_item_can_include()
     {
@@ -762,6 +786,7 @@ class SmokescreenTest extends TestCase
 
     /**
      * @test
+     *
      * @throws IncludeException
      */
     public function can_autowire_include_with_object()

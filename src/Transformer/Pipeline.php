@@ -33,6 +33,7 @@ class Pipeline
 
     /**
      * @param TransformerResolverInterface $transformerResolver
+     *
      * @return void
      */
     public function setTransformerResolver(TransformerResolverInterface $transformerResolver)
@@ -42,6 +43,7 @@ class Pipeline
 
     /**
      * @param SerializerInterface $serializer
+     *
      * @return void
      */
     public function setSerializer(SerializerInterface $serializer)
@@ -51,6 +53,7 @@ class Pipeline
 
     /**
      * @param CompositorInterface $compositor
+     *
      * @return void
      */
     public function setCompositor(CompositorInterface $compositor)
@@ -60,6 +63,7 @@ class Pipeline
 
     /**
      * @param RelationLoaderInterface $relationLoader
+     *
      * @return void
      */
     public function setRelationLoader(RelationLoaderInterface $relationLoader)
@@ -71,11 +75,13 @@ class Pipeline
      * Run the transformation pipeline:
      *   create includes tree
      *   transform nodes
-     *   serialize and compose scopes
+     *   serialize and compose scopes.
      *
      * @param Scope $root
-     * @return array|null
+     *
      * @throws IncludeException
+     *
+     * @return array|null
      */
     public function run(Scope $root)
     {
@@ -110,7 +116,8 @@ class Pipeline
 
     /**
      * @param array|null $rootData
-     * @param array $includesData
+     * @param array      $includesData
+     *
      * @return array|null
      */
     protected function mergeRoot($rootData, array $includesData)
@@ -124,6 +131,7 @@ class Pipeline
 
     /**
      * @param Node $node
+     *
      * @return void
      */
     protected function transformNode(Node $node)
@@ -137,6 +145,7 @@ class Pipeline
 
     /**
      * @param Scope $scope
+     *
      * @return void
      */
     protected function serializeScope(Scope $scope)
@@ -152,6 +161,7 @@ class Pipeline
     /**
      * @param array $rootData
      * @param Scope $scope
+     *
      * @return void
      */
     protected function composeScope(array &$rootData, Scope $scope)
@@ -188,8 +198,10 @@ class Pipeline
 
     /**
      * @param Scope $scope
-     * @return void
+     *
      * @throws IncludeException
+     *
+     * @return void
      */
     protected function createIncludesTree(Scope $scope)
     {
@@ -200,7 +212,7 @@ class Pipeline
 
         // Add included scopes to each node
         $includeMap = $scope->includeMap();
-        foreach ((array)$scope->getNodes() as $node) {
+        foreach ((array) $scope->getNodes() as $node) {
             $node->setIncludedScopes(
                 array_map(function (string $includeKey) use ($node, $includeMap) {
                     return $this->createIncludedScope($node, $includeMap, $includeKey);
@@ -216,8 +228,10 @@ class Pipeline
 
     /**
      * @param Scope $scope
-     * @return null|Node[]
+     *
      * @throws UnhandledResourceTypeException
+     *
+     * @return null|Node[]
      */
     protected function createNodes(Scope $scope)
     {
@@ -231,7 +245,7 @@ class Pipeline
         } elseif (is_array($resource) || $resource === null) {
             $dataItems = $resource;
         } else {
-            throw new UnhandledResourceTypeException('Unable to serialize resource of type ' . gettype($resource));
+            throw new UnhandledResourceTypeException('Unable to serialize resource of type '.gettype($resource));
         }
 
         // Only collections have multiple nodes per scope
@@ -249,6 +263,7 @@ class Pipeline
         foreach ($dataItems as $dataItem) {
             $nodes[] = new Node($scope, $dataItem);
         }
+
         return $nodes;
     }
 
@@ -256,8 +271,10 @@ class Pipeline
      * @param Node   $node
      * @param array  $includeMap
      * @param string $includeKey
-     * @return Scope
+     *
      * @throws IncludeException
+     *
+     * @return Scope
      */
     protected function createIncludedScope(
         Node $node,
@@ -282,6 +299,7 @@ class Pipeline
 
     /**
      * @param Scope $scope
+     *
      * @return void
      */
     protected function prepareScopeResource(Scope $scope)
@@ -303,10 +321,11 @@ class Pipeline
     }
 
     /**
-     * Serialize the data
+     * Serialize the data.
+     *
      * @param ResourceInterface|mixed|null $resource
-     * @param array|null $data
-     * @param string|null $includeKey
+     * @param array|null                   $data
+     * @param string|null                  $includeKey
      *
      * @return array|mixed
      */
@@ -333,7 +352,7 @@ class Pipeline
             // Serialize via a callable/closure
             return $serializer($includeKey, $data);
         }
-       
+
         return $data;
     }
 
@@ -341,7 +360,8 @@ class Pipeline
      * @param SerializerInterface $serializer
      * @param Collection          $resource
      * @param                     $data
-     * @param  string|null        $includeKey
+     * @param string|null         $includeKey
+     *
      * @return mixed
      */
     protected function serializeCollection(
@@ -357,6 +377,7 @@ class Pipeline
         if ($resource->hasPaginator()) {
             $data = array_merge($data, $serializer->paginator($resource->getPaginator()));
         }
+
         return $data;
     }
 
@@ -364,6 +385,7 @@ class Pipeline
      * @param SerializerInterface $serializer
      * @param array|null          $data
      * @param string|null         $includeKey
+     *
      * @return array|mixed
      */
     protected function serializeItem(

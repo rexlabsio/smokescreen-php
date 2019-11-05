@@ -12,7 +12,7 @@ class ArrayHelper
      *
      * @param array  $array
      * @param string $readKey
-     * @param mixed $defaultValue
+     * @param mixed  $defaultValue
      *
      * @return mixed
      */
@@ -34,22 +34,22 @@ class ArrayHelper
 
         return $value;
     }
-    
+
     /**
      * Mutate an array using dot-notation.
      *
      * @param array  $array
      * @param string $writeKey
      * @param mixed  $value
-     * @param bool   $append Append value to array at write key
+     * @param bool   $append   Append value to array at write key
      *
      * @return void
      */
     public static function mutate(
-        array &$array, 
-        string $writeKey, 
-        $value, bool 
-        $append = false
+        array &$array,
+        string $writeKey,
+        $value,
+        bool $append = false
     ) {
         $ref = &$array;
         $keys = explode('.', $writeKey);

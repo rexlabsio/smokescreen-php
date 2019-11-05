@@ -44,14 +44,15 @@ class Scope
         Node $parent = null,
         string $includeKey = null
     ) {
-        $this->resource   = $resource;
-        $this->includes   = $includes;
-        $this->parent     = $parent;
+        $this->resource = $resource;
+        $this->includes = $includes;
+        $this->parent = $parent;
         $this->includeKey = $includeKey;
     }
 
     /**
      * @param null|array|Node[] $nodes
+     *
      * @return void
      */
     public function setNodes($nodes)
@@ -81,11 +82,12 @@ class Scope
     public function getIncludedScopes(): array
     {
         $scopes = [];
-        foreach ((array)$this->nodes as $childNode) {
+        foreach ((array) $this->nodes as $childNode) {
             foreach ($childNode->getIncludedScopes() as $childScope) {
                 $scopes[] = $childScope;
             }
         }
+
         return $scopes;
     }
 
@@ -312,7 +314,7 @@ class Scope
      */
     public function nodeTraversal(): Generator
     {
-        foreach ((array)$this->nodes as $childNode) {
+        foreach ((array) $this->nodes as $childNode) {
             yield $childNode;
             foreach ($childNode->getIncludedScopes() as $childScope) {
                 yield from $childScope->nodeTraversal();
@@ -322,7 +324,7 @@ class Scope
 
     /**
      * Depth first traversal (post-order)
-     * All children visited before parent
+     * All children visited before parent.
      *
      *         A
      *       /  \
@@ -336,7 +338,7 @@ class Scope
      */
     public function scopeTraversal(): Generator
     {
-        foreach ((array)$this->nodes as $childNode) {
+        foreach ((array) $this->nodes as $childNode) {
             foreach ($childNode->getIncludedScopes() as $childScope) {
                 yield from $childScope->scopeTraversal();
             }
@@ -383,6 +385,7 @@ class Scope
 
     /**
      * @param array|null $serializedData
+     *
      * @return void
      */
     public function setSerializedData($serializedData)

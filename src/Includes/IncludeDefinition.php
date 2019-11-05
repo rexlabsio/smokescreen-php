@@ -2,8 +2,8 @@
 
 namespace Rexlabs\Smokescreen\Includes;
 
-use function is_array;
 use Rexlabs\Smokescreen\Definition\AbstractDefinition;
+use function is_array;
 
 class IncludeDefinition extends AbstractDefinition
 {

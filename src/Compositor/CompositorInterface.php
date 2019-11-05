@@ -18,10 +18,11 @@ interface CompositorInterface
      *   - parent scope serialized (will combine collection nodes)
      *   - repeat
      *
-     * @param array      $rootData    Mutate to add data to root node (not yet serialized)
-     * @param array      $parentData  Mutate to add data to parent node (not yet serialized)
-     * @param string     $key         Include key for this nested resource
-     * @param array|null $itemData    Serialized scope data
+     * @param array      $rootData   Mutate to add data to root node (not yet serialized)
+     * @param array      $parentData Mutate to add data to parent node (not yet serialized)
+     * @param string     $key        Include key for this nested resource
+     * @param array|null $itemData   Serialized scope data
+     *
      * @return void
      */
     public function composeIncludedItem(
@@ -49,6 +50,7 @@ interface CompositorInterface
      * @param array      $parentData     Mutate to add data to parent node (not yet serialized)
      * @param string     $key            Include key for this nested resource
      * @param array|null $collectionData Serialized scope data
+     *
      * @return void
      */
     public function composeIncludedCollection(

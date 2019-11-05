@@ -9,16 +9,16 @@ use Rexlabs\Smokescreen\Transformer\Pipeline;
 use Rexlabs\Smokescreen\Transformer\Scope;
 
 /**
- * Class PipelineTest
- *
- * @package Rexlabs\Smokescreen\Tests\Unit\Transformer
+ * Class PipelineTest.
  */
 class PipelineTest extends TestCase
 {
     /**
      * @test
-     * @return void
+     *
      * @throws IncludeException
+     *
+     * @return void
      */
     public function null_root_resource_returns_null()
     {

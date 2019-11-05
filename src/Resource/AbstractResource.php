@@ -177,6 +177,7 @@ abstract class AbstractResource implements ResourceInterface
     public function getRelationships(): array
     {
         $transformer = $this->getTransformer();
+
         return $transformer instanceof TransformerInterface
             ? $transformer->getRelationships()
             : [];

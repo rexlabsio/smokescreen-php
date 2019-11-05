@@ -89,6 +89,7 @@ class IncludesTest extends TestCase
 
     /**
      * @test
+     *
      * @throws ParseIncludesException
      */
     public function can_set_params()

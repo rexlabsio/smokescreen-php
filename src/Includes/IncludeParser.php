@@ -12,8 +12,9 @@ class IncludeParser implements IncludeParserInterface
      *
      * @param string $str
      *
-     * @return Includes
      * @throws ParseIncludesException
+     *
+     * @return Includes
      */
     public function parse(string $str): Includes
     {

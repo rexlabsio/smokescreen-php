@@ -9,13 +9,13 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
 use InvalidArgumentException;
-use function is_array;
-use function is_int;
 use Rexlabs\Smokescreen\Definition\DefinitionParser;
 use Rexlabs\Smokescreen\Exception\InvalidDefinitionException;
 use Rexlabs\Smokescreen\Exception\ParseDefinitionException;
 use Rexlabs\Smokescreen\Helpers\ArrayHelper;
 use Rexlabs\Smokescreen\Helpers\StrHelper;
+use function is_array;
+use function is_int;
 
 trait DeclarativeProps
 {
@@ -75,7 +75,7 @@ trait DeclarativeProps
      * or array.
      *
      * @param ArrayAccess|array $model
-     * @param array              $props
+     * @param array             $props
      *
      * @throws InvalidArgumentException
      *
@@ -118,7 +118,7 @@ trait DeclarativeProps
 
     /**
      * @param ArrayAccess|array $model
-     * @param PropDefinition     $propDefinition
+     * @param PropDefinition    $propDefinition
      *
      * @throws InvalidArgumentException
      *

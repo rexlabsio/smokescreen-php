@@ -5,9 +5,7 @@ namespace Rexlabs\Smokescreen\Transformer;
 use Rexlabs\Smokescreen\Resource\ResourceInterface;
 
 /**
- * Class Node
- *
- * @package Rexlabs\Smokescreen\Transformer
+ * Class Node.
  */
 class Node
 {
@@ -34,14 +32,14 @@ class Node
     /**
      * Node constructor.
      *
-     * @param Scope $containingScope
-     * @param array|null $data Subset of resource data eg 1 item of a collection
+     * @param Scope      $containingScope
+     * @param array|null $data            Subset of resource data eg 1 item of a collection
      */
     public function __construct(Scope $containingScope, $data)
     {
         $this->containingScope = $containingScope;
-        $this->data            = $data;
-        $this->includedScopes  = [];
+        $this->data = $data;
+        $this->includedScopes = [];
     }
 
     /**
@@ -86,6 +84,7 @@ class Node
 
     /**
      * @param array $transformedData
+     *
      * @return void
      */
     public function setTransformedData($transformedData)
@@ -103,6 +102,7 @@ class Node
 
     /**
      * @param Scope[] $scopes
+     *
      * @return void
      */
     public function setIncludedScopes(array $scopes)

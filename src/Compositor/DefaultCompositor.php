@@ -3,9 +3,7 @@
 namespace Rexlabs\Smokescreen\Compositor;
 
 /**
- * Class DefaultCompositor
- *
- * @package Rexlabs\Smokescreen\Compositor
+ * Class DefaultCompositor.
  */
 class DefaultCompositor implements CompositorInterface
 {
@@ -27,6 +25,7 @@ class DefaultCompositor implements CompositorInterface
      * @param array      $parentData Mutate to add data to parent node (not yet serialized)
      * @param string     $key        Include key for this nested resource
      * @param array|null $itemData   Serialized scope data
+     *
      * @return void
      */
     public function composeIncludedItem(array &$rootData, array &$parentData, string $key, $itemData)
@@ -52,6 +51,7 @@ class DefaultCompositor implements CompositorInterface
      * @param array      $parentData     Mutate to add data to parent node (not yet serialized)
      * @param string     $key            Include key for this nested resource
      * @param array|null $collectionData Serialized scope data
+     *
      * @return void
      */
     public function composeIncludedCollection(array &$rootData, array &$parentData, string $key, $collectionData)

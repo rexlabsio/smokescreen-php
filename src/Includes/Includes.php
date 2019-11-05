@@ -28,8 +28,8 @@ class Includes
     /**
      * Provide a list of keys, and optional parameters for those keys.
      *
-     * @param array $keys
-     * @param array $params
+     * @param array       $keys
+     * @param array       $params
      * @param string|null $parentKey
      */
     public function __construct(
