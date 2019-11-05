@@ -2,6 +2,8 @@
 
 namespace Rexlabs\Smokescreen;
 
+use Rexlabs\Smokescreen\Compositor\CompositorInterface;
+use Rexlabs\Smokescreen\Compositor\DefaultCompositor;
 use Rexlabs\Smokescreen\Exception\MissingResourceException;
 use Rexlabs\Smokescreen\Helpers\JsonHelper;
 use Rexlabs\Smokescreen\Includes\IncludeParser;
@@ -26,8 +28,11 @@ class Smokescreen implements \JsonSerializable
     /** @var ResourceInterface Item or Collection to be transformed */
     protected $resource;
 
-    /** @var SerializerInterface */
+    /** @var SerializerInterface|null */
     protected $serializer;
+    
+    /** @var CompositorInterface|null */
+    protected $compositor;
 
     /** @var IncludeParserInterface */
     protected $includeParser;
@@ -106,7 +111,7 @@ class Smokescreen implements \JsonSerializable
     }
 
     /**
-     * Sets the transformer to be used to transform the resource ... later.
+     * Gets the transformer to be used to transform the resource ... later.
      *
      * @throws MissingResourceException
      *
@@ -143,14 +148,14 @@ class Smokescreen implements \JsonSerializable
     /**
      * Returns an object (stdClass) representation of the transformed/serialized data.
      *
-     * @throws \Rexlabs\Smokescreen\Exception\InvalidSerializerException
-     * @throws \Rexlabs\Smokescreen\Exception\UnhandledResourceType
+     * @return \stdClass
+     *@throws \Rexlabs\Smokescreen\Exception\UnhandledResourceTypeException
      * @throws \Rexlabs\Smokescreen\Exception\MissingResourceException
      * @throws \Rexlabs\Smokescreen\Exception\InvalidTransformerException
      * @throws \Rexlabs\Smokescreen\Exception\JsonEncodeException
      * @throws \Rexlabs\Smokescreen\Exception\IncludeException
      *
-     * @return \stdClass
+     * @throws \Rexlabs\Smokescreen\Exception\InvalidSerializerException
      */
     public function toObject(): \stdClass
     {
@@ -162,14 +167,14 @@ class Smokescreen implements \JsonSerializable
      *
      * @param int $options
      *
-     * @throws \Rexlabs\Smokescreen\Exception\InvalidSerializerException
-     * @throws \Rexlabs\Smokescreen\Exception\UnhandledResourceType
+     * @return string
+     *@throws \Rexlabs\Smokescreen\Exception\UnhandledResourceTypeException
      * @throws \Rexlabs\Smokescreen\Exception\MissingResourceException
      * @throws \Rexlabs\Smokescreen\Exception\InvalidTransformerException
      * @throws \Rexlabs\Smokescreen\Exception\JsonEncodeException
      * @throws \Rexlabs\Smokescreen\Exception\IncludeException
      *
-     * @return string
+     * @throws \Rexlabs\Smokescreen\Exception\InvalidSerializerException
      */
     public function toJson($options = 0): string
     {
@@ -180,14 +185,14 @@ class Smokescreen implements \JsonSerializable
      * Output the transformed and serialized data as an array.
      * Implements PHP's JsonSerializable interface.
      *
-     * @throws \Rexlabs\Smokescreen\Exception\InvalidSerializerException
-     * @throws \Rexlabs\Smokescreen\Exception\UnhandledResourceType
+     * @return array
+     *
+     * @throws \Rexlabs\Smokescreen\Exception\UnhandledResourceTypeException
      * @throws \Rexlabs\Smokescreen\Exception\InvalidTransformerException
      * @throws \Rexlabs\Smokescreen\Exception\MissingResourceException
      * @throws \Rexlabs\Smokescreen\Exception\IncludeException
      *
-     * @return array
-     *
+     * @throws \Rexlabs\Smokescreen\Exception\InvalidSerializerException
      * @see Smokescreen::toArray()
      */
     public function jsonSerialize(): array
@@ -198,13 +203,13 @@ class Smokescreen implements \JsonSerializable
     /**
      * Return the transformed data as an array.
      *
-     * @throws \Rexlabs\Smokescreen\Exception\InvalidSerializerException
-     * @throws \Rexlabs\Smokescreen\Exception\UnhandledResourceType
+     * @return array
+     *@throws \Rexlabs\Smokescreen\Exception\UnhandledResourceTypeException
      * @throws \Rexlabs\Smokescreen\Exception\InvalidTransformerException
      * @throws \Rexlabs\Smokescreen\Exception\MissingResourceException
      * @throws \Rexlabs\Smokescreen\Exception\IncludeException
      *
-     * @return array
+     * @throws \Rexlabs\Smokescreen\Exception\InvalidSerializerException
      */
     public function toArray(): array
     {
@@ -218,13 +223,14 @@ class Smokescreen implements \JsonSerializable
     /**
      * @throws Exception\IncludeException
      *
-     * @return array
+     * @return array|null
      */
     protected function transform()
     {
         $scope = new Scope($this->resource, $this->getIncludes());
         $pipeline = new Pipeline();
         $pipeline->setSerializer($this->getSerializer());
+        $pipeline->setCompositor($this->getCompositor());
 
         if (($transformerResolver = $this->getTransformerResolver()) !== null) {
             $pipeline->setTransformerResolver($transformerResolver);
@@ -234,7 +240,7 @@ class Smokescreen implements \JsonSerializable
             $pipeline->setRelationLoader($relationLoader);
         }
 
-        return $pipeline->transform($scope);
+        return $pipeline->run($scope);
     }
 
     /**
@@ -243,6 +249,14 @@ class Smokescreen implements \JsonSerializable
     public function getSerializer(): SerializerInterface
     {
         return $this->serializer ?? new DefaultSerializer();
+    }
+
+    /**
+     * @return CompositorInterface
+     */
+    public function getCompositor(): CompositorInterface
+    {
+        return $this->compositor ?? new DefaultCompositor();
     }
 
     /**
@@ -255,6 +269,19 @@ class Smokescreen implements \JsonSerializable
     public function setSerializer(SerializerInterface $serializer = null)
     {
         $this->serializer = $serializer;
+
+        return $this;
+    }
+    /**
+     * Set the compositor which will be used to compose included nodes.
+     *
+     * @param CompositorInterface|null $compositor
+     *
+     * @return $this
+     */
+    public function setCompositor(CompositorInterface $compositor = null)
+    {
+        $this->compositor = $compositor;
 
         return $this;
     }

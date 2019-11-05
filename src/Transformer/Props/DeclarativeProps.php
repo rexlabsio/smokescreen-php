@@ -2,12 +2,18 @@
 
 namespace Rexlabs\Smokescreen\Transformer\Props;
 
+use ArrayAccess;
+use Closure;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
+use InvalidArgumentException;
+use function is_array;
+use function is_int;
 use Rexlabs\Smokescreen\Definition\DefinitionParser;
 use Rexlabs\Smokescreen\Exception\InvalidDefinitionException;
+use Rexlabs\Smokescreen\Exception\ParseDefinitionException;
 use Rexlabs\Smokescreen\Helpers\ArrayHelper;
 use Rexlabs\Smokescreen\Helpers\StrHelper;
 
@@ -68,17 +74,17 @@ trait DeclarativeProps
      * Helper method for returning formatted properties from a source object
      * or array.
      *
-     * @param \ArrayAccess|array $model
+     * @param ArrayAccess|array $model
      * @param array              $props
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      *
      * @return array
      */
     protected function withProps($model, array $props): array
     {
-        if (!(\is_array($model) || $model instanceof \ArrayAccess)) {
-            throw new \InvalidArgumentException('Expect array or object implementing \ArrayAccess');
+        if (!(is_array($model) || $model instanceof ArrayAccess)) {
+            throw new InvalidArgumentException('Expect array or object implementing ArrayAccess');
         }
 
         // Given an array of props (which may include a definition value), we
@@ -86,7 +92,7 @@ trait DeclarativeProps
         // conversions to the value as necessary.
         $data = [];
         foreach ($props as $key => $definition) {
-            if (\is_int($key)) {
+            if (is_int($key)) {
                 // This isn't a key => value pair, so there is no definition.
                 $key = $definition;
                 $definition = null;
@@ -95,7 +101,7 @@ trait DeclarativeProps
             // Convert property to a snake-case version.
             // It may be a nested (dot-notation) key.
             $propKey = StrHelper::snakeCase($key);
-            if ($definition instanceof \Closure) {
+            if ($definition instanceof Closure) {
                 // If the definition is a function, execute it on the value
                 $value = $definition->bindTo($this)($model, $propKey);
             } else {
@@ -111,10 +117,10 @@ trait DeclarativeProps
     }
 
     /**
-     * @param \ArrayAccess|array $model
+     * @param ArrayAccess|array $model
      * @param PropDefinition     $propDefinition
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      *
      * @return mixed|null
      */
@@ -133,7 +139,7 @@ trait DeclarativeProps
      * @param mixed          $value
      * @param PropDefinition $propDefinition
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      *
      * @return mixed
      */
@@ -175,7 +181,6 @@ trait DeclarativeProps
             default:
                 // Fall through
                 break;
-
         }
 
         // As a final attempt, try to locate a matching method on the class that
@@ -215,7 +220,7 @@ trait DeclarativeProps
      * @param string       $propKey
      * @param string|mixed $definition
      *
-     * @throws \Rexlabs\Smokescreen\Exception\ParseDefinitionException
+     * @throws ParseDefinitionException
      *
      * @return PropDefinition
      */

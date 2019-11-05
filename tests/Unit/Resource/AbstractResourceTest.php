@@ -187,6 +187,19 @@ class AbstractResourceTest extends TestCase
             {
                 return [];
             }
+
+            /**
+             * @param array  $rootData
+             * @param array  $parentData
+             * @param string $key
+             * @param array  $data
+             *
+             * @return void
+             */
+            public function composeIncludedData(array &$rootData, array &$parentData, string $key, array $data)
+            {
+                // TODO: Implement composeIncludedData() method.
+            }
         };
     }
 }

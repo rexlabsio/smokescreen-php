@@ -12,7 +12,7 @@ class JsonHelper
      * @param mixed $data
      * @param int   $options
      *
-     * @throws \Rexlabs\Smokescreen\Exception\JsonEncodeException
+     * @throws JsonEncodeException
      *
      * @return string
      */

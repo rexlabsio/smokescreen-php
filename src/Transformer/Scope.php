@@ -2,8 +2,13 @@
 
 namespace Rexlabs\Smokescreen\Transformer;
 
+use Generator;
+use Rexlabs\Smokescreen\Compositor\CompositorInterface;
 use Rexlabs\Smokescreen\Includes\Includes;
+use Rexlabs\Smokescreen\Resource\Collection;
 use Rexlabs\Smokescreen\Resource\ResourceInterface;
+use function count;
+use function in_array;
 
 class Scope
 {
@@ -13,21 +18,75 @@ class Scope
     /** @var Includes */
     protected $includes;
 
-    /** @var Scope|null */
+    /** @var Node|null */
     protected $parent;
+
+    /** @var string|null */
+    protected $includeKey;
+
+    /** @var null|Node[] */
+    protected $nodes;
+
+    /** @var array|null */
+    private $serializedData;
 
     /**
      * Scope constructor.
      *
      * @param ResourceInterface|mixed $resource
      * @param Includes                $includes
-     * @param Scope|null              $parent
+     * @param Node|null               $parent
+     * @param string|null             $includeKey
      */
-    public function __construct($resource, Includes $includes, self $parent = null)
+    public function __construct(
+        $resource,
+        Includes $includes,
+        Node $parent = null,
+        string $includeKey = null
+    ) {
+        $this->resource   = $resource;
+        $this->includes   = $includes;
+        $this->parent     = $parent;
+        $this->includeKey = $includeKey;
+    }
+
+    /**
+     * @param null|array|Node[] $nodes
+     * @return void
+     */
+    public function setNodes($nodes)
     {
-        $this->resource = $resource;
-        $this->includes = $includes;
-        $this->parent = $parent;
+        $this->nodes = $nodes;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasNodes(): bool
+    {
+        return !empty($this->nodes);
+    }
+
+    /**
+     * @return null|Node[]
+     */
+    public function getNodes()
+    {
+        return $this->nodes;
+    }
+
+    /**
+     * @return Scope[]
+     */
+    public function getIncludedScopes(): array
+    {
+        $scopes = [];
+        foreach ((array)$this->nodes as $childNode) {
+            foreach ($childNode->getIncludedScopes() as $childScope) {
+                $scopes[] = $childScope;
+            }
+        }
+        return $scopes;
     }
 
     /**
@@ -61,6 +120,16 @@ class Scope
     public function resource()
     {
         return $this->resource;
+    }
+
+    /**
+     * @return callable|CompositorInterface|null
+     */
+    public function getResourceCompositor()
+    {
+        return $this->resource instanceof ResourceInterface
+            ? $this->resource->getCompositor()
+            : null;
     }
 
     /**
@@ -129,11 +198,11 @@ class Scope
     }
 
     /**
-     * @param $key
+     * @param string $key
      *
-     * @return array
+     * @return array|null
      */
-    public function includeDefinitionFor($key): array
+    public function includeDefinitionFor($key)
     {
         return $this->includeMap()[$key] ?? null;
     }
@@ -149,7 +218,7 @@ class Scope
         $availableIncludeKeys = $this->availableIncludeKeys();
 
         return array_filter($this->includeKeys(), function ($includeKey) use ($availableIncludeKeys) {
-            return \in_array($includeKey, $availableIncludeKeys, true);
+            return in_array($includeKey, $availableIncludeKeys, true);
         });
     }
 
@@ -166,7 +235,7 @@ class Scope
         $keys = [];
         foreach ($this->resolvedIncludeKeys() as $includeKey) {
             $relations = $includeMap[$includeKey]['relation'] ?? [];
-            if (\count($relations) > 0) {
+            if (count($relations) > 0) {
                 array_push($keys, ...$relations);
             }
         }
@@ -179,7 +248,7 @@ class Scope
         // We can consider our props anything that has not been mapped.
         $resolvedIncludeKeys = $this->resolvedIncludeKeys();
         $keys = array_filter($this->includeKeys(), function ($includeKey) use ($resolvedIncludeKeys) {
-            return !\in_array($includeKey, $resolvedIncludeKeys, true);
+            return !in_array($includeKey, $resolvedIncludeKeys, true);
         });
 
         // Were any filter props explicitly provided?
@@ -196,11 +265,19 @@ class Scope
     }
 
     /**
-     * @return null|Scope
+     * @return null|Node
      */
     public function parent()
     {
         return $this->parent;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function includeKey()
+    {
+        return $this->includeKey;
     }
 
     /**
@@ -210,14 +287,14 @@ class Scope
      *
      * @return array
      */
-    public function filterData(array $data)
+    public function filterData(array $data): array
     {
         // Filter the sparse field-set if we have a specific list of properties
         // defined that we want.
         $filterProps = $this->filterProps();
         if (!empty($filterProps)) {
             $filteredData = array_filter($data, function ($key) use ($filterProps) {
-                return \in_array($key, $filterProps, true);
+                return in_array($key, $filterProps, true);
             }, ARRAY_FILTER_USE_KEY);
 
             // We must always have some data after filtering, so if our filtered
@@ -228,5 +305,88 @@ class Scope
         }
 
         return $data;
+    }
+
+    /**
+     * @return Generator|Node[]
+     */
+    public function nodeTraversal(): Generator
+    {
+        foreach ((array)$this->nodes as $childNode) {
+            yield $childNode;
+            foreach ($childNode->getIncludedScopes() as $childScope) {
+                yield from $childScope->nodeTraversal();
+            }
+        }
+    }
+
+    /**
+     * Depth first traversal (post-order)
+     * All children visited before parent
+     *
+     *         A
+     *       /  \
+     *      B    C
+     *    /  \    \
+     *   D   E     F
+     *
+     * Order: D, E, B, F, C, A
+     *
+     * @return Generator|Scope[]
+     */
+    public function scopeTraversal(): Generator
+    {
+        foreach ((array)$this->nodes as $childNode) {
+            foreach ($childNode->getIncludedScopes() as $childScope) {
+                yield from $childScope->scopeTraversal();
+            }
+        }
+        yield $this;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getTransformedData()
+    {
+        if ($this->nodes === null) {
+            return null;
+        }
+
+        $transformedData = [];
+        foreach ($this->nodes as $node) {
+            $transformedData[] = $node->getTransformedData();
+        }
+
+        if (!$this->resource instanceof Collection) {
+            return $transformedData[0];
+        }
+
+        return $transformedData;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isCollection(): bool
+    {
+        return $this->resource instanceof Collection;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getSerializedData()
+    {
+        return $this->serializedData;
+    }
+
+    /**
+     * @param array|null $serializedData
+     * @return void
+     */
+    public function setSerializedData($serializedData)
+    {
+        $this->serializedData = $serializedData;
     }
 }

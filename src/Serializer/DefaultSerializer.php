@@ -67,7 +67,7 @@ class DefaultSerializer implements SerializerInterface
      *
      * @return array
      */
-    public function paginator(PaginatorInterface $paginator)
+    public function paginator(PaginatorInterface $paginator): array
     {
         $currentPage = $paginator->getCurrentPage();
         $lastPage = $paginator->getLastPage();
@@ -107,7 +107,7 @@ class DefaultSerializer implements SerializerInterface
                 'current' => $cursor->getCurrent(),
                 'prev'    => $cursor->getPrev(),
                 'next'    => $cursor->getNext(),
-                'count'   => (int) $cursor->getCount(),
+                'count'   => $cursor->getCount(),
             ],
         ];
     }

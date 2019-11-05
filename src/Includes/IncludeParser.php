@@ -2,6 +2,9 @@
 
 namespace Rexlabs\Smokescreen\Includes;
 
+use Rexlabs\Smokescreen\Exception\ParseIncludesException;
+use function strlen;
+
 class IncludeParser implements IncludeParserInterface
 {
     /**
@@ -10,6 +13,7 @@ class IncludeParser implements IncludeParserInterface
      * @param string $str
      *
      * @return Includes
+     * @throws ParseIncludesException
      */
     public function parse(string $str): Includes
     {
@@ -46,7 +50,7 @@ class IncludeParser implements IncludeParserInterface
         ];
 
         // Process each character, moving through the state and build
-        while ($state['pos'] < ($len = \strlen($str))) {
+        while ($state['pos'] < ($len = strlen($str))) {
             $state['char'] = $str[$state['pos']];
             $state['len'] = $len;
 
@@ -81,13 +85,14 @@ class IncludeParser implements IncludeParserInterface
                     // Looks like it's a parameter. Eg. :limit(10)
                     // Well, if we have a buffer, then that's our parent, if we don't
                     // we will use the parent we saved when we popped the last parent state.
-                    $parentKey = !empty($state['buffer']) ?
-                        $this->prefixParentKeys($state['buffer'], $state['parent']) : $this->flattenKeys($state['prevParent']);
+                    $parentKey = !empty($state['buffer'])
+                        ? $this->prefixParentKeys($state['buffer'], $state['parent'])
+                        : $this->flattenKeys($state['prevParent']);
 
                     if (preg_match('/^:(\w+)\(([^)]+)\)/', substr($str, $state['pos']), $match)) {
                         // We have a match
                         list($param, $key, $val) = $match;
-                        $len = \strlen($param);
+                        $len = strlen($param);
 
                         // Initialise the parent key in our params associative array
                         if (!isset($state['params'][$parentKey])) {

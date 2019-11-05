@@ -3,6 +3,13 @@
 namespace Rexlabs\Smokescreen\Includes;
 
 use Rexlabs\Smokescreen\Exception\ParseIncludesException;
+use function array_filter;
+use function array_values;
+use function count;
+use function in_array;
+use function strpos;
+use function strrpos;
+use function substr;
 
 /**
  * Container object for managing include keys and optional mapped parameters.
@@ -15,16 +22,32 @@ class Includes
     /** @var array */
     protected $params = [];
 
+    /** @var string|null */
+    protected $parentKey;
+
     /**
      * Provide a list of keys, and optional parameters for those keys.
      *
      * @param array $keys
      * @param array $params
+     * @param string|null $parentKey
      */
-    public function __construct(array $keys = [], array $params = [])
-    {
+    public function __construct(
+        array $keys = [],
+        array $params = [],
+        string $parentKey = null
+    ) {
         $this->set($keys);
         $this->params = $params;
+        $this->parentKey = $parentKey;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getParentKey()
+    {
+        return $this->parentKey;
     }
 
     /**
@@ -54,8 +77,8 @@ class Includes
         // Search all keys that contain the '.', and add their parents all the way up.
         foreach ($keys as $key) {
             $allKeys[] = $key;
-            while (($dot = \strrpos($key, '.')) !== false) {
-                $key = \substr($key, 0, $dot);
+            while (($dot = strrpos($key, '.')) !== false) {
+                $key = substr($key, 0, $dot);
                 $allKeys[] = $key;
             }
         }
@@ -94,7 +117,7 @@ class Includes
      */
     public function has($key): bool
     {
-        return \in_array($key, $this->keys(), true);
+        return in_array($key, $this->keys(), true);
     }
 
     /**
@@ -114,7 +137,7 @@ class Includes
      */
     public function hasKeys(): bool
     {
-        return \count($this->keys) > 0;
+        return count($this->keys) > 0;
     }
 
     /**
@@ -144,8 +167,8 @@ class Includes
      */
     public function baseKeys(): array
     {
-        return \array_values(\array_filter($this->keys(), function ($key) {
-            return \strpos($key, '.') === false;
+        return array_values(array_filter($this->keys(), function ($key) {
+            return strpos($key, '.') === false;
         }));
     }
 
@@ -166,7 +189,7 @@ class Includes
      */
     public function hasParams(): bool
     {
-        return \count($this->params) > 0;
+        return count($this->params) > 0;
     }
 
     /**
@@ -181,10 +204,8 @@ class Includes
     public function setParams(array $params)
     {
         // Is this an associative array?
-        if (!empty($params)) {
-            if (\count(array_filter(array_keys($params), '\is_string')) < 1) {
-                throw new ParseIncludesException('Parameters must be an associative array indexed by key');
-            }
+        if (!empty($params) && count(array_filter(array_keys($params), '\is_string')) < 1) {
+            throw new ParseIncludesException('Parameters must be an associative array indexed by key');
         }
         $this->params = $params;
 
@@ -243,7 +264,8 @@ class Includes
 
         return new static(
             $keys,
-            $params
+            $params,
+            $parentKey
         );
     }
 

@@ -2,6 +2,7 @@
 
 namespace Rexlabs\Smokescreen\Includes;
 
+use function is_array;
 use Rexlabs\Smokescreen\Definition\AbstractDefinition;
 
 class IncludeDefinition extends AbstractDefinition
@@ -9,7 +10,7 @@ class IncludeDefinition extends AbstractDefinition
     public function relation(): array
     {
         $relation = $this->get('relation', []);
-        if (!\is_array($relation)) {
+        if (!is_array($relation)) {
             $relation = (array) preg_split('/\s*,\s*', $relation);
         }
 
@@ -21,7 +22,7 @@ class IncludeDefinition extends AbstractDefinition
         return $this->get('method');
     }
 
-    public function isDefault()
+    public function isDefault(): bool
     {
         return $this->has('default');
     }

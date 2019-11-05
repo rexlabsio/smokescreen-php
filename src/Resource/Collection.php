@@ -2,13 +2,17 @@
 
 namespace Rexlabs\Smokescreen\Resource;
 
+use ArrayIterator;
+use IteratorAggregate;
 use Rexlabs\Smokescreen\Exception\ArrayConversionException;
 use Rexlabs\Smokescreen\Exception\NotIterableException;
 use Rexlabs\Smokescreen\Pagination\CursorInterface;
 use Rexlabs\Smokescreen\Pagination\PageableInterface;
 use Rexlabs\Smokescreen\Pagination\PaginatorInterface;
+use Traversable;
+use function is_array;
 
-class Collection extends AbstractResource implements PageableInterface, \IteratorAggregate
+class Collection extends AbstractResource implements PageableInterface, IteratorAggregate
 {
     /** @var PaginatorInterface */
     protected $paginator;
@@ -74,45 +78,45 @@ class Collection extends AbstractResource implements PageableInterface, \Iterato
      * Returns an Iterator (to implement the ArrayIterator) interface for
      * easily traversing a collection.
      *
-     * @throws \Rexlabs\Smokescreen\Exception\NotIterableException
+     * @throws NotIterableException
      *
-     * @return \Traversable
+     * @return Traversable
      */
-    public function getIterator(): \Traversable
+    public function getIterator(): Traversable
     {
-        if ($this->data instanceof \ArrayIterator) {
+        if ($this->data instanceof ArrayIterator) {
             return $this->data;
         }
 
-        if ($this->data instanceof \IteratorAggregate) {
+        if ($this->data instanceof IteratorAggregate) {
             return $this->data->getIterator();
         }
 
-        if (!\is_array($this->data)) {
+        if (!is_array($this->data)) {
             throw new NotIterableException('Cannot get iterator for data');
         }
 
-        return new \ArrayIterator($this->data);
+        return new ArrayIterator($this->data);
     }
 
     /**
      * Converts the Collection data to an array.
      *
-     * @throws \Rexlabs\Smokescreen\Exception\ArrayConversionException
+     * @throws ArrayConversionException
      *
-     * @return array|\ArrayIterator|mixed|null
+     * @return array|ArrayIterator|mixed|null
      */
     public function toArray()
     {
-        if (\is_array($this->data)) {
+        if (is_array($this->data)) {
             return $this->data;
         }
 
-        if ($this->data instanceof \ArrayIterator) {
+        if ($this->data instanceof ArrayIterator) {
             return iterator_to_array($this->data, false);
         }
 
-        if ($this->data instanceof \IteratorAggregate) {
+        if ($this->data instanceof IteratorAggregate) {
             return iterator_to_array($this->data->getIterator(), false);
         }
 

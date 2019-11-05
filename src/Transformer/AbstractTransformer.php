@@ -2,11 +2,13 @@
 
 namespace Rexlabs\Smokescreen\Transformer;
 
+use InvalidArgumentException;
 use Rexlabs\Smokescreen\Exception\ParseDefinitionException;
 use Rexlabs\Smokescreen\Helpers\StrHelper;
 use Rexlabs\Smokescreen\Resource\Collection;
 use Rexlabs\Smokescreen\Resource\Item;
 use Rexlabs\Smokescreen\Transformer\Props\DeclarativeProps;
+use function is_int;
 
 class AbstractTransformer implements TransformerInterface
 {
@@ -66,7 +68,7 @@ class AbstractTransformer implements TransformerInterface
         $map = [];
 
         foreach ($this->includes as $includeKey => $definition) {
-            if (\is_int($includeKey)) {
+            if (is_int($includeKey)) {
                 $includeKey = $definition;
                 $definition = null;
             }
@@ -144,12 +146,13 @@ class AbstractTransformer implements TransformerInterface
      */
     public function getRelationships(): array
     {
-        return array_column(
-            array_filter(array_map(function ($includeKey, $settings) {
+        return array_column(array_filter(array_map(
+            function ($includeKey, $settings) {
                 return $settings['relation'] ? [$includeKey, $settings['relation']] : null;
-            }, array_keys($this->getIncludeMap()), array_values($this->getIncludeMap()))),
-            1, 0
-        );
+            },
+            array_keys($this->getIncludeMap()),
+            array_values($this->getIncludeMap())
+        )), 1, 0);
     }
 
     /**
@@ -199,7 +202,7 @@ class AbstractTransformer implements TransformerInterface
     /**
      * @param $data
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      *
      * @return array
      */

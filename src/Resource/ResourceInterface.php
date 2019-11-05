@@ -2,6 +2,7 @@
 
 namespace Rexlabs\Smokescreen\Resource;
 
+use Rexlabs\Smokescreen\Compositor\CompositorInterface;
 use Rexlabs\Smokescreen\Serializer\SerializerInterface;
 use Rexlabs\Smokescreen\Transformer\TransformerInterface;
 
@@ -78,4 +79,25 @@ interface ResourceInterface
      * @return $this
      */
     public function setSerializer($serializer);
+
+    /**
+     * Get the compositor.
+     *
+     * @return CompositorInterface|callable|null
+     */
+    public function getCompositor();
+
+    /**
+     * @return bool
+     */
+    public function hasCompositor(): bool;
+
+    /**
+     * Set the compositor.
+     *
+     * @param CompositorInterface|callable|null
+     *
+     * @return $this
+     */
+    public function setCompositor($compositor);
 }

@@ -87,7 +87,10 @@ class IncludesTest extends TestCase
         $this->assertFalse($includes->hasParams());
     }
 
-    /** @test */
+    /**
+     * @test
+     * @throws ParseIncludesException
+     */
     public function can_set_params()
     {
         $includes = (new IncludeParser())->parse('movies:limit(10)');

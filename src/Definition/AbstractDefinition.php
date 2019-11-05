@@ -71,7 +71,7 @@ class AbstractDefinition
      *
      * @return bool
      */
-    public function has(string $directive)
+    public function has(string $directive): bool
     {
         return array_key_exists($directive, $this->definition);
     }
