@@ -51,7 +51,7 @@ class SimpleCollectionSerializerTest extends TestCase
     }
 
     /** @test */
-    public function cannot_serialize_paginator()
+    public function serializes_an_empty_paginator()
     {
         $serializer = new SimpleCollectionSerializer;
         $paginator = $this->createPaginator();
@@ -60,7 +60,7 @@ class SimpleCollectionSerializerTest extends TestCase
     }
 
     /** @test */
-    public function cannot_serialize_cursor()
+    public function serializes_an_empty_cursor()
     {
         $serializer = new SimpleCollectionSerializer();
         $cursor = $this->createCursor();
