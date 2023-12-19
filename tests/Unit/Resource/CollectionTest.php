@@ -177,7 +177,7 @@ class CollectionTest extends TestCase
                 $this->data = $data;
             }
 
-            public function getIterator()
+            public function getIterator(): \ArrayIterator
             {
                 return new \ArrayIterator($this->data);
             }

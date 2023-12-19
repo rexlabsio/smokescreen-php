@@ -87,7 +87,7 @@ class AbstractTransformer implements TransformerInterface
                             break;
                         case 'relation':
                             $settings['relation'] = !empty($val) ?
-                                preg_split('/s*,\s*/', $val) : [$includeKey];
+                                explode(',', $val) : [$includeKey];
                             break;
                         case 'method':
                             if (!empty($val)) {
