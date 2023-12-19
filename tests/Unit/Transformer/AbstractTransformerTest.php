@@ -25,6 +25,19 @@ class AbstractTransformerTest extends TestCase
     }
 
     /** @test */
+    public function can_properly_describe_relations_ending_with_s()
+    {
+        $transformer = new class() extends AbstractTransformer {
+            protected $includes = [
+                'user' => 'relation:users,users.name',
+                'account',
+            ];
+        };
+
+        $this->assertEquals(['users', 'users.name'], $transformer->getIncludeMap()['user']['relation']);
+    }
+
+    /** @test */
     public function can_declare_includes_with_assoc_array()
     {
         $transformer = new class() extends AbstractTransformer {
