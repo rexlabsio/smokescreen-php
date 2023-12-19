@@ -131,9 +131,9 @@ class Scope
     /**
      * @param $key
      *
-     * @return array
+     * @return array|null
      */
-    public function includeDefinitionFor($key): array
+    public function includeDefinitionFor($key): ?array
     {
         return $this->includeMap()[$key] ?? null;
     }
