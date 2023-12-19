@@ -2,18 +2,21 @@
 
 namespace Rexlabs\Smokescreen\Tests\Unit\Includes;
 
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use PHPUnit\Framework\TestCase;
 use Rexlabs\Smokescreen\Exception\ParseIncludesException;
 use Rexlabs\Smokescreen\Includes\IncludeParser;
 
 class IncludesTest extends TestCase
 {
+    use ArraySubsetAsserts;
+
     /** @test */
     public function base_keys_only_returns_top_level_keys()
     {
         $includes = (new IncludeParser())->parse('category,comments{user},user{id}');
 
-        $this->assertArraySubset([
+        self::assertArraySubset([
             'category',
             'comments',
             'user',
@@ -26,11 +29,11 @@ class IncludesTest extends TestCase
         $includes = (new IncludeParser())->parse('cast{actor,movie}');
         $castIncludes = $includes->splice('cast');
 
-        $this->assertArraySubset([
+        self::assertArraySubset([
             'cast',
         ], $includes->baseKeys());
 
-        $this->assertArraySubset([
+        self::assertArraySubset([
             'actor',
             'movie',
         ], $castIncludes->baseKeys());
