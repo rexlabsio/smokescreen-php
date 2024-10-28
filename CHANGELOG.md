@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.4.0
+
+### New Features
+
+* Allow method directive for includes to be a closure instead of a string that refers to a method on the class
+
 ## 2.1.0
 
 ### General Changes

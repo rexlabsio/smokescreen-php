@@ -208,6 +208,9 @@ class Pipeline
         // Transformer explicitly provided an include method
         $transformer = $scope->transformer();
         $method = $includeDefinition['method'];
+        if(is_callable($method)){
+            return $method($data, $scope);
+        }
         if (method_exists($transformer, $method)) {
             return $transformer->$method($data, $scope);
         }
