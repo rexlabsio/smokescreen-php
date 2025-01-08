@@ -252,9 +252,9 @@ class SmokescreenTest extends TestCase
 
         $userObj = $smokescreen->toObject();
         $this->assertInstanceOf(\stdClass::class, $userObj);
-        $this->assertObjectHasAttribute('username', $userObj);
-        $this->assertObjectHasAttribute('user_api_token', $userObj);
-        $this->assertObjectHasAttribute('token', $userObj->user_api_token);
+        $this->assertObjectHasProperty('username', $userObj);
+        $this->assertObjectHasProperty('user_api_token', $userObj);
+        $this->assertObjectHasProperty('token', $userObj->user_api_token);
         $this->assertEquals('phillip_j_fry', $userObj->username);
         $this->assertEquals('tkn_123456', $userObj->user_api_token->token);
 //        $this->assertEquals($user, $smokescreen->toArray());
