@@ -95,7 +95,7 @@ class Smokescreen implements \JsonSerializable
      *
      * @return $this
      */
-    public function collection($data, TransformerInterface $transformer = null, $key = null, callable $callback = null)
+    public function collection($data, ?TransformerInterface $transformer = null, $key = null, ?callable $callback = null)
     {
         $this->setResource(new Collection($data, $transformer, $key));
         if ($callback !== null) {
@@ -252,7 +252,7 @@ class Smokescreen implements \JsonSerializable
      *
      * @return $this
      */
-    public function setSerializer(SerializerInterface $serializer = null)
+    public function setSerializer(?SerializerInterface $serializer = null)
     {
         $this->serializer = $serializer;
 
@@ -373,7 +373,7 @@ class Smokescreen implements \JsonSerializable
      *
      * @return $this
      */
-    public function setTransformerResolver(TransformerResolverInterface $transformerResolver = null)
+    public function setTransformerResolver(?TransformerResolverInterface $transformerResolver = null)
     {
         $this->transformerResolver = $transformerResolver;
 

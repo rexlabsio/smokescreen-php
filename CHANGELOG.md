@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.5.0
+
+* PHP 8.4 support
+
 ## 2.4.0
 
 ### New Features

@@ -23,7 +23,7 @@ class Scope
      * @param Includes                $includes
      * @param Scope|null              $parent
      */
-    public function __construct($resource, Includes $includes, self $parent = null)
+    public function __construct($resource, Includes $includes, ?self $parent = null)
     {
         $this->resource = $resource;
         $this->includes = $includes;
