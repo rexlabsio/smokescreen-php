@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.6.0
+* PHP 8.5 support
+
 ## 2.5.0
 
 * PHP 8.4 support
